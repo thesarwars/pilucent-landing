@@ -1,0 +1,61 @@
+{
+  "federal": {
+    "standardDeduction": { "single": 16100, "married": 32200, "mfj": 32200, "mfs": 16100, "hoh": 24150 },
+    "socialSecurityWageBase": 184500,
+    "socialSecurityRate": 0.062,
+    "medicareRate": 0.0145,
+    "additionalMedicareThreshold": 200000,
+    "additionalMedicareRate": 0.009,
+    "supplementalRateOptional": 0.22,
+    "supplementalRateMandatoryOverOneMillion": 0.37,
+    "futaWageBase": 7000,
+    "futaStatutoryRate": 0.06,
+    "futaStandardNetRate": 0.006
+  },
+  "californiaFuta": {
+    "isCreditReductionState": true,
+    "creditReductionByYear": {
+      "2024": { "reduction": 0.009, "netRate": 0.015, "extraCostPerEmployee": 63 },
+      "2025": { "reduction": 0.012, "netRate": 0.018, "extraCostPerEmployee": 84 },
+      "2026": { "reduction": 0.015, "netRate": 0.021, "extraCostPerEmployee": 105, "status": "expected, pending DOL determination due Nov 10, 2026" }
+    }
+  },
+  "californiaPIT": {
+    "lowIncomeExemption": { "single": 18896, "marriedZeroToOneAllowance": 18896, "marriedTwoPlusAllowances": 37791, "hoh": 37791 },
+    "standardDeduction": { "single": 5706, "marriedZeroToOneAllowance": 5706, "marriedTwoPlusAllowances": 11412, "hoh": 11412 },
+    "exemptionAllowanceCreditPerAllowance": 168.30,
+    "estimatedDeductionPerAdditionalAllowance": 1000,
+    "supplementalRateGeneral": 0.066,
+    "supplementalRateBonusAndStockOptions": 0.1023,
+    "annualMethodB": {
+      "single": [
+        [0, 11079, 0, 0.011, 0], [11079, 26264, 11079, 0.022, 121.87], [26264, 41452, 26264, 0.044, 455.94],
+        [41452, 57542, 41452, 0.066, 1124.21], [57542, 72724, 57542, 0.088, 2186.15], [72724, 371479, 72724, 0.1023, 3522.17],
+        [371479, 445771, 371479, 0.1133, 34084.81], [445771, 742953, 445771, 0.1243, 42502.09],
+        [742953, 1000000, 742953, 0.1353, 79441.81], [1000000, null, 1000000, 0.1463, 114220.27]
+      ],
+      "married": [
+        [0, 22158, 0, 0.011, 0], [22158, 52528, 22158, 0.022, 243.74], [52528, 82904, 52528, 0.044, 911.88],
+        [82904, 115084, 82904, 0.066, 2248.42], [115084, 145448, 115084, 0.088, 4372.30], [145448, 742958, 145448, 0.1023, 7044.33],
+        [742958, 891542, 742958, 0.1133, 68169.60], [891542, 1000000, 891542, 0.1243, 85004.17],
+        [1000000, 1485906, 1000000, 0.1353, 98485.50], [1485906, null, 1485906, 0.1463, 164228.58]
+      ]
+    }
+  },
+  "californiaSDI": {
+    "rate": 0.013,
+    "wageCap": null,
+    "voluntaryPlanAssessmentRate": 0.00182
+  },
+  "californiaUI": {
+    "wageBase": 7000,
+    "scheduleFPlusLowestRate": 0.015,
+    "scheduleFPlusHighestRate": 0.062,
+    "newEmployerRate": 0.034
+  },
+  "californiaETT": {
+    "rate": 0.001,
+    "wageBase": 7000,
+    "maxPerEmployee": 7.00
+  }
+}

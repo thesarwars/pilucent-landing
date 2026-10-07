@@ -1,0 +1,74 @@
+import { useState } from 'react';
+import InfiniteSelect from '@/components/ui/ScrollSelectDropDowns/InfiniteSelect';
+import TopModal from './TopModal';
+import AddAgency from '@/app/dashboard/taxes/_components/AddAgency';
+import Designation from '@/app/dashboard/hris/employee/designations/_components/Designation';
+
+const DesignationSelectDropdown = ({
+  required = true,
+  isAddNew = true,
+  view = false,
+  OnSelect,
+  value,
+  setValue,
+  ClassName = '',
+  parentClassName = '',
+  filters = {},
+  placeholder = 'Select a designation',
+}: {
+  required?: boolean;
+  isAddNew?: boolean;
+  filters?: any;
+  view?: boolean;
+  OnSelect?: any;
+  value: any;
+  setValue: any;
+  ClassName?: string;
+  parentClassName?: string;
+  placeholder?: string;
+}) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isRefetchAgain, setIsRefetchAgain] = useState(false);
+  return (
+    <>
+      <InfiniteSelect
+        valueFormatter={(item: any) => item?.title}
+        apiEndPoint="/we/designations"
+        setValue={(e: any) => {
+          setValue(e);
+        }}
+        view={view}
+        filters={{ ...filters }}
+        ClassName={ClassName}
+        parentClassName={parentClassName}
+        value={value}
+        formatter={(item: any) => <p className="px-4">{item?.title}</p>}
+        required={required}
+        isAddNew={isAddNew}
+        onAddClick={() => setIsOpen(true)}
+        isRefetchAgain={isRefetchAgain}
+        setIsRefetchAgain={setIsRefetchAgain}
+        onSelect={OnSelect}
+        placeholder={placeholder}
+      />
+      <TopModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Designation"
+        // zIndex="z-[99999]"
+        widthClass="w-full md:w-[550px]"
+      >
+        <Designation
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          onSuccess={(e: any) => {
+            setIsRefetchAgain(!isRefetchAgain);
+            e?.uid && setValue(e);
+          }}
+        />
+      </TopModal>
+    </>
+  );
+};
+
+export default DesignationSelectDropdown;
