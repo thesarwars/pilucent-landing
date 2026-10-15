@@ -1,0 +1,552 @@
+/*
+ * The leave console (docs/frontend/leave-frontend.md). Flat #F4F4F7, no
+ * gradient and no glass (§2.1): a dense working console where translucency
+ * over a gradient makes a number harder to read. Prefix `lc-`.
+ *
+ * Departures from the spec, each from its own defects table (§16):
+ *   - the Bengali face is the app's next/font one (`--font-bengali`), with a
+ *     [lang="bn"] rule;
+ *   - balance and ledger tables are semantic <table>s;
+ *   - the language toggle is the shell's, not a second one here.
+ */
+
+/* On body, not .lc: the drawers render in a portal outside the console. */
+body {
+  --lc-violet: #7c4dff;
+  --lc-primary: #6b3fe8;
+  --lc-deep: #4a22b8;
+  --lc-ink: #16172a;
+  --lc-ink-2: #44405c;
+  --lc-muted: #58536e;
+  --lc-faint: #6e6883;
+  --lc-line: rgba(22, 23, 42, 0.1);
+}
+
+.lc {
+  position: relative;
+  min-height: calc(100vh - 120px);
+  margin: 0 16px 24px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #f4f4f7;
+  border: 1.5px solid var(--lc-line);
+  color: var(--lc-ink);
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 23px;
+}
+.lc [lang='bn'] {
+  font-family: var(--font-bengali), 'Noto Sans Bengali', var(--font-jakarta), sans-serif;
+  line-height: 1.65;
+}
+.lc button,
+.lc input,
+.lc select,
+.lc textarea {
+  font-family: inherit;
+}
+/* §12: one global ring; a new control inherits it. */
+.lc :focus-visible,
+.bd-drawer :focus-visible {
+  outline: 3px solid var(--lc-violet, #7c4dff);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+.lc-mono {
+  font-family: var(--font-jbmono), 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── header (§5) ─────────────────────────────────────────────────── */
+
+.lc-head {
+  background: #fff;
+  border-bottom: 1.5px solid var(--lc-line);
+  padding: 18px 24px 0;
+}
+.lc-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.lc-lead {
+  margin: 4px 0 0;
+  max-width: 720px;
+  font-size: 13.5px;
+  line-height: 21px;
+  color: var(--lc-muted);
+}
+.lc-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+.lc-stat {
+  min-width: 112px;
+  padding: 9px 13px;
+  border-radius: 11px;
+  border: 1.5px solid var(--lc-line);
+  background: #fafafc;
+}
+.lc-stat-figure {
+  font-family: var(--font-jbmono), 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 700;
+}
+.lc-stat-caption {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lc-faint);
+}
+/* A 2.5px underline, not a pill: seven tabs scroll, they do not wrap (§5.2). */
+.lc-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin-top: 14px;
+  overflow-x: auto;
+}
+.lc-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  background: transparent;
+  color: var(--lc-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.lc-tab[aria-current='page'] {
+  border-bottom-color: var(--lc-primary);
+  color: var(--lc-deep);
+  font-weight: 800;
+}
+.lc-tab-count {
+  font-family: var(--font-jbmono), 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.lc-body {
+  padding: 18px 24px 44px;
+  animation: lcIn 0.2s ease;
+}
+@media (max-width: 767px) {
+  .lc {
+    margin: 0 8px 16px;
+  }
+  .lc-head {
+    padding: 16px 14px 0;
+  }
+  .lc-body {
+    padding: 14px 12px 32px;
+  }
+  .lc-search,
+  .lc-search input {
+    width: 100%;
+  }
+  .lc-search {
+    flex: 1 1 100%;
+  }
+}
+
+/* ── surfaces and controls ────────────────────────────────────────── */
+
+.lc-card {
+  background: #fff;
+  border: 1.5px solid var(--lc-line);
+  border-radius: 14px;
+}
+.lc-section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+.lc-caption {
+  font-size: 12px;
+  line-height: 19px;
+  color: var(--lc-faint);
+}
+.lc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.lc-search {
+  position: relative;
+}
+.lc-search svg {
+  position: absolute;
+  left: 11px;
+  top: 12px;
+  color: var(--lc-faint);
+  pointer-events: none;
+}
+.lc-search input {
+  width: 268px;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 0 12px 0 33px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(22, 23, 42, 0.14);
+  background: #fff;
+  font-size: 13.5px;
+  color: var(--lc-ink);
+}
+.lc-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(22, 23, 42, 0.14);
+  background: #fff;
+  color: var(--lc-ink-2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+/* Active is ink, not violet: violet is for actions. */
+.lc-filter[aria-pressed='true'] {
+  background: var(--lc-ink);
+  border-color: var(--lc-ink);
+  color: #fff;
+  font-weight: 700;
+}
+.lc-filter .lc-mono {
+  font-size: 12px;
+  opacity: 0.8;
+}
+.lc-btn,
+.lc-btn-primary,
+.lc-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.lc-btn {
+  border: 1.5px solid rgba(22, 23, 42, 0.14);
+  background: #fff;
+  color: var(--lc-ink-2);
+}
+.lc-btn:hover:not(:disabled) {
+  background: #fafafc;
+}
+.lc-btn-primary {
+  border: none;
+  background: var(--lc-primary);
+  color: #fff;
+}
+.lc-btn-primary:hover:not(:disabled) {
+  background: var(--lc-deep);
+}
+.lc-btn-danger {
+  border: 1.5px solid rgba(225, 29, 72, 0.3);
+  background: #fff;
+  color: #be123c;
+}
+.lc-btn:disabled,
+.lc-btn-primary:disabled,
+.lc-btn-danger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.lc-link {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--lc-deep);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Semantic tones (§4.2). */
+.lc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 11.5px;
+  line-height: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.lc-tone-pos {
+  background: rgba(47, 190, 143, 0.06);
+  border-color: rgba(47, 190, 143, 0.24);
+  color: #157a5b;
+}
+.lc-tone-warn {
+  background: rgba(214, 158, 46, 0.07);
+  border-color: rgba(214, 158, 46, 0.26);
+  color: #8a6215;
+}
+.lc-tone-neg {
+  background: rgba(225, 29, 72, 0.05);
+  border-color: rgba(225, 29, 72, 0.24);
+  color: #be123c;
+}
+.lc-tone-violet {
+  background: rgba(107, 63, 232, 0.06);
+  border-color: rgba(107, 63, 232, 0.22);
+  color: #4a22b8;
+}
+.lc-tone-neutral {
+  background: #fafafc;
+  border-color: rgba(22, 23, 42, 0.1);
+  color: var(--lc-ink);
+}
+.lc-note {
+  padding: 10px 13px;
+  border-radius: 10px;
+  border: 1.5px solid;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* ── tables (§6.2, semantic per §16 #3) ───────────────────────────── */
+
+.lc-table-wrap {
+  overflow-x: auto;
+}
+.lc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  line-height: 21px;
+}
+.lc-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--lc-faint);
+  border-bottom: 1px solid rgba(22, 23, 42, 0.08);
+  white-space: nowrap;
+}
+.lc-table td {
+  padding: 11px 16px;
+  border-top: 1px solid rgba(22, 23, 42, 0.05);
+  vertical-align: top;
+}
+.lc-table tbody tr:nth-child(even) td {
+  background: #fafafc;
+}
+.lc-table tr.is-link {
+  cursor: pointer;
+}
+.lc-table tr.is-link:hover td {
+  background: rgba(107, 63, 232, 0.05);
+}
+.lc-fig {
+  font-family: var(--font-jbmono), 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.lc-fig-big {
+  font-family: var(--font-jbmono), 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 700;
+}
+.lc-sub {
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--lc-faint);
+}
+.lc-greyed td {
+  opacity: 0.55;
+}
+
+/* ── approvals (§7) ───────────────────────────────────────────────── */
+
+.lc-queue {
+  display: grid;
+  gap: 12px;
+}
+.lc-clash {
+  margin-top: 11px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1.5px solid rgba(22, 23, 42, 0.1);
+  background: #fafafc;
+}
+.lc-clash.is-severe {
+  background: rgba(214, 158, 46, 0.08);
+  border-color: rgba(214, 158, 46, 0.4);
+}
+.lc-state {
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 700;
+}
+.lc-state-WAITING {
+  background: rgba(214, 158, 46, 0.16);
+  color: #8a6215;
+}
+.lc-state-APPROVED {
+  background: rgba(47, 190, 143, 0.16);
+  color: #157a5b;
+}
+.lc-state-STATUTORY {
+  background: rgba(107, 63, 160, 0.14);
+  color: #5a3488;
+}
+
+/* ── who is away (§8) ─────────────────────────────────────────────── */
+
+.lc-strip {
+  display: grid;
+  align-items: center;
+  column-gap: 0;
+}
+.lc-strip > .lc-strip-day {
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--lc-faint);
+  padding: 6px 0;
+}
+.lc-strip > .lc-strip-day.is-weekend {
+  background: rgba(22, 23, 42, 0.035);
+}
+.lc-strip-name {
+  padding: 8px 12px 8px 0;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lc-strip-cell {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid rgba(22, 23, 42, 0.05);
+}
+.lc-strip-cell.is-weekend {
+  background: rgba(22, 23, 42, 0.035);
+}
+.lc-bar {
+  display: block;
+  width: 100%;
+  height: 18px;
+}
+.lc-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 12px;
+  color: var(--lc-muted);
+}
+.lc-key > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.lc-key i {
+  display: inline-block;
+  width: 22px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* ── drawers (kit SideDrawer) ─────────────────────────────────────── */
+
+.lc-field {
+  display: grid;
+  gap: 5px;
+}
+.lc-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--lc-ink-2);
+}
+.lc-input {
+  min-height: 38px;
+  width: 100%;
+  padding: 0 11px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(22, 23, 42, 0.14);
+  background: #fff;
+  font-size: 13.5px;
+  color: var(--lc-ink);
+}
+textarea.lc-input {
+  padding: 8px 11px;
+  min-height: 64px;
+  line-height: 20px;
+}
+.lc-input[aria-invalid='true'] {
+  border-color: #e11d48;
+}
+.lc-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
+  gap: 14px;
+}
+.lc-position {
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: rgba(107, 63, 232, 0.05);
+  border: 1.5px solid rgba(107, 63, 232, 0.2);
+  font-size: 13.5px;
+  line-height: 21px;
+  color: var(--lc-deep);
+}
+.lc-error {
+  font-size: 12.5px;
+  line-height: 18px;
+  font-weight: 600;
+  color: #be123c;
+}
+
+@keyframes lcIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-body {
+    animation: none;
+  }
+}
