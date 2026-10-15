@@ -381,6 +381,7 @@ const ACCOUNTING: Section[] = [
 const ROUTES: Record<string, string> = {
   employee: '/dashboard/hris/employee/employees',
   salary: '/dashboard/hris/salary',
+  attendance: '/dashboard/hris/attendance',
 };
 
 /** Development scaffolding (spec §8.4): off before any customer sees the rail. */

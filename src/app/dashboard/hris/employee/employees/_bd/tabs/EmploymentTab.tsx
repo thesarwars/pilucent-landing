@@ -245,7 +245,21 @@ export function EmploymentTab({
           <Field htmlFor="f-grade" label="Grade" required span={2} onClock={() => onClock('grade')} errors={errs(e, 'grade')} help="The gazetted minimum-wage floors are checked against this grade.">
             <SelectInput id="f-grade" value={v.grade} onChange={(x) => set('grade', x)} options={ENUMS.grade} />
           </Field>
-          <Field htmlFor="f-shift" label="Shift" required span={2} onClock={() => onClock('shift')} errors={errs(e, 'shift')}>
+          <Field
+            htmlFor="f-shift"
+            label="Shift"
+            required
+            span={2}
+            onClock={() => onClock('shift')}
+            errors={errs(e, 'shift')}
+            help={
+              shifts.data && shifts.data.length === 0
+                ? 'No shifts yet: set them up under Attendance → Shifts.'
+                : emp.shift
+                  ? 'A change takes effect today; the shift until now stays on the days already worked.'
+                  : 'A first shift takes effect from the date of joining.'
+            }
+          >
             <SelectInput id="f-shift" value={v.shift} onChange={(x) => set('shift', x)} options={lookupOptions(shifts.data, emp.shift)} />
           </Field>
           <Field

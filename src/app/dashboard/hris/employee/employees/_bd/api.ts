@@ -175,6 +175,14 @@ export type LookupKind = 'departments' | 'sections' | 'designations' | 'shifts';
 
 /** A company's departments / sections / designations / shifts, unpaginated. */
 export const listLookup = async (kind: LookupKind): Promise<Lookup[]> => {
+  if (kind === 'shifts') {
+    // The attendance shifts (backend timekeepingio): the employee's Shift field
+    // is an effective-dated assignment to one of these.
+    const data = await call<{ rows: { uid: string; label: string; code: string; start: string; end: string }[] }>(() =>
+      axiosApi.get('/we/attendance/shifts')
+    );
+    return data.rows.map((r) => ({ uid: r.uid, title: `${r.label} · ${r.start}–${r.end}`, code: r.code }));
+  }
   const data = await call<Paged<Lookup> | Lookup[]>(() => axiosApi.get(`/we/${kind}`, { params: { limit: 100 } }));
   const rows = Array.isArray(data) ? data : data.results;
   return rows.map((r: any) => ({ uid: r.uid, title: r.title ?? r.name ?? '', code: r.code }));
