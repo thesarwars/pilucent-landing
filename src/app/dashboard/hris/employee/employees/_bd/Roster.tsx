@@ -161,24 +161,25 @@ function RosterRowLink({ row: r, odd }: { row: RosterRow; odd: boolean }) {
   const classification = enumLabel('classification', r.classification, 'Unclassified');
   return (
     <Link href={PROFILE(r.code)} className={cn('bd-row no-underline', odd && 'is-odd')}>
-      <span className="bd-row-line1">
+      <span className="bd-row-ident">
         <span aria-hidden="true" className="bd-avatar bd-avatar-sm">
           {initials(r.nameEn)}
         </span>
-        <span className="truncate text-[13.5px] font-bold text-[#16172A]">{r.nameEn}</span>
-        {r.nameBn && (
-          <span lang="bn" className="truncate text-[12.5px] text-[#6F6A85]">
-            {r.nameBn}
+        <span className="min-w-0">
+          <span className="flex flex-wrap items-baseline gap-x-2">
+            <span className="text-[13.5px] font-bold text-[#16172A]">{r.nameEn}</span>
+            {r.nameBn && (
+              <span lang="bn" className="text-[12px] text-[#6F6A85]">
+                {r.nameBn}
+              </span>
+            )}
+            {r.fresh && <span className="bd-new">NEW</span>}
           </span>
-        )}
-        {r.fresh && <span className="bd-new">NEW</span>}
-        <svg aria-hidden="true" className="ml-auto shrink-0 text-[#6E6883]" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="m9 6 6 6-6 6" />
-        </svg>
+          <span className="bd-mono block text-[10.5px] text-[#6E6883] max-md:text-[12px]">{r.code}</span>
+        </span>
       </span>
-      <span className="bd-row-line2">
-        <span className="bd-mono text-[11.5px] text-[#6E6883]">{r.code}</span>
-        <span className="min-w-0 truncate">{[r.designation, r.department].filter(Boolean).join(' · ') || 'No designation'}</span>
+      <span className="bd-row-info">
+        <span className="min-w-0">{[r.designation, r.department].filter(Boolean).join(' · ') || 'No designation'}</span>
         {r.workerCategory && <Chip tone={CATEGORY_TONE[r.workerCategory] ?? 'neutral'}>{enumLabel('workerCategory', r.workerCategory)}</Chip>}
         <span className={cn('font-semibold', r.classification ? 'text-[#44405C]' : 'text-[#8A5A06]')}>{classification}</span>
         {r.grossMonthly ? (
@@ -197,6 +198,11 @@ function RosterRowLink({ row: r, odd }: { row: RosterRow; odd: boolean }) {
         >
           {r.blockerCount ? `${plural(r.blockerCount, 'item blocks', 'items block')} payroll` : 'Ready for payroll'}
         </Chip>
+      </span>
+      <span className="bd-row-actions">
+        <svg aria-hidden="true" className="shrink-0 text-[#6E6883]" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m9 6 6 6-6 6" />
+        </svg>
       </span>
     </Link>
   );

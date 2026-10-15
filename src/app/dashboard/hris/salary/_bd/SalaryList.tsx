@@ -176,12 +176,12 @@ function Row({ row: r, odd, date }: { row: SalaryListRow; odd: boolean; date: (i
   const status = STATUS[r.floorStatus];
   return (
     <div className={cn('bd-row relative', odd && 'is-odd')}>
-      <span className="bd-row-line1">
+      <span className="bd-row-ident">
         <span aria-hidden="true" className="bd-avatar bd-avatar-sm">
           {initials(r.nameEn)}
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-baseline gap-2">
+        <span className="min-w-0">
+          <span className="flex flex-wrap items-baseline gap-x-2">
             <Link href={SALARY_PROFILE(r.code)} className="bd-row-link text-[13.5px] font-bold tracking-[-0.01em] text-[#16172A] no-underline">
               {r.nameEn}
             </Link>
@@ -194,16 +194,8 @@ function Row({ row: r, odd, date }: { row: SalaryListRow; odd: boolean; date: (i
           </span>
           <span className="bd-mono block text-[10.5px] text-[#6E6883] max-md:text-[12px]">{r.code}</span>
         </span>
-        {!r.hasStructure && (
-          <button type="button" className="bd-btn-primary relative z-[1] !h-8 !rounded-[10px] !px-3 !text-[12px]" onClick={() => router.push(SALARY_PROFILE(r.code, true))}>
-            Assign template
-          </button>
-        )}
-        <svg aria-hidden="true" className="shrink-0 text-[#6E6883]" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="m9 6 6 6-6 6" />
-        </svg>
       </span>
-      <span className="bd-row-line2">
+      <span className="bd-row-info">
         <span className="text-[#44405C]">{[r.designation, r.department].filter(Boolean).join(' · ') || 'No designation'}</span>
         <span className={r.templateName ? 'text-[#44405C]' : 'text-[#8A5A06]'}>{r.templateName ?? 'No template'}</span>
         {r.hasStructure && <MoneyPair gross={r.gross} basic={r.basic} masked={r.masked} />}
@@ -220,6 +212,16 @@ function Row({ row: r, odd, date }: { row: SalaryListRow; odd: boolean; date: (i
             Changes {date(r.scheduledFrom)}
           </Chip>
         )}
+      </span>
+      <span className="bd-row-actions">
+        {!r.hasStructure && (
+          <button type="button" className="bd-btn-primary relative z-[1] !h-8 !rounded-[10px] !px-3 !text-[12px]" onClick={() => router.push(SALARY_PROFILE(r.code, true))}>
+            Assign template
+          </button>
+        )}
+        <svg aria-hidden="true" className="shrink-0 text-[#6E6883]" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m9 6 6 6-6 6" />
+        </svg>
       </span>
     </div>
   );
