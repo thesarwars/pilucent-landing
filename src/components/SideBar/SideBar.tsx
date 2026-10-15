@@ -4,8 +4,8 @@
  * The navigation rail — docs/frontend/sidebar-prompt.md.
  *
  * A floating glass card: 316px expanded, 76px collapsed, nothing in between
- * (no hover-peek, no overlay). Three groups of BD modules, a language switch,
- * a collapse control and the compliance-mode badge.
+ * (no hover-peek, no overlay). An Accounting group, the spec's three groups of
+ * BD modules, a language switch, a collapse control and the compliance badge.
  *
  * Departures from the prototype, each deliberate:
  * - Modules without a page in this app yet are shown but inert, with a
@@ -18,12 +18,30 @@
  *   room for the page on a phone, and the spec allows no overlay mode.
  * - The spec's own open items are closed: a <nav aria-label="Main"> landmark,
  *   aria-hidden icons, and #6E6883 for the muted ink (#8A83A6 fails 4.5:1).
+ * - Accounting (not in the spec) leads the rail, permission-filtered as the
+ *   old sidebar was, with react-icons (Lucide) icons. A section with
+ *   sub-pages folds behind a chevron and opens itself while one of its pages
+ *   is open. With it the rail passes the spec's ~30 rows, so group headings
+ *   fold too (spec §14.4). Sales tax and economic nexus stay out of the rail,
+ *   as in the prototype's BD compliance mode.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { IconType } from 'react-icons';
+import {
+  LuArrowLeftRight,
+  LuChartColumn,
+  LuChevronDown,
+  LuLayoutDashboard,
+  LuListTree,
+  LuPercent,
+  LuShoppingCart,
+  LuWallet,
+} from 'react-icons/lu';
 import { cn } from '@/lib/utils';
+import { useAppSelector } from '@/app/redux/store';
 import { useLang } from '@/app/dashboard/hris/employee/employees/_bd/i18n';
 
 type GroupId = 'people' | 'pay' | 'compliance';
@@ -243,6 +261,122 @@ const GROUPS: [GroupId, string][] = [
   ['compliance', 'Statutory & tax'],
 ];
 
+interface Page {
+  label: string;
+  href: string;
+  permission?: string;
+  /** Shown whatever the permissions say (the old sidebar's `show`). */
+  show?: boolean;
+}
+
+interface Section {
+  id: string;
+  label: string;
+  icon: IconType;
+  /** The first visible page is where the row goes; the rest list beneath it. */
+  pages: Page[];
+  /** Active only on exactly this path (the dashboard is a prefix of everything). */
+  exact?: boolean;
+}
+
+/** The accounting pages, as the old sidebar reached them. */
+const ACCOUNTING: Section[] = [
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: LuLayoutDashboard,
+    pages: [{ label: 'Dashboard', href: '/dashboard', permission: 'view_dashboard' }],
+    exact: true,
+  },
+  {
+    id: 'coa',
+    label: 'Chart of accounts',
+    icon: LuListTree,
+    pages: [
+      {
+        label: 'Chart of accounts',
+        href: '/dashboard/transactions/chart-of-accounts',
+        permission: 'view_chartofaccount',
+      },
+      {
+        label: 'COA tree',
+        href: '/dashboard/transactions/coa_tree',
+        permission: 'view_chartofaccount',
+      },
+    ],
+  },
+  {
+    id: 'transactions',
+    label: 'Transactions',
+    icon: LuArrowLeftRight,
+    pages: [
+      {
+        label: 'Bank transactions',
+        href: '/dashboard/transactions/banking',
+        permission: 'view_bankdeposit',
+      },
+      {
+        label: 'Reconcile',
+        href: '/dashboard/transactions/reconcile',
+        permission: 'view_bankreconciliation',
+      },
+      {
+        label: 'Journal entries',
+        href: '/dashboard/transactions/journal',
+        permission: 'view_journalentry',
+      },
+      // The backend does not emit `view_recurring` yet; the old sidebar force-showed it.
+      { label: 'Recurring transactions', href: '/dashboard/transactions/recurring', show: true },
+    ],
+  },
+  {
+    id: 'sales',
+    label: 'Sales',
+    icon: LuShoppingCart,
+    pages: [
+      { label: 'All sales', href: '/dashboard/sales/all_sales', permission: 'view_sale' },
+      { label: 'Customers', href: '/dashboard/sales/customers', permission: 'view_customer' },
+      {
+        label: 'Products & services',
+        href: '/dashboard/sales/product_services',
+        permission: 'view_product',
+      },
+      {
+        label: 'Warehouse locations',
+        href: '/dashboard/sales/warehouse_location',
+        permission: 'view_warehouse',
+      },
+    ],
+  },
+  {
+    id: 'expenses',
+    label: 'Expenses',
+    icon: LuWallet,
+    pages: [
+      { label: 'Expenses', href: '/dashboard/expenses/expenses', permission: 'view_expense' },
+      { label: 'Suppliers', href: '/dashboard/expenses/suppliers', permission: 'view_supplier' },
+    ],
+  },
+  {
+    id: 'taxes',
+    label: 'Taxes',
+    icon: LuPercent,
+    pages: [
+      {
+        label: 'Taxes & agencies',
+        href: '/dashboard/taxes/taxes_agencies',
+        permission: 'view_agency',
+      },
+    ],
+  },
+  {
+    id: 'reports',
+    label: 'Reports',
+    icon: LuChartColumn,
+    pages: [{ label: 'Reports', href: '/dashboard/reports', permission: 'view_reports' }],
+  },
+];
+
 /** Modules that have a page in this app. Add one here when its page lands. */
 const ROUTES: Record<string, string> = {
   employee: '/dashboard/hris/employee/employees',
@@ -252,6 +386,7 @@ const ROUTES: Record<string, string> = {
 const SHOW_BATCH = false;
 
 const STORAGE_KEY = 'pilucent.rail.expanded';
+const FOLDED_KEY = 'pilucent.rail.folded';
 const INK_MUTED = '#6E6883'; // spec §3.2 / §15 #1: #8A83A6 measures 3.57:1
 
 function useNarrowScreen() {
@@ -294,15 +429,53 @@ export default function SideBar() {
   const [expandedPref, setExpandedPref] = React.useState(true);
   const expanded = expandedPref && !narrow;
   const isBangla = lang === 'bn';
+  const { Permissions } = useAppSelector((state) => state.Permissions);
+  const { UserData: user } = useAppSelector((state) => state.userData);
+  const [folded, setFolded] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved !== null) setExpandedPref(saved === 'true');
+      const savedFolded = JSON.parse(localStorage.getItem(FOLDED_KEY) || '[]');
+      if (Array.isArray(savedFolded)) setFolded(savedFolded.filter((x) => typeof x === 'string'));
     } catch {
-      /* storage blocked: start expanded */
+      /* storage blocked: start expanded, nothing folded */
     }
   }, []);
+
+  const toggleGroup = (id: string) => {
+    const next = folded.includes(id) ? folded.filter((x) => x !== id) : [...folded, id];
+    setFolded(next);
+    try {
+      localStorage.setItem(FOLDED_KEY, JSON.stringify(next));
+    } catch {
+      /* the preference lasts for this page only */
+    }
+  };
+
+  // The old sidebar's rule: a page shows when it needs no permission, the
+  // user holds it, or it is forced visible; a section shows when any page does.
+  const visible = (page: Page) =>
+    page.show ||
+    !page.permission ||
+    (Permissions as string[] | undefined)?.includes(page.permission) ||
+    (page.href === '/dashboard' && (!user?.is_employee || user?.is_admin));
+  const accounting = ACCOUNTING.map((section) => ({
+    ...section,
+    pages: section.pages.filter(visible),
+  })).filter((section) => section.pages.length > 0);
+
+  // Sections with sub-pages fold. The one holding the open page opens itself.
+  const [openSections, setOpenSections] = React.useState<string[]>([]);
+  const currentSection = accounting.find((section) => sectionContains(section, path ?? ''))?.id;
+  React.useEffect(() => {
+    if (currentSection) {
+      setOpenSections((open) => (open.includes(currentSection) ? open : [...open, currentSection]));
+    }
+  }, [currentSection]);
+  const toggleSection = (id: string) =>
+    setOpenSections((open) => (open.includes(id) ? open.filter((x) => x !== id) : [...open, id]));
 
   const toggleRail = () => {
     const next = !expandedPref;
@@ -393,26 +566,50 @@ export default function SideBar() {
           )}
         </div>
 
+        {accounting.length > 0 && (
+          <div className="mb-2 flex flex-col gap-[3px]">
+            <GroupHeading
+              id="accounting"
+              label="Accounting"
+              expanded={expanded}
+              open={!folded.includes('accounting')}
+              onToggle={toggleGroup}
+            />
+            {(!expanded || !folded.includes('accounting')) &&
+              accounting.map((section) => (
+                <SectionRow
+                  key={section.id}
+                  section={section}
+                  path={path ?? ''}
+                  expanded={expanded}
+                  open={openSections.includes(section.id)}
+                  onToggle={toggleSection}
+                />
+              ))}
+          </div>
+        )}
+
         {GROUPS.map(([groupId, groupLabel]) => (
           <div key={groupId} className="mb-2 flex flex-col gap-[3px]">
-            {expanded ? (
-              <div className="whitespace-nowrap px-[11px] pb-1 pt-2 text-[10px] font-extrabold uppercase tracking-[0.09em] text-[#9A94AE]">
-                {groupLabel}
-              </div>
-            ) : (
-              <div className="mx-2 my-1.5 h-px bg-[rgba(22,23,42,0.09)]" />
-            )}
-            {MODULES.filter(([g]) => g === groupId).map(([, id, label, batch, d]) => (
-              <ModuleRow
-                key={id}
-                label={label}
-                batch={batch}
-                d={d}
-                href={ROUTES[id]}
-                active={id === activeId}
-                expanded={expanded}
-              />
-            ))}
+            <GroupHeading
+              id={groupId}
+              label={groupLabel}
+              expanded={expanded}
+              open={!folded.includes(groupId)}
+              onToggle={toggleGroup}
+            />
+            {(!expanded || !folded.includes(groupId)) &&
+              MODULES.filter(([g]) => g === groupId).map(([, id, label, batch, d]) => (
+                <ModuleRow
+                  key={id}
+                  label={label}
+                  batch={batch}
+                  d={d}
+                  href={ROUTES[id]}
+                  active={id === activeId}
+                  expanded={expanded}
+                />
+              ))}
           </div>
         ))}
 
@@ -525,5 +722,160 @@ function ModuleRow({
     >
       {content}
     </span>
+  );
+}
+
+/** Expanded: a heading that folds its group. Collapsed: the spec's 1px rule. */
+function GroupHeading({
+  id,
+  label,
+  expanded,
+  open,
+  onToggle,
+}: {
+  id: string;
+  label: string;
+  expanded: boolean;
+  open: boolean;
+  onToggle: (id: string) => void;
+}) {
+  if (!expanded) return <div className="mx-2 my-1.5 h-px bg-[rgba(22,23,42,0.09)]" />;
+  return (
+    <button
+      type="button"
+      onClick={() => onToggle(id)}
+      aria-expanded={open}
+      style={{ fontFamily: 'inherit' }}
+      className="group flex w-full items-center gap-1 whitespace-nowrap rounded-lg px-[11px] pb-1 pt-2 text-left text-[10px] font-extrabold uppercase tracking-[0.09em] text-[#9A94AE] outline-none hover:text-[#6E6883] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#7C4DFF] focus-visible:[outline-offset:-2px]"
+    >
+      <span className="min-w-0 flex-1">{label}</span>
+      <span
+        className="flex opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+        style={{ transform: open ? 'none' : 'rotate(-90deg)' }}
+      >
+        <LuChevronDown size={12} strokeWidth={2.4} aria-hidden="true" />
+      </span>
+    </button>
+  );
+}
+
+function sectionContains(section: Section, path: string) {
+  return section.exact
+    ? path === section.pages[0].href
+    : section.pages.some((page) => path.startsWith(page.href));
+}
+
+const ROW =
+  'flex w-full min-w-0 items-center gap-[11px] rounded-[13px] px-2.5 py-[11px] text-left text-[13.5px] outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#7C4DFF] focus-visible:[outline-offset:-2px]';
+const LIFTED =
+  'bg-[rgba(255,255,255,0.95)] font-bold text-[#6B3FE8] shadow-[0_6px_18px_-10px_rgba(22,23,42,0.45)]';
+
+/**
+ * An accounting section. With sub-pages (expanded rail) it is a toggle with a
+ * chevron, and its pages hang beneath it on a guide line. Without them — or
+ * in the collapsed rail, where there is no room for the list — the row goes
+ * straight to the section's first page.
+ */
+function SectionRow({
+  section,
+  path,
+  expanded,
+  open,
+  onToggle,
+}: {
+  section: Section;
+  path: string;
+  expanded: boolean;
+  open: boolean;
+  onToggle: (id: string) => void;
+}) {
+  const SectionIcon = section.icon;
+  const inSection = sectionContains(section, path);
+  const foldable = expanded && section.pages.length > 1;
+  const activePage = section.pages.find((page) => path.startsWith(page.href))?.href;
+  const icon = (
+    <span
+      className="flex h-5 w-5 shrink-0 items-center justify-center"
+      style={{ color: inSection ? '#7C4DFF' : '#6F6A85' }}
+    >
+      <SectionIcon size={18} strokeWidth={1.75} aria-hidden="true" />
+    </span>
+  );
+
+  if (!foldable) {
+    return (
+      <Link
+        href={section.pages[0].href}
+        // Collapsed, the tooltip is the row's only name (spec §8.3).
+        title={expanded ? undefined : section.label}
+        aria-current={inSection ? 'page' : 'false'}
+        className={cn(
+          ROW,
+          inSection ? LIFTED : 'font-medium text-[#44405C] hover:bg-[rgba(255,255,255,0.62)]',
+          !expanded && 'justify-center'
+        )}
+      >
+        {icon}
+        {expanded && <span className="min-w-0 flex-1 truncate">{section.label}</span>}
+      </Link>
+    );
+  }
+
+  const listId = `rail-section-${section.id}`;
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => onToggle(section.id)}
+        aria-expanded={open}
+        aria-controls={listId}
+        style={{ fontFamily: 'inherit' }}
+        className={cn(
+          ROW,
+          // Folded with the open page inside: lift the section so the place still shows.
+          inSection && !open
+            ? LIFTED
+            : inSection
+              ? 'font-bold text-[#6B3FE8] hover:bg-[rgba(255,255,255,0.62)]'
+              : 'font-medium text-[#44405C] hover:bg-[rgba(255,255,255,0.62)]'
+        )}
+      >
+        {icon}
+        <span className="min-w-0 flex-1 truncate">{section.label}</span>
+        <LuChevronDown
+          size={15}
+          strokeWidth={2}
+          aria-hidden="true"
+          className="shrink-0 transition-transform duration-200"
+          style={{
+            transform: open ? 'none' : 'rotate(-90deg)',
+            color: inSection ? '#7C4DFF' : '#9A94AE',
+          }}
+        />
+      </button>
+      {open && (
+        <div
+          id={listId}
+          className="mb-1 ml-[19px] flex flex-col gap-[2px] border-l border-[rgba(22,23,42,0.1)] pl-2"
+        >
+          {section.pages.map((page) => {
+            const active = page.href === activePage;
+            return (
+              <Link
+                key={page.href}
+                href={page.href}
+                aria-current={active ? 'page' : 'false'}
+                className={cn(
+                  'block min-w-0 truncate rounded-[11px] px-3 py-[7px] text-[13px] outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#7C4DFF] focus-visible:[outline-offset:-2px]',
+                  active ? LIFTED : 'font-medium text-[#44405C] hover:bg-[rgba(255,255,255,0.62)]'
+                )}
+              >
+                {page.label}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }
