@@ -30,7 +30,7 @@ const BankAccounts = () => {
         isPadding={false}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="Balanzify Payroll"
+        title="Pilucent Payroll"
         bgClass="bg-accent_bluish_gray"
       >
         {/* {(isLoading || isPending) && (

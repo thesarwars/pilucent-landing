@@ -201,7 +201,7 @@ const Page = () => {
             <div>
               <h2 className="text-2xl font-semibold text-accent_text_black">Data Migration</h2>
               <p className="mt-1 text-sm text-accent_text_gray">
-                Import your business and accounting data securely into Balanzify
+                Import your business and accounting data securely into Pilucent
               </p>
             </div>
           </div>

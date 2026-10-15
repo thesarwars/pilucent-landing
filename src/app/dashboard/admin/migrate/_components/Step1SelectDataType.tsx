@@ -124,7 +124,7 @@ const Step1SelectDataType: React.FC<Step1Props> = ({ dataTypes, selectedId, onLo
     <div className="rounded-2xl border border-accent_border_gray bg-white p-6 shadow-sm">
       <h2 className="text-2xl font-semibold text-accent_text_black">Select Data Type</h2>
       <p className="mt-1 text-sm text-accent_text_gray">
-        Choose the type of data you want to import into Balanzify.
+        Choose the type of data you want to import into Pilucent.
       </p>
 
       <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">

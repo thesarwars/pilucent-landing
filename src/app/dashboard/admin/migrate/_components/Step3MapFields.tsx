@@ -4,7 +4,7 @@
 // Step 3 — Map Fields
 //
 // Each row represents a column from the uploaded file. The user picks a
-// matching Balanzify target field per column. The list of target fields
+// matching Pilucent target field per column. The list of target fields
 // comes from the data-type handler (`get_target_fields()` on the backend) —
 // it is supplied by the parent via `targetFields`.
 //
@@ -88,7 +88,7 @@ const Step3MapFields: React.FC<Step3Props> = ({
       <div className="rounded-2xl border border-accent_border_gray bg-white p-6 shadow-sm">
         <h2 className="text-2xl font-semibold text-accent_text_black">Map Fields</h2>
         <p className="mt-1 text-sm text-accent_text_gray">
-          Connect your imported file columns to the corresponding Balanzify fields.
+          Connect your imported file columns to the corresponding Pilucent fields.
         </p>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -118,7 +118,7 @@ const Step3MapFields: React.FC<Step3Props> = ({
         <div className="mt-6 grid grid-cols-[1fr_auto_1fr_auto] items-center gap-x-3 gap-y-2 text-xs font-semibold uppercase tracking-wide text-accent_text_gray">
           <span>Imported File Columns</span>
           <span />
-          <span>Balanzify Fields</span>
+          <span>Pilucent Fields</span>
           <span />
         </div>
 
@@ -154,7 +154,7 @@ const Step3MapFields: React.FC<Step3Props> = ({
                       : 'border-accent_border_gray text-accent_text_black'
                   }`}
                 >
-                  <option value="">Select Balanzify Field</option>
+                  <option value="">Select Pilucent Field</option>
                   {targetFields.map((f) => (
                     <option key={f} value={f}>
                       {humanise(f)}

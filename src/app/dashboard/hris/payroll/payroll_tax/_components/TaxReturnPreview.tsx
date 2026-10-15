@@ -143,7 +143,7 @@ const TaxReturnPreview: React.FC<Props> = ({
   const employer = {
     name: business?.name || 'Jumatechs 24/7 LLC',
     ein: business?.ein || '47-2918340',
-    trade: business?.trade_name || 'Balanzify',
+    trade: business?.trade_name || 'Pilucent',
     address: business?.address || 'Minneapolis, MN',
   };
 
@@ -303,7 +303,7 @@ const TaxReturnPreview: React.FC<Props> = ({
         {/* footnote */}
         <div className="mt-5 rounded-[10px] bg-[#F7F5FC] px-4 py-3 text-[11.5px] leading-relaxed text-v-ink500">
           Draft preview generated from your finalized payroll runs. Figures are estimates for review only — once
-          recorded, Balanzify e-files this return with the IRS.
+          recorded, Pilucent e-files this return with the IRS.
         </div>
       </div>
     </div>

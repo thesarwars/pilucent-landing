@@ -71,7 +71,7 @@ export default function KpiStrip() {
       <div className="flex flex-col gap-4 rounded-2xl border border-[#E6E1FB] bg-gradient-to-r from-[#F3F0FF] via-[#EEF4FF] to-[#EAF7FF] p-5 shadow-[0_2px_8px_rgba(16,24,40,0.04)] sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <strong className="text-sm font-normal text-accent_text_black">
-            Getting started with Balanzify
+            Getting started with Pilucent
           </strong>
           <p className="mt-0.5 text-xs font-normal text-accent_text_black/60">
             4 of 7 tasks completed

@@ -200,7 +200,7 @@ const CompanyExpense = ({ APData, refetch }: { APData: any; refetch: any }) => {
             <div className="mb-6">
               <p className="mb-4 text-sm text-gray-700">
                 <span className="mr-1 font-medium">1.</span>
-                Where do you track employer contributions in your Balanzify chart of accounts?
+                Where do you track employer contributions in your Pilucent chart of accounts?
               </p>
 
               <div className="space-y-5">

@@ -103,7 +103,7 @@ export default function TaxesAndForms() {
                   className="mt-0.5 h-5 w-5 cursor-pointer accent-green-600"
                 />
                 <span className="text-sm text-gray-700">
-                  I'll initiate payments and filings using Balanzify
+                  I'll initiate payments and filings using Pilucent
                 </span>
               </label>
 

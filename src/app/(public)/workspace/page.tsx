@@ -378,7 +378,7 @@ const Page = () => {
             <span className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] text-white" style={{ backgroundImage: GRADS[0] }}>
               <Layers className="h-[18px] w-[18px]" />
             </span>
-            <span className="text-[17px] font-extrabold text-[#16172A]">Balanzify</span>
+            <span className="text-[17px] font-extrabold text-[#16172A]">Pilucent</span>
             <span className="flex-1" />
             <button
               type="button"

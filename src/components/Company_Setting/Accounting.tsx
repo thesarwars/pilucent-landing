@@ -261,7 +261,7 @@ const Accounting = () => {
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           <PolicyCard
             title="Required fields"
-            sub="What Balanzify insists on before a transaction can post."
+            sub="What Pilucent insists on before a transaction can post."
             isEditing={editing.fields}
             onEdit={() => setEditing((p) => ({ ...p, fields: true }))}
             delay="0.06s"
@@ -288,7 +288,7 @@ const Accounting = () => {
               value={draft.fromTo}
               onChange={(v) => set('fromTo', v)}
               disabled={!editing.fields}
-              hint="Balanzify checks how you’ve booked this payee before."
+              hint="Pilucent checks how you’ve booked this payee before."
             />
             <RuleRow
               icon={<MapPin />}
@@ -297,7 +297,7 @@ const Accounting = () => {
               value={draft.location}
               onChange={(v) => set('location', v)}
               disabled={!editing.fields}
-              hint="Balanzify checks how you’ve booked transactions like this before."
+              hint="Pilucent checks how you’ve booked transactions like this before."
             />
           </PolicyCard>
 

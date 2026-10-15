@@ -387,7 +387,7 @@ export default function Page() {
             <SInput
               value={couponForm.code}
               onChange={v => setCouponForm(f => ({ ...f, code: v }))}
-              placeholder="Balanzify20"
+              placeholder="Pilucent20"
               mono
             />
           </SField>
@@ -531,14 +531,14 @@ export default function Page() {
             <SInput
               value={offerForm.title}
               onChange={v => setOfferForm(f => ({ ...f, title: v }))}
-              placeholder="Balanzify Promo Code"
+              placeholder="Pilucent Promo Code"
             />
           </SField>
           <SField label="Description">
             <STextarea
               value={offerForm.description}
               onChange={v => setOfferForm(f => ({ ...f, description: v }))}
-              placeholder="This is the balanzify promo code"
+              placeholder="This is the Pilucent promo code"
             />
           </SField>
           <SField label="Status">

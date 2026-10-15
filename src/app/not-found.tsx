@@ -7,8 +7,8 @@ export default function NotFoundPage() {
   return (
     <>
       <Head>
-        <title>Balanzify - Page Not Found</title>
-        <meta name="description" content="Balanzify - Your Financial Balance Companion" />
+        <title>Pilucent - Page Not Found</title>
+        <meta name="description" content="Pilucent - Your Financial Balance Companion" />
         <meta name="keywords" content="finance, balance, money, management" />
       </Head>
       
@@ -56,7 +56,7 @@ export default function NotFoundPage() {
             </Link>
           </motion.div>
 
-          {/* Balanzify Branding */}
+          {/* Pilucent branding */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -66,7 +66,7 @@ export default function NotFoundPage() {
             <p className="text-gray-400 text-sm">
               Lost in space? Do not worry, your finances are safe with{' '}
               <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-                Balanzify
+                Pilucent
               </span>
             </p>
           </motion.div>

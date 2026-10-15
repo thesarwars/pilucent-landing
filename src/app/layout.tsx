@@ -13,8 +13,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useEffect, useState } from 'react';
 
 // export const metadata: Metadata = {
-//   title: 'Balanzify',
-//   description: 'Balanzify Accounting',
+//   title: 'Pilucent',
+//   description: 'Pilucent Accounting',
 // };
 
 const lexend = Lexend({
@@ -125,10 +125,10 @@ export default function RootLayout({
   // const blocked = useHardenPage();
 
   useEffect(() => {
-    document.title = 'Balanzify';
+    document.title = 'Pilucent';
     document
       .querySelector('meta[name="description"]')
-      ?.setAttribute('content', 'Balanzify Accounting');
+      ?.setAttribute('content', 'Pilucent Accounting');
   }, []);
 
   return (

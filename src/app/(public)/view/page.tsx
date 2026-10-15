@@ -116,7 +116,7 @@ const Page = () => {
         <Suspense fallback={<div className="text-accent_primary">Loading...</div>}>
           <div>
             <h1 className="bg-accent_soft_black py-1 text-center text-sm font-light text-white">
-              Balanzify Accounting
+              Pilucent Accounting
             </h1>
           </div>
           <PageContent />

@@ -16,7 +16,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 // export const metadata: Metadata = {
 //   title: "Dashboard",
-//   description: "Balanzify - Accounting",
+//   description: "Pilucent - Accounting",
 // };
 
 const redirectUrl = process.env.NEXT_PUBLIC_REDIRECT_URL;

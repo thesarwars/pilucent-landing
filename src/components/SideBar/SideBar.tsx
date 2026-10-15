@@ -514,12 +514,12 @@ export default function SideBar() {
             className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[11px] text-[17px] font-bold text-white shadow-[0_8px_22px_-8px_rgba(124,77,255,0.7)]"
             style={{ background: 'linear-gradient(140deg, #7C4DFF, #5A2BE0)' }}
           >
-            b
+            p
           </div>
           {expanded && (
             <div className="min-w-0 flex-1">
               <div className="whitespace-nowrap text-[15.5px] font-bold tracking-[-0.01em]">
-                Balanzify
+                Pilucent
               </div>
               <div
                 className="mt-px whitespace-nowrap text-[10.5px] font-bold uppercase tracking-[0.05em]"
