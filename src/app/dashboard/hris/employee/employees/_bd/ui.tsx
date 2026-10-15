@@ -1,7 +1,8 @@
 'use client';
 
 /**
- * Shared pieces for the BD employee screens, on the Violet Suite tokens.
+ * Shared pieces for the BD employee screens, on the values in
+ * docs/frontend/employee-profile.md (classes in `bd.css`).
  *
  * Inputs carry the prototype's ids (`f-nid`, `f-etin`, ...) because compliance
  * findings and API errors are addressed by them: the client opens the tab and
@@ -11,23 +12,64 @@
 import * as React from 'react';
 import { AlertCircle, Clock3, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Chip, FloatingActionBar, VioletButton, type VioletTone } from '@/components/violet';
+import { FloatingActionBar, VioletButton } from '@/components/violet';
 import { toast } from '@/lib/ToastService';
 import { ApiError } from './api';
 import type { Option } from './enums';
 import type { Confidence, TabState } from './types';
+import './bd.css';
+
+/* ── tones ────────────────────────────────────────────────────────── */
+
+/** The six meanings a chip, note or pill can carry (spec §4.2). */
+export type Tone = 'ok' | 'warn' | 'blocked' | 'violet' | 'neutral' | 'bd';
+
+/** The fill/border/ink triple for a tone. A new chip cannot invent a fourth green. */
+export const tone = (t: Tone) => `bd-tone-${t}`;
+
+/** A derived fact or a status, as a pill. */
+export function Chip({
+  tone: t = 'neutral',
+  dot,
+  icon,
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLSpanElement> & { tone?: Tone; dot?: boolean; icon?: React.ReactNode }) {
+  return (
+    <span className={cn('bd-chip', tone(t), className)} {...props}>
+      {icon ?? (dot ? <span aria-hidden="true" className="bd-chip-dot" /> : null)}
+      {children}
+    </span>
+  );
+}
 
 /* ── inputs ───────────────────────────────────────────────────────── */
 
-export const inputClass = (invalid?: boolean) =>
-  cn(
-    'w-full rounded-v-input border bg-white px-3.5 py-2.5 font-jakarta text-[13.5px] font-medium text-v-ink900 outline-none transition-shadow placeholder:text-v-ink400 disabled:cursor-not-allowed disabled:bg-v-wash disabled:text-v-ink400 focus:shadow-[0_0_0_3px_#EEE9FF]',
-    invalid ? 'border-[#F43F5E] focus:border-[#F43F5E]' : 'border-v-border focus:border-v-primary'
-  );
+/** The input class, for the few lists that render their own inputs. */
+export const inputClass = (invalid?: boolean) => cn('bd-input', invalid && 'is-invalid');
+
+/** What a `Field` tells the control inside it: its id and what describes it. */
+const FieldContext = React.createContext<{ id?: string; describedBy?: string; invalid: boolean; required?: boolean }>({
+  invalid: false,
+});
+
+/** id, `aria-describedby` and `aria-invalid` for a control inside a `Field`. */
+function useControl(id: string | undefined, invalid: boolean | undefined) {
+  const ctx = React.useContext(FieldContext);
+  const bad = !!invalid || ctx.invalid;
+  return {
+    id: id ?? ctx.id,
+    'aria-describedby': ctx.describedBy,
+    'aria-invalid': bad || undefined,
+    'aria-required': ctx.required || undefined,
+  };
+}
 
 type InputBase = { id?: string; invalid?: boolean; className?: string };
 
 export function TextInput({
+  id,
   value,
   onChange,
   invalid,
@@ -40,14 +82,16 @@ export function TextInput({
   return (
     <input
       {...props}
+      {...useControl(id, invalid)}
       value={value ?? ''}
       onChange={(e) => onChange(e.target.value)}
-      className={cn(inputClass(invalid), className)}
+      className={cn('bd-input', className)}
     />
   );
 }
 
 export function DateInput({
+  id,
   value,
   onChange,
   invalid,
@@ -60,15 +104,17 @@ export function DateInput({
   return (
     <input
       {...props}
+      {...useControl(id, invalid)}
       type="date"
       value={value ?? ''}
       onChange={(e) => onChange(e.target.value || null)}
-      className={cn(inputClass(invalid), 'font-mono text-[13px]', className)}
+      className={cn('bd-input', className)}
     />
   );
 }
 
 export function SelectInput({
+  id,
   value,
   onChange,
   options,
@@ -86,9 +132,10 @@ export function SelectInput({
   return (
     <select
       {...props}
+      {...useControl(id, invalid)}
       value={value ?? ''}
       onChange={(e) => onChange(e.target.value)}
-      className={cn(inputClass(invalid), 'cursor-pointer appearance-none pr-8', className)}
+      className={cn('bd-input', className)}
     >
       {!hasBlank && placeholder !== null && <option value="">{placeholder}</option>}
       {options.map((o) => (
@@ -101,6 +148,7 @@ export function SelectInput({
 }
 
 export function TextArea({
+  id,
   value,
   onChange,
   invalid,
@@ -114,11 +162,38 @@ export function TextArea({
   return (
     <textarea
       {...props}
+      {...useControl(id, invalid)}
       rows={rows}
       value={value ?? ''}
       onChange={(e) => onChange(e.target.value)}
-      className={cn(inputClass(invalid), 'resize-y', className)}
+      className={cn('bd-input', className)}
     />
+  );
+}
+
+/** A checkbox drawn to match the inputs. */
+export function Checkbox({
+  id,
+  checked,
+  onChange,
+  children,
+}: {
+  id?: string;
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  children?: React.ReactNode;
+}) {
+  return (
+    <button id={id} type="button" role="checkbox" aria-checked={checked} onClick={() => onChange(!checked)} className="bd-check">
+      <span className="bd-check-box" aria-hidden="true">
+        {checked && (
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m5 12 5 5 9-10" />
+          </svg>
+        )}
+      </span>
+      {children}
+    </button>
   );
 }
 
@@ -145,11 +220,12 @@ export function SwitchRow({
         type="button"
         role="switch"
         aria-checked={checked}
+        aria-label={typeof label === 'string' ? undefined : title}
         disabled={disabled}
         onClick={() => !disabled && onChange(!checked)}
         className={cn(
-          'relative inline-flex h-[22px] w-10 shrink-0 rounded-full transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-v-tint100',
-          checked ? 'bg-v-primary' : 'bg-[rgba(22,23,42,0.16)]',
+          'relative inline-flex h-[22px] w-10 shrink-0 rounded-full transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7C4DFF]',
+          checked ? 'bg-[#7C4DFF]' : 'bg-[rgba(22,23,42,0.16)]',
           disabled && 'cursor-not-allowed opacity-45'
         )}
       >
@@ -158,26 +234,28 @@ export function SwitchRow({
           style={{ left: checked ? '21px' : '2.5px' }}
         />
       </button>
-      {label && <span className="text-[12.5px] font-semibold text-v-ink700">{label}</span>}
+      {label && <span className="text-[12.5px] font-semibold text-[#44405C]">{label}</span>}
     </div>
   );
 }
 
 /* ── layout ───────────────────────────────────────────────────────── */
 
-const SPAN: Record<number, string> = {
-  1: 'md:col-span-1',
-  2: 'md:col-span-2',
-  3: 'md:col-span-3',
-  4: 'md:col-span-4',
-  6: 'md:col-span-6',
-};
-
+/** Six columns; a field spans 2 (a third), 3 (half), 4 or 6. Spans sum to 6 per row. */
 export function FieldGrid({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-6', className)}>{children}</div>;
+  return <div className={cn('bd-grid', className)}>{children}</div>;
 }
 
-/** Label, input, help and errors for one field. */
+/** An empty cell, to end a row early. */
+export function Gap({ span }: { span: 1 | 2 | 3 | 4 }) {
+  return <span aria-hidden="true" className={`bd-span-${span} max-md:hidden`} />;
+}
+
+/**
+ * One field, top to bottom: label row (label, required mark, clock), the
+ * control, derived chips (announced politely), help, error. The control
+ * inside is wired to the help and error by `aria-describedby`.
+ */
 export function Field({
   htmlFor,
   label,
@@ -185,6 +263,7 @@ export function Field({
   span = 2,
   help,
   errors,
+  chips,
   onClock,
   suggested,
   children,
@@ -196,51 +275,62 @@ export function Field({
   span?: 1 | 2 | 3 | 4 | 6;
   help?: React.ReactNode;
   errors?: string[];
+  /** Derived consequences of the value: `34 years old`, `Senior citizen (65+)`. */
+  chips?: React.ReactNode;
   onClock?: () => void;
   suggested?: boolean;
   children: React.ReactNode;
   className?: string;
 }) {
+  const auto = React.useId();
+  const id = htmlFor ?? `bd-field${auto}`;
+  const hasError = !!errors && errors.length > 0;
+  const helpId = help ? `${id}-help` : undefined;
+  const errorId = hasError ? `${id}-error` : undefined;
+  const describedBy = [helpId, errorId].filter(Boolean).join(' ') || undefined;
+  const ctx = React.useMemo(() => ({ id, describedBy, invalid: hasError, required }), [id, describedBy, hasError, required]);
+
   return (
-    <div className={cn('min-w-0', SPAN[span], className)}>
-      <div className="mb-1.5 flex items-center gap-1.5">
-        <label htmlFor={htmlFor} className="text-xs font-semibold text-v-ink700">
+    <div className={cn('bd-field', `bd-span-${span}`, className)}>
+      <div className="bd-label-row">
+        <label htmlFor={id} className="bd-label">
           {label}
         </label>
         {required && (
-          <span aria-hidden="true" className="text-xs font-bold text-v-primary">
+          <span className="bd-req" aria-hidden="true">
             *
           </span>
         )}
-        {suggested && (
-          <span className="rounded-full bg-v-tint100 px-2 py-px text-[10px] font-bold text-v-primary">Suggested</span>
-        )}
+        {suggested && <Chip tone="violet" className="!px-2 !py-0 !text-[10px]">Suggested</Chip>}
         {onClock && (
-          <button
-            type="button"
-            onClick={onClock}
-            title="View change timeline"
-            aria-label="View change timeline"
-            className="ml-auto flex h-6 w-6 items-center justify-center rounded-[8px] text-v-ink400 transition-colors hover:bg-v-tint100 hover:text-v-primary"
-          >
-            <Clock3 className="h-[13px] w-[13px]" />
+          <button type="button" onClick={onClock} title="View change timeline" aria-label="View change timeline" className="bd-clock">
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7.5V12l3 2" />
+            </svg>
           </button>
         )}
       </div>
-      {children}
-      {errors && errors.length > 0 ? (
-        <div role="alert" className="mt-1.5 flex items-start gap-1.5 text-[11.5px] font-semibold text-[#E11D48]">
-          <AlertCircle className="mt-px h-3 w-3 shrink-0" />
+      <FieldContext.Provider value={ctx}>{children}</FieldContext.Provider>
+      <div className="bd-chips" aria-live="polite">
+        {chips}
+      </div>
+      {help && (
+        <div id={helpId} className="bd-help">
+          {help}
+        </div>
+      )}
+      {hasError && (
+        <div id={errorId} className="bd-error">
+          <AlertCircle aria-hidden="true" className="mt-px h-3 w-3 shrink-0" />
           <span>{errors.join(' ')}</span>
         </div>
-      ) : (
-        help && <div className="mt-1.5 text-[11.5px] leading-snug text-v-ink400">{help}</div>
       )}
     </div>
   );
 }
 
-/** White card with a title and a one-line description. */
+/** A section card: title, a one-line description, and an optional right slot. */
 export function Section({
   title,
   desc,
@@ -257,11 +347,11 @@ export function Section({
   id?: string;
 }) {
   return (
-    <section id={id} className={cn('rounded-v-card bg-white p-[22px] font-jakarta shadow-v-card', className)}>
-      <div className="mb-4 flex flex-wrap items-start gap-3">
+    <section id={id} tabIndex={id ? -1 : undefined} className={cn('bd-section outline-none', className)}>
+      <div className="bd-section-head">
         <div className="min-w-0 flex-1">
-          <h2 className="m-0 text-[15px] font-bold tracking-[-0.01em] text-v-ink900">{title}</h2>
-          {desc && <p className="mt-1 text-[12.5px] leading-relaxed text-v-ink500">{desc}</p>}
+          <h2 className="bd-section-title">{title}</h2>
+          {desc && <p className="bd-section-desc">{desc}</p>}
         </div>
         {right}
       </div>
@@ -270,34 +360,32 @@ export function Section({
   );
 }
 
+/** The old tone names the tabs use, on the spec's six. */
+const NOTE_TONE: Record<string, Tone> = {
+  violet: 'violet',
+  warn: 'warn',
+  danger: 'blocked',
+  success: 'ok',
+  neutral: 'neutral',
+  teal: 'bd',
+  rose: 'blocked',
+};
+
 /** A tinted note: info, warn, danger or success. */
 export function Note({
-  tone = 'violet',
+  tone: t = 'violet',
   children,
   className,
   icon = true,
 }: {
-  tone?: VioletTone;
+  tone?: keyof typeof NOTE_TONE;
   children: React.ReactNode;
   className?: string;
   icon?: boolean;
 }) {
-  const tones: Record<string, string> = {
-    violet: 'bg-[rgba(124,77,255,0.07)] border-[rgba(124,77,255,0.22)] text-[#5A2BE0]',
-    warn: 'bg-[rgba(245,178,46,0.1)] border-[rgba(245,178,46,0.3)] text-[#8A5A06]',
-    danger: 'bg-[rgba(244,63,94,0.07)] border-[rgba(244,63,94,0.26)] text-[#E11D48]',
-    success: 'bg-[rgba(31,169,122,0.1)] border-[rgba(31,169,122,0.28)] text-[#157A5B]',
-    neutral: 'bg-[rgba(22,23,42,0.045)] border-[rgba(22,23,42,0.11)] text-v-ink700',
-  };
   return (
-    <div
-      className={cn(
-        'flex items-start gap-2 rounded-xl border px-3.5 py-2.5 text-[12.5px] font-semibold leading-relaxed',
-        tones[tone] ?? tones.violet,
-        className
-      )}
-    >
-      {icon && <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
+    <div className={cn('bd-note', tone(NOTE_TONE[t] ?? 'violet'), className)}>
+      {icon && <AlertCircle aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
       <div className="min-w-0">{children}</div>
     </div>
   );
@@ -305,11 +393,12 @@ export function Note({
 
 export function Citation({ children }: { children?: React.ReactNode }) {
   if (!children) return null;
-  return <div className="mt-3 text-[11px] font-medium text-v-ink400">{children}</div>;
+  return <div className="mt-3 text-[11px] font-medium text-[#6E6883]">{children}</div>;
 }
 
 /* ── status ───────────────────────────────────────────────────────── */
 
+/** Four states that differ by more than colour: filled, tinted, hollow, filled with `!` (§9.1). */
 export const TAB_STATE: Record<TabState, { dot: string; ring: string; glyph: string; title: string }> = {
   complete: { dot: '#1FA97A', ring: '#1FA97A', glyph: '', title: 'Complete' },
   partial: { dot: 'rgba(245,178,46,0.25)', ring: '#F5B22E', glyph: '', title: 'Partly filled' },
@@ -320,21 +409,18 @@ export const TAB_STATE: Record<TabState, { dot: string; ring: string; glyph: str
 export function TabDot({ state }: { state: TabState }) {
   const s = TAB_STATE[state] ?? TAB_STATE.empty;
   return (
-    <span
-      title={s.title}
-      className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border-[1.5px] text-[9px] font-extrabold leading-none text-white"
-      style={{ background: s.dot, borderColor: s.ring }}
-    >
-      {s.glyph}
+    <span title={s.title} className="bd-dot" style={{ background: s.dot, borderColor: s.ring }}>
+      <span aria-hidden="true">{s.glyph}</span>
+      <span className="sr-only">{s.title}</span>
     </span>
   );
 }
 
-const CONFIDENCE_TONE: Record<Confidence, VioletTone> = {
+const CONFIDENCE_TONE: Record<Confidence, Tone> = {
   DRAFTED: 'warn',
-  DISPUTED: 'rose',
-  CORROBORATED: 'teal',
-  VERIFIED: 'success',
+  DISPUTED: 'blocked',
+  CORROBORATED: 'bd',
+  VERIFIED: 'ok',
   LIVE: 'neutral',
 };
 
@@ -342,19 +428,19 @@ const CONFIDENCE_TONE: Record<Confidence, VioletTone> = {
 export function ConfidenceTag({ value }: { value: Confidence | null | undefined }) {
   if (!value || value === 'LIVE') return null;
   return (
-    <Chip tone={CONFIDENCE_TONE[value]} className="px-2 py-px text-[10px] uppercase tracking-[0.04em]">
+    <Chip tone={CONFIDENCE_TONE[value]} className="!px-2 !py-0 !text-[10px] uppercase tracking-[0.04em]">
       {value.toLowerCase()}
     </Chip>
   );
 }
 
 export function Spinner({ className }: { className?: string }) {
-  return <Loader2 className={cn('h-4 w-4 animate-spin text-v-primary', className)} />;
+  return <Loader2 aria-hidden="true" className={cn('h-4 w-4 animate-spin text-[#7C4DFF]', className)} />;
 }
 
 export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 py-16 text-[13px] font-semibold text-v-ink400">
+    <div role="status" className="flex items-center justify-center gap-2 py-16 text-[13px] font-semibold text-[#6F6A85]">
       <Spinner />
       {label}
     </div>
@@ -364,13 +450,13 @@ export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
 export function ErrorBlock({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const message = error instanceof ApiError ? error.message : 'Something went wrong.';
   return (
-    <div className="rounded-v-card bg-white p-8 text-center shadow-v-card">
-      <div className="text-sm font-bold text-v-ink900">This could not be loaded</div>
-      <div className="mt-1 text-[12.5px] text-v-ink500">{message}</div>
+    <div role="alert" className="bd-section text-center">
+      <div className="text-sm font-bold">This could not be loaded</div>
+      <div className="mt-1 text-[12.5px] text-[#6F6A85]">{message}</div>
       {onRetry && (
-        <VioletButton variant="outline" size="sm" className="mt-4" onClick={onRetry}>
+        <button type="button" className="bd-btn mt-4" onClick={onRetry}>
           Try again
-        </VioletButton>
+        </button>
       )}
     </div>
   );
@@ -378,7 +464,10 @@ export function ErrorBlock({ error, onRetry }: { error: unknown; onRetry?: () =>
 
 /* ── focus routing ────────────────────────────────────────────────── */
 
-/** Scroll a field into view, focus it, and flash a ring around it. */
+/**
+ * Scroll a field into view, focus it, and pulse a ring round it for 1.1s
+ * (§10.6) — without it, a user sent to a 14-field tab cannot tell which was meant.
+ */
 export function focusField(id: string | null | undefined) {
   if (!id) return;
   let tries = 0;
@@ -390,13 +479,16 @@ export function focusField(id: string | null | undefined) {
     }
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     el.focus({ preventScroll: true });
-    el.animate(
+    const off = { boxShadow: '0 0 0 0 rgba(124,77,255,0)' };
+    const on = { boxShadow: '0 0 0 4px rgba(124,77,255,0.35)' };
+    el.animate?.(
       [
-        { boxShadow: '0 0 0 0 rgba(124,77,255,0)' },
-        { boxShadow: '0 0 0 4px rgba(124,77,255,0.35)' },
-        { boxShadow: '0 0 0 0 rgba(124,77,255,0)' },
+        { ...off, offset: 0 },
+        { ...on, offset: 0.3 },
+        { ...on, offset: 0.7 },
+        { ...off, offset: 1 },
       ],
-      { duration: 1400 }
+      { duration: 1100 }
     );
   };
   attempt();
@@ -436,13 +528,13 @@ export function useSectionForm<T extends Record<string, any>>(
       if (JSON.stringify(values[key]) !== JSON.stringify(server[key])) out[key] = values[key];
     }
     return out;
-     
+
   }, [values, serverJson]);
   const dirty = Object.keys(changes).length > 0;
 
   React.useEffect(() => {
     if (!dirty) setValues(server);
-     
+
   }, [serverJson]);
 
   const set = React.useCallback(<K extends keyof T>(key: K, value: T[K]) => {

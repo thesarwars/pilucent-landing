@@ -93,7 +93,7 @@ export function ReviseModal({ profile, salary, onClose }: { profile: Profile; sa
       sub={`${profile.personal.nameEn} · ${profile.code} · nothing commits without a preview`}
       footer={
         <>
-          <span className="min-w-0 flex-1 text-[11.5px] text-v-ink400">
+          <span className="min-w-0 flex-1 text-[11.5px] text-[#6E6883]">
             {floorsFail
               ? 'Cannot apply — below a gazetted floor.'
               : needsReason
@@ -150,7 +150,7 @@ export function ReviseModal({ profile, salary, onClose }: { profile: Profile; sa
                 id="rev-value"
                 inputMode="decimal"
                 autoFocus
-                className={cn(inputClass(!!preview.error?.messagesFor('value').length), 'text-right font-bold tabular-nums')}
+                className={cn(inputClass(!!preview.error?.messagesFor('value').length), 'text-right font-bold bd-mono')}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder={method === 'PERCENTAGE_INCREASE' ? '8' : '25,000'}
@@ -168,7 +168,7 @@ export function ReviseModal({ profile, salary, onClose }: { profile: Profile; sa
             Change {preview.loading && <Spinner className="h-3 w-3" />}
           </div>
           <div className="px-4 py-2">
-            <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr_0.7fr] pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-v-ink400">
+            <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr_0.7fr] pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-[#6E6883]">
               <span>Component</span>
               <span className="text-right">Current</span>
               <span className="text-right">New</span>
@@ -188,14 +188,14 @@ export function ReviseModal({ profile, salary, onClose }: { profile: Profile; sa
                 <div
                   key={row.key}
                   className={cn(
-                    'grid grid-cols-[1.4fr_1fr_1fr_1fr_0.7fr] py-1.5 text-[12.5px] tabular-nums',
+                    'grid grid-cols-[1.4fr_1fr_1fr_1fr_0.7fr] py-1.5 text-[12.5px] bd-mono',
                     row.bold && 'mt-1 border-t border-[rgba(22,23,42,0.12)] pt-2 font-bold'
                   )}
                 >
                   <span className="text-v-ink900">{row.name}</span>
                   <span className="text-right text-v-ink500">{money(row.a)}</span>
                   <span className="text-right text-v-ink900">{row.b === null ? '—' : money(row.b)}</span>
-                  <span className={cn('text-right', sign > 0 ? 'text-[#157A5B]' : sign < 0 ? 'text-[#E11D48]' : 'text-v-ink400')}>
+                  <span className={cn('text-right', sign > 0 ? 'text-[#157A5B]' : sign < 0 ? 'text-[#E11D48]' : 'text-[#6E6883]')}>
                     {delta === null ? '—' : (sign > 0 ? '+' : '') + money(delta)}
                   </span>
                   <span className="text-right text-v-ink500">{row.b === null ? '—' : n(percentChange(row.a, row.b) ?? '—')}</span>
@@ -226,7 +226,7 @@ export function ReviseModal({ profile, salary, onClose }: { profile: Profile; sa
               required
               span={6}
               help={
-                <span className={cn(needsReason ? 'text-[#E11D48]' : 'text-v-ink400')}>
+                <span className={cn(needsReason ? 'text-[#E11D48]' : 'text-[#6E6883]')}>
                   {needsReason ? 'At least 10 characters — say why this starts in the past.' : `${n(reasonLength(reason))} characters`}
                 </span>
               }

@@ -1,9 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Chip, VioletButton } from '@/components/violet';
 import { toast } from '@/lib/ToastService';
 import * as api from '../api';
 import { ENUMS } from '../enums';
@@ -11,9 +10,12 @@ import { useEmployeeMutation } from '../hooks';
 import { useLang } from '../i18n';
 import type { Nominee, Personal, Profile } from '../types';
 import {
+  Checkbox,
+  Chip,
   DateInput,
   Field,
   FieldGrid,
+  Gap,
   Note,
   SaveBar,
   Section,
@@ -75,15 +77,23 @@ export function PersonalTab({ profile }: { profile: Profile }) {
           <Field htmlFor="f-motherName" label="Mother's name" required span={3} help="Required on the service book." errors={errs(e, 'motherName')}>
             <TextInput id="f-motherName" value={v.motherName} onChange={(x) => set('motherName', x)} />
           </Field>
-          <Field htmlFor="f-dob" label="Date of birth" required span={2} errors={errs(e, 'dob')}>
+          <Field
+            htmlFor="f-dob"
+            label="Date of birth"
+            required
+            span={2}
+            errors={errs(e, 'dob')}
+            chips={
+              age !== null && (
+                <>
+                  <Chip tone="neutral">{n(age)} years old</Chip>
+                  {age >= 65 && <Chip tone="violet">Senior citizen (65+)</Chip>}
+                  {age < 18 && <Chip tone="warn">Adolescent worker — restricted hours</Chip>}
+                </>
+              )
+            }
+          >
             <DateInput id="f-dob" value={v.dob} onChange={(x) => set('dob', x)} />
-            {age !== null && (
-              <div className="mt-1.5 flex flex-wrap gap-1.5" aria-live="polite">
-                <Chip tone="neutral">{n(age)} years old</Chip>
-                {age >= 65 && <Chip tone="violet">Senior citizen (65+)</Chip>}
-                {age < 18 && <Chip tone="warn">Adolescent worker — restricted hours</Chip>}
-              </div>
-            )}
           </Field>
           <Field
             htmlFor="f-gender"
@@ -114,15 +124,16 @@ export function PersonalTab({ profile }: { profile: Profile }) {
             label="National ID (NID)"
             required
             span={2}
+            help="Printed on the service book. 10, 13 or 17 digits."
             errors={errs(e, 'nid').length ? errs(e, 'nid') : v.nid && !nidValid(v.nid) ? ['NID must be 10, 13 or 17 digits.'] : []}
           >
-            <TextInput id="f-nid" inputMode="numeric" value={v.nid} onChange={(x) => set('nid', x)} invalid={!!v.nid && !nidValid(v.nid)} />
+            <TextInput id="f-nid" inputMode="numeric" className="bd-mono" value={v.nid} onChange={(x) => set('nid', x)} invalid={!!v.nid && !nidValid(v.nid)} />
           </Field>
           <Field htmlFor="f-birthCert" label="Birth certificate no." span={2} errors={errs(e, 'birthCert')}>
-            <TextInput id="f-birthCert" inputMode="numeric" value={v.birthCert} onChange={(x) => set('birthCert', x)} />
+            <TextInput id="f-birthCert" inputMode="numeric" className="bd-mono" value={v.birthCert} onChange={(x) => set('birthCert', x)} />
           </Field>
           <Field htmlFor="f-passport" label="Passport no." span={2} errors={errs(e, 'passport')}>
-            <TextInput id="f-passport" value={v.passport} onChange={(x) => set('passport', x)} />
+            <TextInput id="f-passport" className="bd-mono" value={v.passport} onChange={(x) => set('passport', x)} />
           </Field>
           <Field
             htmlFor="f-workPermit"
@@ -146,20 +157,20 @@ export function PersonalTab({ profile }: { profile: Profile }) {
             help="Country code +880 is added automatically."
             errors={errs(e, 'mobile').length ? errs(e, 'mobile') : v.mobile && !mobileValid(v.mobile) ? ['Mobile must be 11 digits starting 01.'] : []}
           >
-            <TextInput id="f-mobile" inputMode="tel" value={v.mobile} onChange={(x) => set('mobile', x)} placeholder="01XXXXXXXXX" invalid={!!v.mobile && !mobileValid(v.mobile)} />
+            <TextInput id="f-mobile" inputMode="tel" className="bd-mono" value={v.mobile} onChange={(x) => set('mobile', x)} placeholder="01XXXXXXXXX" invalid={!!v.mobile && !mobileValid(v.mobile)} />
           </Field>
           <Field htmlFor="f-email" label="Email" span={2} errors={errs(e, 'email')}>
             <TextInput id="f-email" type="email" value={v.email} onChange={(x) => set('email', x)} />
           </Field>
-          <span className="hidden md:col-span-2 md:block" />
-          <Field htmlFor="f-emgName" label="Emergency contact" required span={2} errors={errs(e, 'emergencyName')}>
+          <Gap span={2} />
+          <Field htmlFor="f-emgName" label="Emergency contact" required span={2} help="Printed on the ID card." errors={errs(e, 'emergencyName')}>
             <TextInput id="f-emgName" value={v.emergencyName} onChange={(x) => set('emergencyName', x)} />
           </Field>
           <Field htmlFor="f-emgRel" label="Relationship" required span={2} errors={errs(e, 'emergencyRelation')}>
             <SelectInput id="f-emgRel" value={v.emergencyRelation} onChange={(x) => set('emergencyRelation', x)} options={ENUMS.relation} />
           </Field>
           <Field htmlFor="f-emgPhone" label="Emergency phone" required span={2} errors={errs(e, 'emergencyPhone')}>
-            <TextInput id="f-emgPhone" inputMode="tel" value={v.emergencyPhone} onChange={(x) => set('emergencyPhone', x)} placeholder="01XXXXXXXXX" />
+            <TextInput id="f-emgPhone" inputMode="tel" className="bd-mono" value={v.emergencyPhone} onChange={(x) => set('emergencyPhone', x)} placeholder="01XXXXXXXXX" />
           </Field>
         </FieldGrid>
       </Section>
@@ -173,24 +184,9 @@ export function PersonalTab({ profile }: { profile: Profile }) {
             <SelectInput id="f-presDiv" value={v.presentDivision} onChange={(x) => set('presentDivision', x)} options={ENUMS.division} />
           </Field>
           <Field htmlFor="f-permSame" label="Permanent address" span={6}>
-            <button
-              id="f-permSame"
-              type="button"
-              role="checkbox"
-              aria-checked={v.permanentSame}
-              onClick={() => set('permanentSame', !v.permanentSame)}
-              className="flex items-center gap-2 text-[12.5px] font-semibold text-v-ink700"
-            >
-              <span
-                className={cn(
-                  'flex h-[18px] w-[18px] items-center justify-center rounded-[6px] border-[1.5px] text-[11px] text-white',
-                  v.permanentSame ? 'border-v-primary bg-v-primary' : 'border-[rgba(22,23,42,0.22)] bg-white'
-                )}
-              >
-                {v.permanentSame ? '✓' : ''}
-              </span>
+            <Checkbox id="f-permSame" checked={v.permanentSame} onChange={(x) => set('permanentSame', x)}>
               Same as present
-            </button>
+            </Checkbox>
           </Field>
           {!v.permanentSame && (
             <>
@@ -261,23 +257,15 @@ function NomineesCard({ code, server }: { code: string; server: Nominee[] }) {
       title="Nominees"
       desc="Nominees receive provident fund, group insurance and death benefits. Shares must total 100%."
       right={
-        <div
-          aria-live="polite"
-          className={cn(
-            'flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold tabular-nums',
-            rows.length === 0 || complete
-              ? 'border-[rgba(31,169,122,0.3)] bg-[rgba(31,169,122,0.12)] text-[#157A5B]'
-              : 'border-[rgba(244,63,94,0.3)] bg-[rgba(244,63,94,0.1)] text-[#E11D48]'
-          )}
-        >
-          <span className="font-semibold opacity-70">Total</span>
-          {n(String(total))}%
+        <div aria-live="polite" className={cn('bd-chip !px-3 !py-1 !text-xs', rows.length === 0 || complete ? 'bd-tone-ok' : 'bd-tone-blocked')}>
+          <span className="font-semibold opacity-75">Total</span>
+          <span className="bd-mono">{n(String(total))}%</span>
         </div>
       }
     >
-      <div className="overflow-x-auto">
-        <div className="min-w-[640px]">
-          <div className="grid grid-cols-[2fr_1.2fr_1.6fr_0.9fr_36px] gap-2 border-b border-[rgba(22,23,42,0.07)] pb-2 text-[11px] font-bold uppercase tracking-[0.05em] text-v-ink400">
+      <div>
+        <div>
+          <div aria-hidden="true" className="bd-nominees is-head bd-colhead border-b border-[rgba(22,23,42,0.07)] pb-2">
             <span>Name</span>
             <span>Relationship</span>
             <span>NID</span>
@@ -285,12 +273,12 @@ function NomineesCard({ code, server }: { code: string; server: Nominee[] }) {
             <span />
           </div>
           {rows.length === 0 && (
-            <div className="py-5 text-[12.5px] text-v-ink400">
+            <div className="py-5 text-[12.5px] text-[#6F6A85]">
               No nominee on file. Required before provident fund or gratuity is paid out.
             </div>
           )}
           {rows.map((r) => (
-            <div key={r.key} className="grid grid-cols-[2fr_1.2fr_1.6fr_0.9fr_36px] items-center gap-2 py-1.5">
+            <div key={r.key} className="bd-nominees py-1.5">
               <input
                 aria-label="Nominee name"
                 className={inputClass()}
@@ -300,7 +288,7 @@ function NomineesCard({ code, server }: { code: string; server: Nominee[] }) {
               />
               <select
                 aria-label="Relationship"
-                className={cn(inputClass(), 'cursor-pointer')}
+                className={inputClass()}
                 value={r.relation}
                 onChange={(ev) => update(r.key, { relation: ev.target.value })}
               >
@@ -313,7 +301,8 @@ function NomineesCard({ code, server }: { code: string; server: Nominee[] }) {
               <input
                 aria-label="Nominee NID"
                 inputMode="numeric"
-                className={inputClass(!!r.nid && !nidValid(r.nid))}
+                className={cn(inputClass(!!r.nid && !nidValid(r.nid)), 'bd-mono')}
+                aria-invalid={(!!r.nid && !nidValid(r.nid)) || undefined}
                 value={r.nid}
                 onChange={(ev) => update(r.key, { nid: ev.target.value })}
                 placeholder="10, 13 or 17 digits"
@@ -322,36 +311,37 @@ function NomineesCard({ code, server }: { code: string; server: Nominee[] }) {
                 <input
                   aria-label="Share percent"
                   inputMode="decimal"
-                  className={cn(inputClass(rows.length > 0 && !complete), 'pr-7 text-right tabular-nums')}
+                  className={cn(inputClass(rows.length > 0 && !complete), 'bd-mono !pr-7 text-right')}
+                  aria-invalid={(rows.length > 0 && !complete) || undefined}
                   value={r.share}
                   onChange={(ev) => update(r.key, { share: ev.target.value.replace(/[^0-9.]/g, '') })}
                 />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-v-ink400">%</span>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#6E6883]">%</span>
               </div>
               <button
                 type="button"
                 aria-label="Remove nominee"
                 title="Remove nominee"
                 onClick={() => setRows((list) => list.filter((x) => x.key !== r.key))}
-                className="flex h-9 w-9 items-center justify-center rounded-[10px] text-v-ink400 hover:bg-v-danger-bg hover:text-v-danger-fg"
+                className="bd-iconbtn"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 aria-hidden="true" className="h-4 w-4" />
               </button>
             </div>
           ))}
         </div>
       </div>
-      <VioletButton
-        variant="soft"
-        size="sm"
-        className="mt-3"
-        leftIcon={<Plus className="h-3.5 w-3.5" />}
-        onClick={() =>
-          setRows((list) => [...list, { key: newKey(), name: '', relation: 'OTHER', nid: '', share: '' }])
-        }
+      <button
+        type="button"
+        className="bd-btn-dashed mt-3"
+        onClick={() => setRows((list) => [...list, { key: newKey(), name: '', relation: 'OTHER', nid: '', share: '' }])}
       >
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
         Add nominee
-      </VioletButton>
+      </button>
       {rows.length > 0 && !complete && (
         <Note tone="danger" className="mt-3">
           Nominee shares total {n(String(total))}%. Adjust the shares so they add up to exactly 100% before saving.

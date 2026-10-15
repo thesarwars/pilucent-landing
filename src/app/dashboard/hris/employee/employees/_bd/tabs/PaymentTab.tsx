@@ -8,7 +8,7 @@ import { ENUMS } from '../enums';
 import { useEmployeeMutation } from '../hooks';
 import { useLang } from '../i18n';
 import type { Payment, Profile } from '../types';
-import { Field, FieldGrid, Note, SaveBar, Section, SelectInput, SwitchRow, TextInput, errs, useSectionForm } from '../ui';
+import { Chip, Field, FieldGrid, Note, SaveBar, Section, SelectInput, SwitchRow, TextInput, errs, useSectionForm } from '../ui';
 import { mobileValid } from '../validate';
 
 const METHODS: { value: string; title: string; icon: React.ReactNode; note?: string; bad?: boolean }[] = [
@@ -52,15 +52,20 @@ export function PaymentTab({ profile }: { profile: Profile }) {
                 aria-checked={selected}
                 onClick={() => set('method', m.value)}
                 className={cn(
-                  'flex items-center gap-3 rounded-2xl border-[1.5px] px-4 py-3 text-left transition-all',
-                  selected ? 'border-v-primary bg-[rgba(124,77,255,0.08)] shadow-[0_10px_26px_-14px_rgba(124,77,255,0.8)]' : 'border-[rgba(22,23,42,0.1)] bg-white hover:border-[rgba(124,77,255,0.3)]'
+                  'flex items-center gap-3 rounded-2xl border-[1.5px] px-4 py-3 text-left transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7C4DFF]',
+                  selected
+                    ? 'border-[#7C4DFF] bg-[rgba(124,77,255,0.08)] shadow-[0_10px_26px_-14px_rgba(124,77,255,0.8)]'
+                    : 'border-[rgba(22,23,42,0.1)] bg-white/90 hover:border-[rgba(124,77,255,0.3)]'
                 )}
               >
-                <span className={cn('flex h-9 w-9 items-center justify-center rounded-xl', selected ? 'bg-[rgba(124,77,255,0.14)] text-v-primary-deep' : 'bg-[rgba(22,23,42,0.05)] text-v-ink500')}>
+                <span
+                  aria-hidden="true"
+                  className={cn('flex h-9 w-9 items-center justify-center rounded-xl', selected ? 'bg-[rgba(124,77,255,0.14)] text-[#6B3FE8]' : 'bg-[rgba(22,23,42,0.05)] text-[#6F6A85]')}
+                >
                   {m.icon}
                 </span>
                 <span className="min-w-0">
-                  <span className={cn('block text-[13px] font-bold', selected ? 'text-v-primary-deep' : 'text-v-ink900')}>{m.title}</span>
+                  <span className={cn('block text-[13px] font-bold', selected ? 'text-[#6B3FE8]' : 'text-[#16172A]')}>{m.title}</span>
                   {m.note && <span className={cn('block text-[11px] font-semibold', m.bad ? 'text-[#E11D48]' : 'text-[#157A5B]')}>{m.note}</span>}
                 </span>
               </button>
@@ -69,9 +74,22 @@ export function PaymentTab({ profile }: { profile: Profile }) {
         </div>
 
         {v.method === 'CASH' && (
-          <div className="mt-4 rounded-2xl border border-[rgba(244,63,94,0.22)] bg-[rgba(244,63,94,0.045)] p-4">
-            <div className="text-[13px] font-bold text-[#E11D48]">Paying salary in cash costs the employer its deduction</div>
-            <p className="mt-1 text-[12.5px] leading-relaxed text-v-ink700">
+          <div className="mt-4 rounded-2xl border border-[rgba(245,178,46,0.36)] bg-[rgba(245,178,46,0.06)] p-4">
+            <div aria-live="polite">
+              <Chip
+                tone="warn"
+                icon={
+                  <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                    <path d="M12 9v4" />
+                    <path d="M12 17h.01" />
+                  </svg>
+                }
+              >
+                Lawful under the Labour Act · costs the employer the tax deduction (s.55)
+              </Chip>
+            </div>
+            <p className="mt-2 text-[12.5px] leading-relaxed text-[#44405C]">
               Cash wages are lawful, but salary paid outside banking channels is disallowed as a business expense. With a reason it is a risk; without one it blocks payroll.
             </p>
             <FieldGrid className="mt-3">
@@ -91,13 +109,13 @@ export function PaymentTab({ profile }: { profile: Profile }) {
               <TextInput id="f-branch" value={v.branch} onChange={(x) => set('branch', x)} />
             </Field>
             <Field htmlFor="f-routing" label="Routing number" span={2} errors={errs(e, 'routing')}>
-              <TextInput id="f-routing" inputMode="numeric" value={v.routing} onChange={(x) => set('routing', x)} className="font-mono" />
+              <TextInput id="f-routing" inputMode="numeric" value={v.routing} onChange={(x) => set('routing', x)} className="bd-mono" />
             </Field>
             <Field htmlFor="f-accname" label="Account name" span={2} errors={errs(e, 'accountName')}>
               <TextInput id="f-accname" value={v.accountName} onChange={(x) => set('accountName', x)} />
             </Field>
             <Field htmlFor="f-accnum" label="Account number" span={2} errors={errs(e, 'accountNumber')}>
-              <TextInput id="f-accnum" inputMode="numeric" value={v.accountNumber} onChange={(x) => set('accountNumber', x)} className="font-mono" />
+              <TextInput id="f-accnum" inputMode="numeric" value={v.accountNumber} onChange={(x) => set('accountNumber', x)} className="bd-mono" />
             </Field>
             <Field htmlFor="f-acctype" label="Account type" span={2} errors={errs(e, 'accountType')}>
               <SelectInput id="f-acctype" value={v.accountType} onChange={(x) => set('accountType', x)} options={ACCOUNT_TYPES} />
@@ -117,7 +135,7 @@ export function PaymentTab({ profile }: { profile: Profile }) {
               span={2}
               errors={errs(e, 'walletNumber').length ? errs(e, 'walletNumber') : v.walletNumber && !mobileValid(v.walletNumber) ? ['Wallet number must be 11 digits starting 01.'] : []}
             >
-              <TextInput id="f-wallet" inputMode="tel" value={v.walletNumber} onChange={(x) => set('walletNumber', x)} placeholder="01XXXXXXXXX" className="font-mono" invalid={!mobileValid(v.walletNumber)} />
+              <TextInput id="f-wallet" inputMode="tel" value={v.walletNumber} onChange={(x) => set('walletNumber', x)} placeholder="01XXXXXXXXX" className="bd-mono" invalid={!mobileValid(v.walletNumber)} />
             </Field>
             <Field htmlFor="f-wallettype" label="Account type" span={2} errors={errs(e, 'walletType')}>
               <SelectInput id="f-wallettype" value={v.walletType} onChange={(x) => set('walletType', x)} options={ENUMS.walletType} />

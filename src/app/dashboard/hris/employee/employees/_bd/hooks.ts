@@ -10,7 +10,7 @@
  * another is opened (backend §1.3).
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as api from './api';
 import type { RosterFilter } from './types';
 
@@ -28,6 +28,25 @@ export function useRoster(params: { q: string; filter: RosterFilter; page: numbe
     placeholderData: (prev) => prev,
     ...opts,
   });
+}
+
+const FILTERS: RosterFilter[] = ['ALL', 'WORKER', 'NON_WORKER', 'PROBATION', 'BLOCKED'];
+
+/**
+ * How many employees each filter pill would show, for the current search.
+ * The list endpoint has no facet counts, so each is a one-row page.
+ */
+export function useRosterCounts(q: string): Partial<Record<RosterFilter, number>> {
+  const results = useQueries({
+    queries: FILTERS.map((filter) => ({
+      queryKey: [...keys.roster, 'count', q, filter],
+      queryFn: () => api.listEmployees({ q, filter, page: 1, limit: 1 }),
+      placeholderData: (prev: Awaited<ReturnType<typeof api.listEmployees>> | undefined) => prev,
+      staleTime: 30_000,
+      ...opts,
+    })),
+  });
+  return Object.fromEntries(FILTERS.flatMap((f, i) => (results[i].data ? [[f, results[i].data!.count]] : [])));
 }
 
 export function useProfile(code: string) {

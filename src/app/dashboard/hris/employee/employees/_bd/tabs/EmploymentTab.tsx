@@ -3,15 +3,16 @@
 import * as React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Chip, VioletButton } from '@/components/violet';
+import { VioletButton } from '@/components/violet';
 import { toast } from '@/lib/ToastService';
 import * as api from '../api';
 import { ENUMS, enumLabel } from '../enums';
-import { useEmployeeMutation, useLookup, useSalary } from '../hooks';
+import { useEmployeeMutation, useHistory, useLookup, useSalary } from '../hooks';
 import { useLang } from '../i18n';
 import { serviceLabel } from '../format';
 import type { Derived, Lookup, Profile } from '../types';
 import {
+  Chip,
   DateInput,
   Field,
   FieldGrid,
@@ -113,7 +114,7 @@ export function EmploymentTab({
       >
         <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
           <div>
-            <div role="radiogroup" aria-label="Employment classification" className="inline-flex rounded-[14px] bg-v-wash2 p-1">
+            <div id="f-classification" tabIndex={-1} role="radiogroup" aria-label="Employment classification" className="bd-langpair inline-flex outline-none">
               {ENUMS.classification.map((o) => {
                 const selected = emp.classification === o.value;
                 return (
@@ -123,30 +124,25 @@ export function EmploymentTab({
                     role="radio"
                     aria-checked={selected}
                     onClick={() => !selected && onClassify(o.value)}
-                    className={cn(
-                      'rounded-[11px] px-4 py-2 text-[13px] font-bold transition-all',
-                      selected ? 'bg-white text-v-primary-deep shadow-[0_6px_16px_-8px_rgba(22,23,42,0.4)]' : 'text-v-ink500 hover:text-v-ink900'
-                    )}
+                    className="!px-4 !py-2 !text-[13px]"
                   >
                     {t(o.label, o.value === 'WORKER' ? 'worker' : 'nonWorker')}
                   </button>
                 );
               })}
             </div>
-            <p className="mt-2.5 text-[11.5px] leading-relaxed text-v-ink400">
+            {emp.classification && <Assessment code={code} />}
+            <p className="bd-help !mt-2.5">
               {emp.classification
-                ? `Changing it is recorded with a reason and an effective date. ${n(emp.completedPayrollRuns)} completed payroll run(s) exist for this employee.`
+                ? `Changing it is recorded with an assessor, a reason and an effective date. ${n(emp.completedPayrollRuns)} completed payroll run(s) exist for this employee.`
                 : 'Not classified yet. Pick one to record it.'}
             </p>
           </div>
           <div
             aria-live="polite"
-            className={cn(
-              'rounded-2xl border p-4',
-              isWorker ? 'border-[rgba(124,77,255,0.22)] bg-[rgba(124,77,255,0.07)]' : 'border-[rgba(22,23,42,0.11)] bg-[rgba(22,23,42,0.045)]'
-            )}
+            className={cn('bd-note !block !p-4', isWorker ? 'bd-tone-violet' : 'bd-tone-neutral')}
           >
-            <div className={cn('text-[13px] font-bold', isWorker ? 'text-v-primary-deep' : 'text-v-ink700')}>
+            <div className="text-[13px] font-bold">
               {isWorker ? 'Bangladesh Labour Act entitlements apply' : 'Statutory worker entitlements do not apply'}
             </div>
             {isWorker ? (
@@ -160,19 +156,19 @@ export function EmploymentTab({
                 ]
                   .filter(Boolean)
                   .map((text) => (
-                    <li key={String(text)} className="flex items-start gap-2 text-[12.5px] text-v-ink700">
-                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-v-primary" />
+                    <li key={String(text)} className="flex items-start gap-2 text-[12.5px] font-medium text-[#44405C]">
+                      <CheckCircle2 aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7C4DFF]" />
                       {text}
                     </li>
                   ))}
                 {!derived && (
-                  <li className="text-[12.5px] text-v-ink500">
+                  <li className="text-[12.5px] font-medium text-[#6F6A85]">
                     The figures appear once a salary structure is assigned.
                   </li>
                 )}
               </ul>
             ) : (
-              <p className="mt-2 text-[12.5px] leading-relaxed text-v-ink500">
+              <p className="mt-2 text-[12.5px] font-medium leading-relaxed text-[#6F6A85]">
                 Benefits follow the employment contract or company service rules and are configured under Statutory.
               </p>
             )}
@@ -182,8 +178,8 @@ export function EmploymentTab({
 
       <Section title="Position" desc="Fields with a clock are effective-dated — every change is recorded, never overwritten.">
         <FieldGrid>
-          <Field label="Employee code" span={2} help="Never reassigned.">
-            <TextInput id="f-code" value={profile.code} onChange={() => undefined} disabled />
+          <Field htmlFor="f-code" label="Employee code" span={2} help="Never reassigned.">
+            <TextInput id="f-code" className="bd-mono" value={profile.code} onChange={() => undefined} readOnly />
           </Field>
           <Field
             htmlFor="f-category"
@@ -205,18 +201,25 @@ export function EmploymentTab({
           >
             <SelectInput id="f-establishment" value={v.establishment} onChange={(x) => set('establishment', x)} options={ENUMS.establishment} />
           </Field>
-          <Field htmlFor="f-doj" label="Date of joining" required span={2} errors={errs(e, 'doj')}>
-            <DateInput id="f-doj" value={v.doj} onChange={(x) => set('doj', x)} />
-            {(emp.service || derived?.festivalBonus?.eligibleFrom) && (
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
+          <Field
+            htmlFor="f-doj"
+            label="Date of joining"
+            required
+            span={2}
+            help="Service, gratuity and bonus eligibility count from here."
+            errors={errs(e, 'doj')}
+            chips={
+              <>
                 {emp.service && <Chip tone="violet">{serviceLabel(emp.service)} of service</Chip>}
                 {derived?.festivalBonus?.eligibleFrom && (
-                  <Chip tone={derived.festivalBonus.eligible ? 'success' : 'warn'}>
+                  <Chip tone={derived.festivalBonus.eligible ? 'ok' : 'warn'}>
                     Festival bonus {derived.festivalBonus.eligible ? 'eligible since' : 'eligible from'} {date(derived.festivalBonus.eligibleFrom)}
                   </Chip>
                 )}
-              </div>
-            )}
+              </>
+            }
+          >
+            <DateInput id="f-doj" value={v.doj} onChange={(x) => set('doj', x)} />
           </Field>
           <Field htmlFor="f-probation" label="Probation end date" span={2} errors={errs(e, 'probationEnd')}>
             <DateInput id="f-probation" value={v.probationEnd} onChange={(x) => set('probationEnd', x)} />
@@ -252,7 +255,7 @@ export function EmploymentTab({
             errors={errs(e, 'manager')}
             help={emp.manager ? emp.manager.nameEn : 'Their employee code, e.g. EMP-0101.'}
           >
-            <TextInput id="f-manager" value={v.manager} onChange={(x) => set('manager', x.toUpperCase())} placeholder="EMP-0000" />
+            <TextInput id="f-manager" className="bd-mono" value={v.manager} onChange={(x) => set('manager', x.toUpperCase())} placeholder="EMP-0000" />
           </Field>
           <Field htmlFor="f-empType" label="Employment type" required span={2} errors={errs(e, 'employmentType')}>
             <SelectInput id="f-empType" value={v.employmentType} onChange={(x) => set('employmentType', x)} options={ENUMS.employmentType} />
@@ -267,6 +270,28 @@ export function EmploymentTab({
       </Section>
 
       <Paperwork profile={profile} />
+    </div>
+  );
+}
+
+/**
+ * Who assessed the classification, when and why. It is an assessment of the
+ * work performed, never derived from the job title (spec §11.4).
+ */
+export function Assessment({ code }: { code: string }) {
+  const { date } = useLang();
+  const history = useHistory(code, 'classification');
+  if (!history.data) return null;
+  const latest = history.data.empty ? null : history.data.entries[0];
+  if (!latest) {
+    return <div className="bd-help !mt-3">No assessment recorded yet — the classification was set when the record was created.</div>;
+  }
+  return (
+    <div className="bd-readout mt-3 text-[12px] leading-relaxed">
+      <div className="font-bold text-[#16172A]">
+        Assessed by {latest.by || 'an unrecorded user'} · effective <span className="bd-mono">{date(latest.date)}</span>
+      </div>
+      {latest.reason && <div className="mt-0.5 text-[#44405C]">{latest.reason}</div>}
     </div>
   );
 }
@@ -293,7 +318,7 @@ function Paperwork({ profile }: { profile: Profile }) {
       <FieldGrid>
         <Field htmlFor="f-appointment" label="Appointment letter" required span={3} help={emp.appointmentLetter ? undefined : 'A compliance risk until it is issued.'}>
           <div id="f-appointment" tabIndex={-1} className="flex flex-wrap items-center gap-2 rounded-xl outline-none">
-            <Chip tone={emp.appointmentLetter ? 'success' : 'danger'} dot>
+            <Chip tone={emp.appointmentLetter ? 'ok' : 'blocked'} dot>
               {emp.appointmentLetter ? 'Issued' : 'Not issued'}
             </Chip>
             <VioletButton
@@ -308,7 +333,7 @@ function Paperwork({ profile }: { profile: Profile }) {
         </Field>
         <Field htmlFor="f-idcard" label="ID card" required span={3}>
           <div id="f-idcard" tabIndex={-1} className="flex flex-wrap items-center gap-2 rounded-xl outline-none">
-            <Chip tone={emp.idCard ? 'success' : 'neutral'} dot>
+            <Chip tone={emp.idCard ? 'ok' : 'neutral'} dot>
               {emp.idCard ? `Issued ${date(emp.idCardDate)}` : 'Not issued'}
             </Chip>
             <VioletButton variant="outline" size="sm" disabled={issue.isPending} onClick={() => void run('ID_CARD', 'ID card issued')}>

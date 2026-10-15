@@ -1,0 +1,974 @@
+/*
+ * The BD employee screens, on the values in docs/frontend/employee-profile.md.
+ * Every class is prefixed `bd-`, and the tokens `--bd-`, so nothing collides
+ * with the rest of the app. The tokens sit on body, not `.bd`, because modals
+ * and the drawer render in a portal outside the `.bd` root; and not :root,
+ * because next/font sets `--font-jbmono` on body, where a :root token could
+ * not see it.
+ *
+ * Departures from the spec, each from its own known-defects table (§17):
+ *   - the faint ink is #6E6883, not #8A83A6, which measures 3.57:1;
+ *   - help, chip and error text rise to 12px under 768px.
+ */
+
+body {
+  --bd-violet: #7c4dff;
+  --bd-violet-primary: #6b3fe8;
+  --bd-violet-deep: #5a2be0;
+  --bd-ink: #16172a;
+  --bd-ink-2: #44405c;
+  --bd-ink-muted: #6f6a85;
+  --bd-ink-help: #7a7490;
+  --bd-ink-faint: #6e6883;
+  --bd-mono: var(--font-jbmono), 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.bd {
+  position: relative;
+  min-height: 100%;
+  color: var(--bd-ink);
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+}
+
+.bd input,
+.bd button,
+.bd textarea,
+.bd select {
+  font-family: inherit;
+}
+
+.bd ::placeholder,
+.bd-input::placeholder {
+  color: #a6a1b8;
+  opacity: 1;
+}
+
+.bd-mono {
+  font-family: var(--bd-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.bd-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-bottom: 64px;
+}
+
+/* ── glass surfaces: opacity rises with elevation (§4.3) ──────────── */
+
+.bd-card {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px -40px rgba(22, 23, 42, 0.5);
+}
+
+.bd-section {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 22px 55px -42px rgba(22, 23, 42, 0.5);
+  padding: 20px 22px 22px;
+}
+
+.bd-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.bd-section-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--bd-ink);
+}
+
+.bd-section-desc {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--bd-ink-muted);
+  max-width: 720px;
+}
+
+.bd-colhead {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bd-ink-faint);
+}
+
+/* ── tones: one triple per meaning (§4.2) ─────────────────────────── */
+
+.bd-tone-ok {
+  --t-fill: rgba(31, 169, 122, 0.14);
+  --t-border: rgba(31, 169, 122, 0.32);
+  --t-ink: #157a5b;
+  --t-solid: #1fa97a;
+}
+.bd-tone-warn {
+  --t-fill: rgba(245, 178, 46, 0.16);
+  --t-border: rgba(245, 178, 46, 0.36);
+  --t-ink: #8a5a06;
+  --t-solid: #f5b22e;
+}
+.bd-tone-blocked {
+  --t-fill: rgba(244, 63, 94, 0.12);
+  --t-border: rgba(244, 63, 94, 0.3);
+  --t-ink: #e11d48;
+  --t-solid: #f43f5e;
+}
+.bd-tone-violet {
+  --t-fill: rgba(124, 77, 255, 0.12);
+  --t-border: rgba(124, 77, 255, 0.28);
+  --t-ink: #6b3fe8;
+  --t-solid: #7c4dff;
+}
+.bd-tone-neutral {
+  --t-fill: rgba(22, 23, 42, 0.06);
+  --t-border: rgba(22, 23, 42, 0.12);
+  --t-ink: #44405c;
+  --t-solid: #44405c;
+}
+.bd-tone-bd {
+  --t-fill: rgba(34, 211, 238, 0.16);
+  --t-border: rgba(34, 211, 238, 0.4);
+  --t-ink: #0e7490;
+  --t-solid: #22d3ee;
+}
+
+.bd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--t-border);
+  background: var(--t-fill);
+  color: var(--t-ink);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  /* One line where it fits; wraps rather than widen a phone screen. */
+  max-width: 100%;
+}
+
+button.bd-chip {
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+button.bd-chip:hover {
+  filter: brightness(0.96) saturate(1.15);
+}
+button.bd-chip:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+}
+
+.bd-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--t-solid);
+  flex-shrink: 0;
+}
+
+.bd-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--t-border);
+  background: var(--t-fill);
+  color: var(--t-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* ── buttons ──────────────────────────────────────────────────────── */
+
+.bd-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 13px;
+  background: var(--bd-violet);
+  border: none;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 10px 26px -12px rgba(124, 77, 255, 0.9);
+  transition: background 0.15s ease;
+}
+.bd-btn-primary:hover {
+  background: var(--bd-violet-primary);
+}
+.bd-btn-primary:disabled {
+  background: #c9c2dd;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.bd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  color: var(--bd-ink-2);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.bd-btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--bd-ink);
+}
+.bd-btn[aria-pressed='true'] {
+  background: rgba(124, 77, 255, 0.12);
+  border-color: rgba(124, 77, 255, 0.28);
+  color: var(--bd-violet-primary);
+}
+.bd-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* "Add nominee" and its kind: additive, not primary. */
+.bd-btn-dashed {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1.5px dashed rgba(124, 77, 255, 0.45);
+  background: rgba(124, 77, 255, 0.04);
+  color: var(--bd-violet-primary);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.bd-btn-dashed:hover {
+  background: rgba(124, 77, 255, 0.09);
+  border-color: var(--bd-violet);
+}
+
+.bd-btn-primary:focus-visible,
+.bd-btn:focus-visible,
+.bd-btn-dashed:focus-visible,
+.bd-iconbtn:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+}
+
+.bd-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  border: none;
+  background: transparent;
+  color: var(--bd-ink-faint);
+  cursor: pointer;
+}
+.bd-iconbtn:hover {
+  background: rgba(244, 63, 94, 0.1);
+  color: #e11d48;
+}
+
+/* ── language and numerals (§6) ───────────────────────────────────── */
+
+.bd-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 9px;
+  border: 1px solid var(--t-border);
+  background: var(--t-fill);
+  color: var(--t-ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.bd-langpair {
+  display: flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+.bd-langpair button {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bd-ink-muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.bd-langpair button[aria-pressed='true'],
+.bd-langpair button[aria-checked='true'] {
+  background: #fff;
+  color: var(--bd-violet-primary);
+  box-shadow: 0 4px 12px -6px rgba(22, 23, 42, 0.4);
+}
+.bd-langpair button:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+}
+
+/* ── list (§7) ────────────────────────────────────────────────────── */
+
+.bd-list-head {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bd-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.bd-lede {
+  margin: 6px 0 0;
+  max-width: 640px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--bd-ink-muted);
+}
+
+.bd-search {
+  position: relative;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+.bd-search > span {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: #9a95ae;
+  pointer-events: none;
+}
+.bd-search input {
+  width: 268px;
+  max-width: 100%;
+  height: 38px;
+  padding: 0 13px 0 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  color: var(--bd-ink);
+}
+.bd-search input:focus {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 1px;
+}
+
+.bd-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  background: #fff;
+  color: var(--bd-ink-2);
+  border: 1px solid rgba(22, 23, 42, 0.14);
+  font-weight: 600;
+}
+/* Active is ink, not violet: a filter is a view state, not an action. */
+.bd-filter[aria-pressed='true'] {
+  background: var(--bd-ink);
+  color: #fff;
+  border-color: var(--bd-ink);
+  font-weight: 700;
+}
+.bd-filter:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+}
+.bd-filter-count {
+  font-family: var(--bd-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  opacity: 0.72;
+}
+
+.bd-rows {
+  margin: 16px 20px 0;
+  overflow: hidden;
+}
+
+.bd-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 13px 20px;
+  border-bottom: 1px solid rgba(22, 23, 42, 0.06);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.bd-row.is-odd {
+  background: rgba(22, 23, 42, 0.012);
+}
+.bd-row:hover {
+  background: rgba(124, 77, 255, 0.09);
+}
+.bd-row:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: -2px;
+}
+.bd-row-line1 {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+.bd-row-line2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding-left: 45px;
+  font-size: 12.5px;
+  color: var(--bd-ink-muted);
+}
+
+.bd-new {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bd-violet);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+/* ── avatar: a person is a circle, the brand mark a square (§5.1) ─── */
+
+.bd-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(140deg, #7c4dff, #5a2be0);
+  color: #fff;
+  font-weight: 700;
+}
+.bd-avatar-lg {
+  width: 64px;
+  height: 64px;
+  font-size: 22px;
+  box-shadow: 0 10px 26px -12px rgba(124, 77, 255, 0.8);
+}
+.bd-avatar-sm {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+
+/* ── profile header (§8) ──────────────────────────────────────────── */
+
+.bd-chrome {
+  padding: 16px 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bd-identity {
+  padding: 18px 22px;
+}
+
+.bd-name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+.bd-name-bn {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--bd-ink-muted);
+}
+
+.bd-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  width: 232px;
+  background: #fff;
+  border: 1px solid rgba(22, 23, 42, 0.09);
+  border-radius: 16px;
+  box-shadow: 0 26px 60px -22px rgba(22, 23, 42, 0.45);
+  padding: 7px;
+  animation: bdPopIn 0.16s ease;
+}
+.bd-menu-item {
+  display: block;
+  width: 100%;
+  padding: 9px 11px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bd-ink);
+  cursor: pointer;
+}
+/* Solid tint: the menu is opaque white, so a translucent hover would show the card beneath. */
+.bd-menu-item:hover,
+.bd-menu-item:focus-visible {
+  background: #f4f1fe;
+  outline: none;
+}
+.bd-menu-item.is-danger {
+  color: #e11d48;
+}
+.bd-menu-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: transparent;
+}
+.bd-menu-sep {
+  height: 1px;
+  margin: 5px 4px;
+  background: rgba(22, 23, 42, 0.07);
+}
+
+/* ── tabs (§9) ────────────────────────────────────────────────────── */
+
+.bd-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.bd-tabs::-webkit-scrollbar {
+  display: none;
+}
+.bd-tabitem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 4px 0 12px;
+  border-radius: 11px;
+  transition: background 0.12s ease;
+}
+.bd-tabitem:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+.bd-tabitem.is-active {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 18px -10px rgba(22, 23, 42, 0.45);
+}
+.bd-tab {
+  height: 100%;
+  padding: 0 10px 0 0;
+  border: none;
+  background: transparent;
+  color: var(--bd-ink-2);
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.bd-tab[aria-current='page'] {
+  color: var(--bd-violet-primary);
+  font-weight: 700;
+}
+.bd-tab:focus-visible,
+.bd-dot-btn:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.bd-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+}
+.bd-dot-btn {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ── the field system (§10) ───────────────────────────────────────── */
+
+.bd-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+.bd-span-1 {
+  grid-column: span 1;
+}
+.bd-span-2 {
+  grid-column: span 2;
+}
+.bd-span-3 {
+  grid-column: span 3;
+}
+.bd-span-4 {
+  grid-column: span 4;
+}
+.bd-span-6 {
+  grid-column: span 6;
+}
+
+.bd-field {
+  min-width: 0;
+}
+.bd-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 20px;
+  margin-bottom: 6px;
+}
+.bd-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bd-ink-2);
+}
+.bd-req {
+  color: #e11d48;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bd-clock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: rgba(124, 77, 255, 0.1);
+  color: var(--bd-violet-primary);
+  cursor: pointer;
+}
+.bd-clock:hover {
+  background: rgba(124, 77, 255, 0.2);
+}
+.bd-clock:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+}
+
+.bd-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 13px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(22, 23, 42, 0.12);
+  background-color: rgba(255, 255, 255, 0.9);
+  font-size: 13.5px;
+  color: var(--bd-ink);
+  transition: border-color 0.15s ease;
+}
+.bd-input:focus {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 1px;
+  border-color: var(--bd-violet);
+}
+.bd-input[aria-invalid='true'],
+.bd-input.is-invalid {
+  border-color: #f43f5e;
+}
+.bd-input:disabled,
+.bd-input[readonly] {
+  background-color: rgba(22, 23, 42, 0.05);
+  color: var(--bd-ink-muted);
+  cursor: not-allowed;
+}
+.bd-input[type='date'],
+.bd-input.bd-mono {
+  font-family: var(--bd-mono);
+  font-size: 13px;
+}
+textarea.bd-input {
+  height: auto;
+  min-height: 60px;
+  padding: 10px 13px;
+  resize: vertical;
+  line-height: 1.5;
+}
+/* The native arrow does not match the glass; this one does. */
+select.bd-input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 34px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236F6A85' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+}
+
+.bd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+.bd-chips:empty {
+  display: none;
+}
+.bd-help {
+  margin-top: 6px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--bd-ink-help);
+}
+.bd-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #e11d48;
+}
+
+.bd-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--bd-ink-2);
+  cursor: pointer;
+}
+.bd-check-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(22, 23, 42, 0.22);
+  background: #fff;
+  color: #fff;
+}
+.bd-check[aria-checked='true'] .bd-check-box {
+  border-color: var(--bd-violet);
+  background: var(--bd-violet);
+}
+.bd-check:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Nominees: shares must total 100, so the row is its own grid (§11.1). */
+.bd-nominees {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1.5fr) 104px 36px;
+  gap: 10px;
+  align-items: center;
+}
+
+/* A read-only figure: no border, no field look, so nobody tries to type in it. */
+.bd-readout {
+  border-radius: 14px;
+  background: rgba(22, 23, 42, 0.035);
+  border: 1px solid rgba(22, 23, 42, 0.06);
+  padding: 12px 14px;
+}
+
+/* ── compliance drawer (§12) ──────────────────────────────────────── */
+
+.bd-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 380;
+  background: rgba(22, 23, 42, 0.3);
+  animation: bdFadeIn 0.2s ease;
+}
+.bd-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 390;
+  width: min(460px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: -8px 0 28px rgba(0, 0, 0, 0.18);
+  animation: bdSlideL 0.22s cubic-bezier(0.2, 0, 0, 1);
+  color: var(--bd-ink);
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+}
+.bd-drawer:focus {
+  outline: none;
+}
+.bd-finding {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--t-border);
+  background: var(--t-fill);
+  text-align: left;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.bd-finding:hover {
+  filter: brightness(0.97) saturate(1.2);
+}
+.bd-finding:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+}
+
+/* ── motion (§13); the reduced-motion guard is in globals.css ─────── */
+
+@keyframes bdPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes bdFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes bdSlideL {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ── narrow screens ───────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  .bd-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bd-grid > * {
+    grid-column: 1 / -1;
+  }
+  .bd-help,
+  .bd-chip,
+  .bd-error {
+    font-size: 12px;
+  }
+  .bd-list-head,
+  .bd-chrome {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .bd-rows {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+  .bd-row {
+    padding: 13px 14px;
+  }
+  .bd-row-line2 {
+    padding-left: 0;
+  }
+  .bd-section {
+    padding: 16px;
+  }
+  .bd-identity {
+    padding: 16px;
+  }
+  .bd-nominees {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .bd-nominees > :first-child {
+    grid-column: 1 / -1;
+  }
+  .bd-nominees.is-head {
+    display: none;
+  }
+}

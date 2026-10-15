@@ -10,6 +10,7 @@ import {
   formatDate,
   formatMonthYear,
   groupSouthAsian,
+  initials,
   parseAmount,
   percentChange,
   plural,
@@ -81,5 +82,28 @@ describe('hints', () => {
   test('one helper for count and noun', () => {
     expect(plural(1, 'item', 'items')).toBe('1 item');
     expect(plural(3, 'item', 'items')).toBe('3 items');
+  });
+});
+
+describe('initials', () => {
+  it('takes the first and last initial', () => {
+    expect(initials('Rahima Akter Khatun')).toBe('RK');
+    expect(initials('Sarwar')).toBe('S');
+  });
+
+  it('drops a leading honorific, so Md. does not make every avatar MI or MR', () => {
+    expect(initials('Md. Rafiqul Islam')).toBe('RI');
+    expect(initials('Md Habibur Rahman')).toBe('HR');
+    expect(initials('Mohammad Ali Hossain')).toBe('AH');
+    expect(initials('Begum Rokeya Sultana')).toBe('RS');
+    expect(initials('Mrs. Nasrin Akter')).toBe('NA');
+  });
+
+  it('keeps an honorific-like word that is not leading', () => {
+    expect(initials('Nurjahan Begum')).toBe('NB');
+  });
+
+  it('never returns an empty string', () => {
+    expect(initials('')).toBe('?');
   });
 });

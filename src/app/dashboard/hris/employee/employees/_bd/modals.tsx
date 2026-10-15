@@ -3,9 +3,11 @@
 /** The profile's overlays: compliance drawer, gated operations, field timeline. */
 
 import * as React from 'react';
-import { AlertOctagon, AlertTriangle, CheckCircle2, ChevronRight, Clock3, ShieldAlert, UserMinus } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { AlertOctagon, AlertTriangle, ChevronRight, Clock3, UserMinus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Drawer, Modal, VioletButton } from '@/components/violet';
+import { Modal, VioletButton } from '@/components/violet';
+import { useEscape, useLockScroll, usePortalNode } from '@/components/violet/overlay';
 import { toast } from '@/lib/ToastService';
 import * as api from './api';
 import { ENUMS, enumLabel } from './enums';
@@ -13,13 +15,37 @@ import { plural, todayISO } from './format';
 import { useEmployeeMutation, useHistory } from './hooks';
 import { useLang } from './i18n';
 import type { Compliance, Finding, Profile, SeparationEntitlement, TabId } from './types';
-import { ConfidenceTag, DateInput, ErrorBlock, Field, LoadingBlock, Note, SelectInput, Spinner, SwitchRow, TextArea } from './ui';
+import { Chip, ConfidenceTag, DateInput, ErrorBlock, Field, LoadingBlock, Note, SelectInput, Spinner, SwitchRow, TextArea, type Tone } from './ui';
 import { HistoryList } from './tabs/HistoryTab';
 import { useDebounced } from './salary/shared';
 import { MIN_REASON, reasonLength } from './validate';
 
-/* ── compliance ───────────────────────────────────────────────────── */
+/* ── compliance (spec §12) ────────────────────────────────────────── */
 
+const TAB_NAME: Record<TabId, string> = {
+  personal: 'Personal',
+  employment: 'Employment',
+  salary: 'Salary',
+  statutory: 'Statutory',
+  tax: 'Tax profile',
+  payment: 'Payment',
+  documents: 'Documents',
+  history: 'History',
+};
+
+/** The API sends two severities; the spec's third, `info`, has no findings yet. */
+type Severity = 'blocked' | 'warn';
+
+const SEVERITY: Record<Severity, { tone: Tone; title: string; blocks: string }> = {
+  blocked: { tone: 'blocked', title: 'Blocks payroll', blocks: 'Stops the payroll run until it is fixed.' },
+  warn: { tone: 'warn', title: 'Compliance risk', blocks: 'Payroll runs, with consequences.' },
+};
+
+/**
+ * Every finding with its severity, what is missing, what it blocks, and a way
+ * to the field: the drawer closes, the tab switches and the field pulses.
+ * Only `blocked` turns a tab dot red.
+ */
 export function ComplianceDrawer({
   compliance,
   onClose,
@@ -30,58 +56,129 @@ export function ComplianceDrawer({
   goTo: (tab: TabId, field: string | null) => void;
 }) {
   const blocks = compliance.blocks.length;
-  const group = (title: string, items: Finding[], bad: boolean) => (
-    <div className="mb-5">
-      <div className="mb-2 flex items-center gap-2">
-        <span className={cn('h-2 w-2 rounded-full', bad ? 'bg-[#F43F5E]' : 'bg-[#F5B22E]')} />
-        <span className={cn('text-[12.5px] font-bold', bad ? 'text-[#E11D48]' : 'text-[#8A5A06]')}>{title}</span>
-        <span className="rounded-full bg-v-wash2 px-2 text-[11px] font-bold tabular-nums text-v-ink500">{items.length}</span>
-      </div>
-      {items.length === 0 ? (
-        <div className="flex items-center gap-2 rounded-xl bg-[rgba(31,169,122,0.08)] px-3 py-2 text-[12px] font-semibold text-[#157A5B]">
-          <CheckCircle2 className="h-3.5 w-3.5" />
-          Nothing outstanding here.
-        </div>
-      ) : (
-        <div className="space-y-1.5">
-          {items.map((f) => (
-            <button
-              key={f.key}
-              type="button"
-              onClick={() => {
-                onClose();
-                goTo(f.tab, f.field);
-              }}
-              className={cn(
-                'flex w-full items-start gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-colors',
-                bad ? 'border-[rgba(244,63,94,0.22)] bg-[rgba(244,63,94,0.06)] hover:bg-[rgba(244,63,94,0.1)]' : 'border-[rgba(245,178,46,0.26)] bg-[rgba(245,178,46,0.08)] hover:bg-[rgba(245,178,46,0.13)]'
-              )}
-            >
-              {bad ? <AlertOctagon className="mt-0.5 h-4 w-4 shrink-0 text-[#E11D48]" /> : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#B97608]" />}
-              <span className="min-w-0 flex-1">
-                <span className="block text-[12.5px] font-bold text-v-ink900">{f.label}</span>
-                <span className="block text-[11.5px] leading-snug text-v-ink500">{f.fix}</span>
-              </span>
-              <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-v-ink400" />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  const titleId = React.useId();
+  const groups: [Severity, Finding[]][] = [
+    ['blocked', compliance.blocks],
+    ['warn', compliance.risks],
+  ];
+
   return (
-    <Drawer
-      open
-      onClose={onClose}
-      width={440}
-      icon={<ShieldAlert />}
-      iconTone={blocks ? 'danger' : 'violet'}
-      title="Compliance"
-      sub={blocks ? `${plural(blocks, 'item must', 'items must')} be fixed before the next payroll run.` : 'Nothing blocks payroll for this employee.'}
-    >
-      {group('Blocks payroll', compliance.blocks, true)}
-      {group('Compliance risk', compliance.risks, false)}
-    </Drawer>
+    <SideDrawer onClose={onClose} labelledBy={titleId}>
+      <div className="flex items-start gap-3 border-b border-[rgba(22,23,42,0.07)] px-5 pb-4 pt-5">
+        <div className="min-w-0 flex-1">
+          <h2 id={titleId} className="m-0 text-[16px] font-bold tracking-[-0.01em]">
+            Compliance
+          </h2>
+          <p className="mt-1 text-[12.5px] leading-snug text-[#6F6A85]">
+            {blocks ? `${plural(blocks, 'item must', 'items must')} be fixed before the next payroll run.` : 'Nothing blocks payroll for this employee.'}
+          </p>
+        </div>
+        <button type="button" onClick={onClose} aria-label="Close" title="Close" className="bd-iconbtn !h-8 !w-8 hover:!bg-[rgba(22,23,42,0.06)] hover:!text-[#16172A]">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto px-5 py-4">
+        {groups.map(([severity, items]) => {
+          const sev = SEVERITY[severity];
+          return (
+            <section key={severity} className="mb-5" aria-label={sev.title}>
+              <div className="mb-2 flex items-center gap-2">
+                <Chip tone={sev.tone} dot>
+                  {sev.title}
+                </Chip>
+                <span className="bd-mono text-[11.5px] font-semibold text-[#6E6883]">{items.length}</span>
+              </div>
+              {items.length === 0 ? (
+                <div className={cn('bd-note', 'bd-tone-ok', '!py-2 !text-[12px]')}>Nothing outstanding here.</div>
+              ) : (
+                <ul className="m-0 list-none space-y-2 p-0">
+                  {items.map((f) => (
+                    <li key={f.key}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          goTo(f.tab, f.field);
+                        }}
+                        className={cn('bd-finding', `bd-tone-${sev.tone}`)}
+                      >
+                        {severity === 'blocked' ? (
+                          <AlertOctagon aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#E11D48]" />
+                        ) : (
+                          <AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#B97608]" />
+                        )}
+                        <span className="min-w-0 flex-1">
+                          <span className="sr-only">{sev.title}: </span>
+                          <span className="block text-[13px] font-bold text-[#16172A]">{f.label}</span>
+                          <span className="mt-0.5 block text-[12px] leading-snug text-[#44405C]">{f.fix}</span>
+                          <span className="mt-1.5 flex flex-wrap items-center gap-x-2 text-[11.5px] font-semibold" style={{ color: 'var(--t-ink)' }}>
+                            {sev.blocks}
+                            <span className="text-[#6E6883]">· {TAB_NAME[f.tab] ?? f.tab}</span>
+                          </span>
+                        </span>
+                        <span className="mt-0.5 shrink-0 text-[12px] font-bold text-[#6B3FE8]">
+                          Fix
+                          <ChevronRight aria-hidden="true" className="ml-0.5 inline h-3.5 w-3.5" />
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          );
+        })}
+      </div>
+    </SideDrawer>
+  );
+}
+
+/**
+ * The right drawer: full height, white, sliding in from the right in 220ms.
+ * Focus moves into it on open and back to whatever opened it on close.
+ */
+function SideDrawer({ onClose, labelledBy, children }: { onClose: () => void; labelledBy: string; children: React.ReactNode }) {
+  const node = usePortalNode();
+  const panel = React.useRef<HTMLDivElement>(null);
+  useLockScroll(true);
+  useEscape(true, onClose);
+
+  React.useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    return () => opener?.focus?.();
+  }, []);
+  React.useEffect(() => {
+    if (node) panel.current?.focus();
+  }, [node]);
+
+  /** Keep Tab inside the panel while it is open. */
+  const trap = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab' || !panel.current) return;
+    const items = panel.current.querySelectorAll<HTMLElement>('button:not(:disabled), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === panel.current)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
+  if (!node) return null;
+  return createPortal(
+    <>
+      <div className="bd-scrim" onClick={onClose} aria-hidden="true" />
+      <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={labelledBy} tabIndex={-1} className="bd-drawer" onKeyDown={trap}>
+        {children}
+      </div>
+    </>,
+    node
   );
 }
 
@@ -225,7 +322,7 @@ export function SeparationModal({ profile, onClose }: { profile: Profile; onClos
       sub={`${profile.personal.nameEn} · ${profile.code}`}
       footer={
         <>
-          <span className="min-w-0 flex-1 text-[11.5px] text-v-ink400">Until the final settlement runs, the employee is a hard block on payroll.</span>
+          <span className="min-w-0 flex-1 text-[11.5px] text-[#6E6883]">Until the final settlement runs, the employee is a hard block on payroll.</span>
           <VioletButton variant="outline" size="sm" onClick={onClose}>
             Cancel
           </VioletButton>
@@ -273,13 +370,13 @@ export function SeparationModal({ profile, onClose }: { profile: Profile; onClos
               f && typeof f === 'object' ? (
                 <div key={label as string} className="flex items-baseline justify-between gap-3">
                   <span className="text-v-ink700">{label as string}</span>
-                  <span className="tabular-nums font-semibold text-v-ink900">{money((f as { value: string }).value)}</span>
+                  <span className="bd-mono font-semibold text-v-ink900">{money((f as { value: string }).value)}</span>
                 </div>
               ) : null
             )}
             <div className="flex items-baseline justify-between gap-3 border-t border-[rgba(22,23,42,0.1)] pt-2 text-[14px] font-bold">
               <span className="text-v-ink900">Payable</span>
-              <span className="tabular-nums text-v-primary-deep">{money(preview.payable?.value)}</span>
+              <span className="bd-mono text-v-primary-deep">{money(preview.payable?.value)}</span>
             </div>
             <div className="text-[11.5px] text-v-ink500">{preview.payable?.basis}</div>
             {preview.notes?.map((x) => (
@@ -292,8 +389,8 @@ export function SeparationModal({ profile, onClose }: { profile: Profile; onClos
                 {w.message}
               </Note>
             ))}
-            {preview.rule?.note && <div className="text-[11px] italic text-v-ink400">{preview.rule.note}</div>}
-            {preview.rule?.citation && <div className="text-[11px] text-v-ink400">{preview.rule.citation}</div>}
+            {preview.rule?.note && <div className="text-[11px] italic text-[#6E6883]">{preview.rule.note}</div>}
+            {preview.rule?.citation && <div className="text-[11px] text-[#6E6883]">{preview.rule.citation}</div>}
           </div>
         )}
       </div>
@@ -334,7 +431,7 @@ export function TimelineModal({ code, field, onClose }: { code: string; field: s
     >
       {history.isPending && <LoadingBlock />}
       {history.isError && <ErrorBlock error={history.error} />}
-      {history.data?.empty && <div className="py-8 text-center text-[12.5px] text-v-ink400">{history.data.message}</div>}
+      {history.data?.empty && <div className="py-8 text-center text-[12.5px] text-[#6E6883]">{history.data.message}</div>}
       {history.data && !history.data.empty && <HistoryList entries={history.data.entries} showField={false} />}
     </Modal>
   );

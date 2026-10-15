@@ -64,7 +64,7 @@ export function AssignWizard({ profile, salary, onClose }: { profile: Profile; s
               Back
             </VioletButton>
           )}
-          <span className="min-w-0 flex-1 truncate text-[11.5px] text-v-ink400">
+          <span className="min-w-0 flex-1 truncate text-[11.5px] text-[#6E6883]">
             {step === 3 && preview.consequence?.reopenedCount
               ? `Assigning queues ${money(preview.consequence.arrears, 2)} of arrears.`
               : 'Nothing is saved until the last step.'}
@@ -87,13 +87,13 @@ export function AssignWizard({ profile, salary, onClose }: { profile: Profile; s
             key={label}
             className={cn(
               'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-bold',
-              i === step ? 'bg-[rgba(124,77,255,0.12)] text-v-primary-deep' : 'bg-[rgba(22,23,42,0.04)] text-v-ink400'
+              i === step ? 'bg-[rgba(124,77,255,0.12)] text-v-primary-deep' : 'bg-[rgba(22,23,42,0.04)] text-[#6E6883]'
             )}
           >
             <span
               className={cn(
                 'flex h-4 w-4 items-center justify-center rounded-full text-[9.5px]',
-                i === step ? 'bg-v-primary text-white' : 'bg-[rgba(22,23,42,0.1)] text-v-ink400'
+                i === step ? 'bg-v-primary text-white' : 'bg-[rgba(22,23,42,0.1)] text-[#6E6883]'
               )}
             >
               {n(i + 1)}
@@ -152,7 +152,7 @@ export function AssignWizard({ profile, salary, onClose }: { profile: Profile; s
                   id="wiz-amount"
                   inputMode="decimal"
                   autoFocus
-                  className={cn(inputClass(!!preview.error?.messagesFor('amount').length), 'text-right text-[15px] font-bold tabular-nums')}
+                  className={cn(inputClass(!!preview.error?.messagesFor('amount').length), 'text-right text-[15px] font-bold bd-mono')}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder={basicUp ? 'Gazetted basic' : '50,000'}
@@ -193,13 +193,13 @@ export function AssignWizard({ profile, salary, onClose }: { profile: Profile; s
         </div>
 
         <div className="rounded-2xl bg-v-wash p-4">
-          <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.06em] text-v-ink400">
+          <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.06em] text-[#6E6883]">
             Live preview {preview.loading && <Spinner className="h-3 w-3" />}
           </div>
           {outcome ? (
             <ComponentsTable components={outcome.components} gross={outcome.gross} words={outcome.grossInWords} loading={preview.loading} />
           ) : (
-            <div className="py-8 text-center text-[12px] text-v-ink400">
+            <div className="py-8 text-center text-[12px] text-[#6E6883]">
               {basicUp || parsed ? (preview.error ? 'Fix the amount to see the structure.' : 'Working it out…') : 'Enter an amount to see the components.'}
             </div>
           )}

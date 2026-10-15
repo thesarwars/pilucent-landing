@@ -108,14 +108,20 @@ export function parseAmount(input: string): string {
   return fraction ? `${whole || '0'}.${fraction}` : whole;
 }
 
+/**
+ * First and last initial, after a leading honorific (spec §5.1). Md. prefixes
+ * a large share of Bangladeshi names; without the strip, a third of the
+ * roster reads MI, MR, MH and the avatars stop telling anyone apart.
+ */
 export function initials(name: string): string {
-  return name
+  const parts = String(name || '')
+    .trim()
+    .replace(/^((md|mst|mrs|mr|dr)\.?|mohammad|mohammed|muhammad|begum)\s+/i, '')
     .split(/\s+/)
-    .filter((p) => p && /[A-Za-zঀ-৿]/.test(p[0]) && !/^(md|mohammad|mohammed|mst)\.?$/i.test(p))
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase() || '?';
+    .filter((p) => p && /[A-Za-zঀ-৿]/.test(p[0]));
+  if (!parts.length) return '?';
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+  return (parts[0][0] + last).toUpperCase();
 }
 
 /* ── money arithmetic, in integer paisa ───────────────────────────── */

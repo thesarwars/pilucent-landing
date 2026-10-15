@@ -118,13 +118,13 @@ export function ComponentsTable({
         <div key={c.code} className="grid grid-cols-[1.3fr_1fr_1fr] border-b border-[rgba(22,23,42,0.05)] py-2 text-[12.5px]">
           <span className="font-semibold text-v-ink900">{c.name}</span>
           <span className="text-v-ink500">{c.basis ? n(c.basis) : '—'}</span>
-          <span className="text-right font-semibold tabular-nums text-v-ink900">{money(c.amount)}</span>
+          <span className="text-right font-semibold bd-mono text-v-ink900">{money(c.amount)}</span>
         </div>
       ))}
       <div className="grid grid-cols-[1.3fr_1fr_1fr] pt-2.5 text-[13.5px] font-bold text-v-ink900">
         <span>Gross monthly</span>
         <span />
-        <span className="text-right tabular-nums">{gross ? money(gross) : '—'}</span>
+        <span className="text-right bd-mono">{gross ? money(gross) : '—'}</span>
       </div>
       {words && (
         <div lang={lang} className="mt-2.5 rounded-xl bg-v-wash px-3 py-2 text-[12px] font-semibold text-v-ink700">
@@ -204,21 +204,21 @@ export function ArrearsTable({
         {n(consequence.reopenedCount)} processed period{consequence.reopenedCount === 1 ? '' : 's'} fall after this date
       </div>
       <div className="px-4 py-2">
-        <div className="grid grid-cols-4 pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-v-ink400">
+        <div className="grid grid-cols-4 pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-[#6E6883]">
           <span>Period</span>
           <span className="text-right">Paid</span>
           <span className="text-right">Should be</span>
           <span className="text-right">Difference</span>
         </div>
         {consequence.periods.map((p) => (
-          <div key={p.period} className="grid grid-cols-4 py-1 text-[12px] tabular-nums">
+          <div key={p.period} className="grid grid-cols-4 py-1 text-[12px] bd-mono">
             <span className="font-semibold text-v-ink900">{formatMonthYear(p.period, lang)}</span>
             <span className="text-right text-v-ink500">{money(p.paid, 2)}</span>
             <span className="text-right text-v-ink700">{money(p.due, 2)}</span>
             <span className="text-right font-semibold text-[#E11D48]">{money(p.arrears, 2)}</span>
           </div>
         ))}
-        <div className="mt-1 grid grid-cols-4 border-t border-[rgba(22,23,42,0.08)] pt-1.5 text-[12.5px] font-bold tabular-nums">
+        <div className="mt-1 grid grid-cols-4 border-t border-[rgba(22,23,42,0.08)] pt-1.5 text-[12.5px] font-bold bd-mono">
           <span className="text-v-ink900">Total arrears</span>
           <span />
           <span />
@@ -228,7 +228,7 @@ export function ArrearsTable({
           <span className="text-[11.5px] font-semibold text-v-ink500">Pay in</span>
           <Pills options={ENUMS.arrearsRun} value={arrearsRun} onChange={onArrearsRun} ariaLabel="Arrears run" />
         </div>
-        <div className="mt-2 text-[11px] leading-relaxed text-v-ink400">
+        <div className="mt-2 text-[11px] leading-relaxed text-[#6E6883]">
           Arrears are taxed as income of the month they are paid and re-project this employee&apos;s annual tax. Issued payslips are never modified.
           {consequence.prorationDivisor ? ` Part periods prorate by ${consequence.prorationDivisor.toLowerCase().replace(/_/g, ' ')}.` : ''}
         </div>

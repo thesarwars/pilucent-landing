@@ -1,27 +1,28 @@
 'use client';
 
 /**
- * The employee roster (backend §9 `GET /employees`). The blocker badge is the
- * profile's own hard-block count — the same `evaluate()` on the server, never
- * a second implementation here (acceptance test 11).
+ * The employee roster (backend §9 `GET /employees`), as stacked two-line rows
+ * (spec §7). The blocker badge is the profile's own hard-block count — the
+ * same `evaluate()` on the server, never a second implementation here
+ * (acceptance test 11).
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, Plus, Search, UserPlus } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { Modal, PageHeader, VioletButton, VioletSurface, avatarGradient } from '@/components/violet';
+import { Modal, VioletButton } from '@/components/violet';
 import { toast } from '@/lib/ToastService';
 import * as api from './api';
 import { ENUMS, enumLabel } from './enums';
 import { initials, plural } from './format';
-import { keys, useRoster } from './hooks';
+import { keys, useRoster, useRosterCounts } from './hooks';
 import { LangProvider, useLang } from './i18n';
-import type { RosterFilter } from './types';
-import { ErrorBlock, Field, LoadingBlock, TextInput } from './ui';
+import type { RosterFilter, RosterRow } from './types';
+import { Chip, ErrorBlock, Field, LoadingBlock, TextInput, type Tone } from './ui';
 import { useDebounced } from './salary/shared';
 import { mobileValid } from './validate';
-import { useQueryClient } from '@tanstack/react-query';
 
 const FILTERS: { id: RosterFilter; label: string }[] = [
   { id: 'ALL', label: 'All' },
@@ -31,11 +32,13 @@ const FILTERS: { id: RosterFilter; label: string }[] = [
   { id: 'BLOCKED', label: 'Blocks payroll' },
 ];
 
-const CATEGORY_TONE: Record<string, string> = {
-  PERMANENT: 'bg-[rgba(124,77,255,0.12)] text-v-primary-deep',
-  PROBATIONER: 'bg-[rgba(245,158,11,0.16)] text-[#92400E]',
-  TEMPORARY: 'bg-[rgba(34,211,238,0.14)] text-[#0E7490]',
+const CATEGORY_TONE: Record<string, Tone> = {
+  PERMANENT: 'violet',
+  PROBATIONER: 'warn',
+  TEMPORARY: 'bd',
 };
+
+const PROFILE = (code: string) => `/dashboard/hris/employee/employees/${encodeURIComponent(code)}`;
 
 export function EmployeeRoster() {
   return (
@@ -47,7 +50,7 @@ export function EmployeeRoster() {
 
 function RosterScreen() {
   const router = useRouter();
-  const { money, date, t } = useLang();
+  const { t, n, lang } = useLang();
   const [query, setQuery] = React.useState('');
   const [filter, setFilter] = React.useState<RosterFilter>('ALL');
   const [page, setPage] = React.useState(1);
@@ -55,150 +58,143 @@ function RosterScreen() {
   const q = useDebounced(query.trim(), 300);
   React.useEffect(() => setPage(1), [q, filter]);
   const roster = useRoster({ q, filter, page });
+  const counts = useRosterCounts(q);
   const rows = roster.data?.results ?? [];
   const count = roster.data?.count ?? 0;
   const pages = Math.max(1, Math.ceil(count / 25));
-  const open = (code: string) => router.push(`/dashboard/hris/employee/employees/${encodeURIComponent(code)}`);
 
   return (
-    <VioletSurface className="min-h-screen px-4 pb-16 pt-5 md:px-6">
-      <div className="mx-auto max-w-[1280px] space-y-4">
-        <PageHeader
-          crumbs={[{ label: 'HRIS' }, { label: t('Employees', 'employees') }]}
-          title={t('Employees', 'employees')}
-          sub="Everyone on the payroll. Open a record to work through its eight tabs; a record with an outstanding hard block cannot reach a payroll run."
-          right={
-            <VioletButton leftIcon={<UserPlus className="h-4 w-4" />} onClick={() => setCreating(true)}>
-              Add employee
-            </VioletButton>
-          }
-        />
+    <div className="bd" lang={lang}>
+      <div className="bd-page">
+        <header className="bd-list-head">
+          <div className="min-w-0 flex-1">
+            <h1 className="bd-title">{t('Employees', 'employees')}</h1>
+            <p className="bd-lede">
+              Everyone on the payroll. Open a record to work through its eight tabs; a record with an outstanding hard block cannot reach a payroll
+              run.
+            </p>
+          </div>
+          <button type="button" className="bd-btn-primary" onClick={() => setCreating(true)}>
+            <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+            Add employee
+          </button>
+        </header>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[240px] flex-1 md:max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-v-ink400" />
+        <div className="flex flex-wrap items-center gap-2 px-5 pt-4 max-md:px-3">
+          <div className="bd-search">
+            <span>
+              <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.6-3.6" />
+              </svg>
+            </span>
             <input
+              type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search a name or code"
               aria-label="Search employees"
-              className="w-full rounded-v-input border border-white/90 bg-white/70 py-2.5 pl-9 pr-3.5 text-[13px] font-medium text-v-ink900 outline-none backdrop-blur-md placeholder:text-v-ink400 focus:border-v-primary"
             />
           </div>
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              aria-pressed={filter === f.id}
-              onClick={() => setFilter(f.id)}
-              className={cn(
-                'rounded-full border px-3.5 py-1.5 text-[12px] transition-colors',
-                filter === f.id ? 'border-v-ink900 bg-v-ink900 font-bold text-white' : 'border-white/90 bg-white/60 font-semibold text-v-ink700 hover:text-v-ink900'
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-          <span className="flex-1" />
-          <span className="text-[12px] font-semibold text-v-ink500">{roster.data ? plural(count, 'employee', 'employees') : ''}</span>
+          <div role="group" aria-label="Filter employees" className="flex flex-wrap gap-2">
+            {FILTERS.map((f) => (
+              <button key={f.id} type="button" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)} className="bd-filter">
+                {f.label}
+                {counts[f.id] !== undefined && <span className="bd-filter-count">{n(counts[f.id]!)}</span>}
+              </button>
+            ))}
+          </div>
         </div>
 
         {roster.isPending ? (
           <LoadingBlock />
         ) : roster.isError ? (
-          <ErrorBlock error={roster.error} onRetry={() => void roster.refetch()} />
+          <div className="bd-rows">
+            <ErrorBlock error={roster.error} onRetry={() => void roster.refetch()} />
+          </div>
         ) : (
-          <div className={cn('overflow-hidden rounded-v-card bg-white shadow-v-card transition-opacity', roster.isFetching && 'opacity-70')}>
-            <div className="hidden grid-cols-[2.2fr_1.6fr_1.2fr_1fr_1fr] gap-3 border-b border-[rgba(22,23,42,0.07)] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.05em] text-v-ink400 md:grid">
-              <span>Employee</span>
-              <span>Role</span>
-              <span>Category</span>
-              <span className="text-right">Gross monthly</span>
-              <span className="text-right">Payroll</span>
+          <div className={cn('bd-card bd-rows transition-opacity', roster.isFetching && 'opacity-70')} aria-busy={roster.isFetching}>
+            <div className="sr-only" aria-live="polite">
+              {plural(count, 'employee', 'employees')}
             </div>
             {rows.length === 0 && (
               <div className="px-5 py-14 text-center">
-                <div className="text-[14px] font-bold text-v-ink900">Nobody matches</div>
-                <div className="mt-1 text-[12.5px] text-v-ink500">Clear the search or pick another filter.</div>
+                <div className="text-[14px] font-bold">Nobody matches</div>
+                <div className="mt-1 text-[12.5px] text-[#6F6A85]">Clear the search or pick another filter.</div>
               </div>
             )}
-            {rows.map((r, i) => (
-              <div
-                key={r.code}
-                role="button"
-                tabIndex={0}
-                onClick={() => open(r.code)}
-                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && open(r.code)}
-                className={cn(
-                  'grid cursor-pointer grid-cols-1 gap-2 border-b border-[rgba(22,23,42,0.05)] px-5 py-3.5 outline-none transition-colors hover:bg-v-tint50 focus-visible:bg-v-tint50 md:grid-cols-[2.2fr_1.6fr_1.2fr_1fr_1fr] md:items-center md:gap-3',
-                  i % 2 ? 'bg-white' : 'bg-[rgba(246,244,252,0.5)]'
-                )}
-              >
-                <div className="flex min-w-0 items-center gap-3">
-                  <span
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] text-[13px] font-extrabold text-white"
-                    style={{ backgroundImage: avatarGradient(r.nameEn || r.code) }}
-                  >
-                    {initials(r.nameEn)}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="flex flex-wrap items-center gap-1.5">
-                      <span className="truncate text-[13.5px] font-bold text-v-ink900">{r.nameEn}</span>
-                      {r.nameBn && (
-                        <span lang="bn" className="truncate text-[12.5px] text-v-ink500">
-                          {r.nameBn}
-                        </span>
-                      )}
-                      {r.fresh && <span className="rounded-full bg-v-primary px-1.5 py-px text-[9.5px] font-extrabold text-white">NEW</span>}
-                    </span>
-                    <span className="block font-mono text-[11.5px] text-v-ink400">
-                      {r.code}
-                      {r.dateOfJoining ? ` · joined ${date(r.dateOfJoining)}` : ''}
-                    </span>
-                  </span>
-                </div>
-                <span className="truncate text-[12.5px] text-v-ink700">{[r.designation, r.department].filter(Boolean).join(' · ') || '—'}</span>
-                <span className="flex flex-wrap items-center gap-1.5">
-                  {r.workerCategory && (
-                    <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-bold', CATEGORY_TONE[r.workerCategory] ?? 'bg-[rgba(22,23,42,0.07)] text-v-ink500')}>
-                      {enumLabel('workerCategory', r.workerCategory)}
-                    </span>
-                  )}
-                  <span className="text-[11.5px] font-semibold text-v-ink500">{enumLabel('classification', r.classification, 'Unclassified')}</span>
-                </span>
-                <span className={cn('text-[13px] font-bold tabular-nums md:text-right', r.grossMonthly ? 'text-v-ink900' : 'text-[#B45309]')}>
-                  {r.grossMonthly ? money(r.grossMonthly) : 'No structure'}
-                </span>
-                <span className="md:text-right">
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px] font-bold',
-                      r.blockerCount ? 'bg-[rgba(225,29,72,0.1)] text-[#BE123C]' : 'bg-[rgba(31,169,122,0.13)] text-[#157A5B]'
-                    )}
-                    title={r.blockerCount ? 'Open the record to see what blocks payroll.' : 'Nothing blocks payroll.'}
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                    {r.blockerCount ? `${plural(r.blockerCount, 'block', 'blocks')}` : 'Clear'}
-                  </span>
-                </span>
-              </div>
-            ))}
+            <ul className="m-0 list-none p-0">
+              {rows.map((r, i) => (
+                <li key={r.code}>
+                  <RosterRowLink row={r} odd={i % 2 === 1} />
+                </li>
+              ))}
+            </ul>
             {pages > 1 && (
-              <div className="flex items-center justify-end gap-2 px-5 py-3 text-[12px] font-semibold text-v-ink500">
-                Page {page} of {pages}
-                <VioletButton variant="outline" size="icon" aria-label="Previous page" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-                  <ChevronLeft className="h-4 w-4" />
-                </VioletButton>
-                <VioletButton variant="outline" size="icon" aria-label="Next page" disabled={page >= pages} onClick={() => setPage(page + 1)}>
-                  <ChevronRight className="h-4 w-4" />
-                </VioletButton>
-              </div>
+              <nav aria-label="Pages" className="flex items-center justify-end gap-2 px-5 py-3 text-[12px] font-semibold text-[#6F6A85]">
+                Page {n(page)} of {n(pages)}
+                <button type="button" className="bd-btn" aria-label="Previous page" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+                  ‹
+                </button>
+                <button type="button" className="bd-btn" aria-label="Next page" disabled={page >= pages} onClick={() => setPage(page + 1)}>
+                  ›
+                </button>
+              </nav>
             )}
           </div>
         )}
       </div>
-      {creating && <AddEmployeeModal onClose={() => setCreating(false)} onCreated={open} />}
-    </VioletSurface>
+      {creating && <AddEmployeeModal onClose={() => setCreating(false)} onCreated={(code) => router.push(PROFILE(code))} />}
+    </div>
+  );
+}
+
+/**
+ * One row, as a link: reachable by Tab, opened by Enter, and openable in a new
+ * tab — the screen's primary navigation must not be mouse-only (spec §17.1).
+ */
+function RosterRowLink({ row: r, odd }: { row: RosterRow; odd: boolean }) {
+  const { money } = useLang();
+  const classification = enumLabel('classification', r.classification, 'Unclassified');
+  return (
+    <Link href={PROFILE(r.code)} className={cn('bd-row no-underline', odd && 'is-odd')}>
+      <span className="bd-row-line1">
+        <span aria-hidden="true" className="bd-avatar bd-avatar-sm">
+          {initials(r.nameEn)}
+        </span>
+        <span className="truncate text-[13.5px] font-bold text-[#16172A]">{r.nameEn}</span>
+        {r.nameBn && (
+          <span lang="bn" className="truncate text-[12.5px] text-[#6F6A85]">
+            {r.nameBn}
+          </span>
+        )}
+        {r.fresh && <span className="bd-new">NEW</span>}
+        <svg aria-hidden="true" className="ml-auto shrink-0 text-[#6E6883]" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m9 6 6 6-6 6" />
+        </svg>
+      </span>
+      <span className="bd-row-line2">
+        <span className="bd-mono text-[11.5px] text-[#6E6883]">{r.code}</span>
+        <span className="min-w-0 truncate">{[r.designation, r.department].filter(Boolean).join(' · ') || 'No designation'}</span>
+        {r.workerCategory && <Chip tone={CATEGORY_TONE[r.workerCategory] ?? 'neutral'}>{enumLabel('workerCategory', r.workerCategory)}</Chip>}
+        <span className={cn('font-semibold', r.classification ? 'text-[#44405C]' : 'text-[#8A5A06]')}>{classification}</span>
+        {r.grossMonthly ? (
+          <span className="bd-mono font-semibold text-[#16172A]">{money(r.grossMonthly)}</span>
+        ) : (
+          <Chip tone="warn">No salary structure</Chip>
+        )}
+        <Chip
+          tone={r.blockerCount ? 'blocked' : 'ok'}
+          dot
+          title={r.blockerCount ? 'Open the record to see what blocks payroll.' : 'Nothing blocks payroll.'}
+        >
+          {r.blockerCount ? `${plural(r.blockerCount, 'item blocks', 'items block')} payroll` : 'Ready for payroll'}
+        </Chip>
+      </span>
+    </Link>
   );
 }
 
@@ -230,7 +226,6 @@ function AddEmployeeModal({ onClose, onCreated }: { onClose: () => void; onCreat
       open
       onClose={onClose}
       width={560}
-      icon={<Plus />}
       title="Add employee"
       sub="Enough to create the record. Statutory details, the salary structure and nominees come next — the record stays out of payroll until they are filled."
       footer={
@@ -239,13 +234,13 @@ function AddEmployeeModal({ onClose, onCreated }: { onClose: () => void; onCreat
           <VioletButton variant="outline" size="sm" onClick={onClose}>
             Cancel
           </VioletButton>
-          <VioletButton size="sm" disabled={!nameEn.trim() || saving} onClick={() => void save()}>
+          <button type="button" className="bd-btn-primary" disabled={!nameEn.trim() || saving} onClick={() => void save()}>
             {saving ? 'Creating…' : 'Create record'}
-          </VioletButton>
+          </button>
         </>
       }
     >
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="bd-grid">
         <Field htmlFor="new-nameEn" label="Full name (English)" required span={6} errors={error?.messagesFor('nameEn')}>
           <TextInput id="new-nameEn" autoFocus value={nameEn} onChange={setNameEn} placeholder="As it appears on the NID" />
         </Field>
@@ -256,32 +251,24 @@ function AddEmployeeModal({ onClose, onCreated }: { onClose: () => void; onCreat
           htmlFor="new-mobile"
           label="Mobile"
           span={6}
+          help="Payslips and payroll notices go here."
           errors={error?.messagesFor('mobile').length ? error.messagesFor('mobile') : mobile && !mobileValid(mobile) ? ['Mobile must be 11 digits starting 01.'] : []}
         >
-          <TextInput id="new-mobile" inputMode="tel" value={mobile} onChange={setMobile} placeholder="01XXXXXXXXX" />
+          <TextInput id="new-mobile" inputMode="tel" className="bd-mono" value={mobile} onChange={setMobile} placeholder="01XXXXXXXXX" />
         </Field>
       </div>
-      <div className="mt-4">
-        <div className="text-xs font-semibold text-v-ink700">Classification</div>
-        <div className="mt-1 text-[11.5px] text-v-ink400">Determined by the work performed, not the job title.</div>
+      <fieldset className="mt-4 border-0 p-0">
+        <legend className="bd-label">Classification</legend>
+        <div className="bd-help !mt-1">Determined by the work performed, not the job title.</div>
         <div className="mt-2 flex gap-2">
           {ENUMS.classification.map((o) => (
-            <button
-              key={o.value}
-              type="button"
-              aria-pressed={classification === o.value}
-              onClick={() => setClassification(o.value)}
-              className={cn(
-                'rounded-[11px] px-4 py-2 text-[12.5px] font-bold transition-colors',
-                classification === o.value ? 'bg-v-primary text-white' : 'bg-v-wash2 text-v-ink700 hover:text-v-ink900'
-              )}
-            >
+            <button key={o.value} type="button" aria-pressed={classification === o.value} onClick={() => setClassification(o.value)} className="bd-filter">
               {o.label}
             </button>
           ))}
         </div>
-      </div>
-      {error && !error.errors.length && <div className="mt-3 text-[12px] font-semibold text-[#E11D48]">{error.message}</div>}
+      </fieldset>
+      {error && !error.errors.length && <div className="bd-error mt-3">{error.message}</div>}
     </Modal>
   );
 }

@@ -5,8 +5,11 @@ import * as api from '../api';
 import { ENUMS } from '../enums';
 import { useEmployeeMutation, useSalary } from '../hooks';
 import { useLang } from '../i18n';
-import type { Derived, Profile, Statutory } from '../types';
+import { enumLabel } from '../enums';
+import type { Derived, Profile, Statutory, TabId } from '../types';
+import { Assessment } from './EmploymentTab';
 import {
+  Chip,
   Citation,
   ConfidenceTag,
   DateInput,
@@ -24,7 +27,7 @@ import {
 
 type Form = Omit<Statutory, 'pfConstituted'>;
 
-export function StatutoryTab({ profile }: { profile: Profile }) {
+export function StatutoryTab({ profile, goTo }: { profile: Profile; goTo: (tab: TabId, field?: string | null) => void }) {
   const { money, date, n } = useLang();
   const code = profile.code;
   const { pfConstituted, ...server } = profile.statutory;
@@ -40,8 +43,23 @@ export function StatutoryTab({ profile }: { profile: Profile }) {
   const pf = derived?.providentFund;
   const grat = derived?.gratuity;
 
+  const classification = profile.employment.classification;
+
   return (
     <div className="space-y-4">
+      <Section
+        title="Worker classification"
+        desc="An assessment of the work performed, with the assessor recorded — never derived from the job title. It is the field a labour inspector tests."
+        right={
+          <button type="button" className="bd-btn" onClick={() => goTo('employment', 'f-classification')}>
+            Change on Employment
+          </button>
+        }
+      >
+        <Chip tone={!classification ? 'warn' : isWorker ? 'violet' : 'neutral'}>{enumLabel('classification', classification, 'Unclassified')}</Chip>
+        {classification && <Assessment code={code} />}
+      </Section>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Section
           title="Provident fund"
@@ -70,7 +88,7 @@ export function StatutoryTab({ profile }: { profile: Profile }) {
                 <DateInput id="f-pfdate" value={v.pfEnrolled} onChange={(x) => set('pfEnrolled', x)} />
               </Field>
               <Field htmlFor="f-pfemp" label="Employee contribution %" span={3} errors={errs(e, 'pfEmployee', 'f-pfemp')}>
-                <TextInput id="f-pfemp" inputMode="decimal" value={v.pfEmployee} onChange={(x) => set('pfEmployee', x || null)} invalid={!!errs(e, 'pfEmployee').length} className="tabular-nums" />
+                <TextInput id="f-pfemp" inputMode="decimal" value={v.pfEmployee} onChange={(x) => set('pfEmployee', x || null)} invalid={!!errs(e, 'pfEmployee').length} className="bd-mono" />
               </Field>
               <Field
                 htmlFor="f-pfer"
@@ -79,7 +97,7 @@ export function StatutoryTab({ profile }: { profile: Profile }) {
                 help="Matches the employee contribution."
                 errors={errs(e, 'pfEmployer')}
               >
-                <TextInput id="f-pfer" inputMode="decimal" value={v.pfEmployer} onChange={(x) => set('pfEmployer', x || null)} className="tabular-nums" />
+                <TextInput id="f-pfer" inputMode="decimal" value={v.pfEmployer} onChange={(x) => set('pfEmployer', x || null)} className="bd-mono" />
               </Field>
             </FieldGrid>
           )}
@@ -139,7 +157,7 @@ export function StatutoryTab({ profile }: { profile: Profile }) {
                 <TextInput id="f-inspolicy" value={v.insurancePolicy} onChange={(x) => set('insurancePolicy', x)} />
               </Field>
               <Field htmlFor="f-inssum" label="Sum assured" span={3} errors={errs(e, 'insuranceSum')}>
-                <TextInput id="f-inssum" inputMode="decimal" value={v.insuranceSum} onChange={(x) => set('insuranceSum', x.replace(/[^0-9.]/g, '') || null)} className="tabular-nums" />
+                <TextInput id="f-inssum" inputMode="decimal" value={v.insuranceSum} onChange={(x) => set('insuranceSum', x.replace(/[^0-9.]/g, '') || null)} className="bd-mono" />
               </Field>
               <Field htmlFor="f-insurer" label="Insurer" span={6} errors={errs(e, 'insurer')}>
                 <TextInput id="f-insurer" value={v.insurer} onChange={(x) => set('insurer', x)} />
