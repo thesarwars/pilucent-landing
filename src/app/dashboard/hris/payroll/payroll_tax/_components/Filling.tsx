@@ -371,7 +371,7 @@ const Filling: React.FC<FillingProps> = ({ data, isLoading }) => {
         >
           <Info className="h-4 w-4 shrink-0 text-v-primary" />
           <span className="text-[11.5px] text-v-ink500">
-            Preview each return before recording. Balanzify e-files supported forms to the IRS automatically once
+            Preview each return before recording. Pilucent e-files supported forms to the IRS automatically once
             recorded.
           </span>
         </div>

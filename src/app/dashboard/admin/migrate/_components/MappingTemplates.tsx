@@ -123,7 +123,7 @@ const MappingTemplates: React.FC = () => {
       <div>
         <h2 className="text-2xl font-semibold text-accent_text_black">Template</h2>
         <p className="mt-1 text-sm text-accent_text_gray">
-          Choose the Template of data you want to import into Balanzify.
+          Choose the Template of data you want to import into Pilucent.
         </p>
       </div>
 

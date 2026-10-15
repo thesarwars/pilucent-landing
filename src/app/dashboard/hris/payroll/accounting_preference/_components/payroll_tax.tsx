@@ -95,7 +95,7 @@ const PayrollTaxForm: React.FC<PayrollTaxFormProps> = ({ APData, refetch }) => {
         <div className="text-sm">
           <div className="rounded-lg bg-gray-50 p-5">
             <h3 className="text-base font-medium text-gray-700">
-              Which Balanzify checking account do you use to pay your
+              Which Pilucent checking account do you use to pay your
               employees&apos; paychecks & payroll payments?
             </h3>
 

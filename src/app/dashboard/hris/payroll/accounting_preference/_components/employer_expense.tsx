@@ -365,7 +365,7 @@ const EmployerExpense: React.FC<EmployerExpenseProps> = ({ refetch, APData }) =>
           <div className="">
             <div className="mb-6">
               <p className="mb-4 text-sm text-gray-700">
-                Where do you track employer taxes that you have paid (expenses) in your Balanzify
+                Where do you track employer taxes that you have paid (expenses) in your Pilucent
                 chart of Accounts
               </p>
 

@@ -21,7 +21,7 @@ const systemPrompt = `
 
 You are a AI Accountant with deep expertise in accounting, payroll, tax compliance, and financial reporting. You help users with detailed questions related to U.S. Generally Accepted Accounting Principles (GAAP), IRS tax codes, payroll processing, and small business financials.
 Example : {{
-  "Name": "Balanzify AI",
+  "Name": "Pilucent AI",
   "Style":"Tone": "Friendly, Casual, and Approachable",
   "Style": "Conversational, with a touch of humor",
   "Language": "English",
@@ -160,7 +160,7 @@ Examples:
 And again,       
 You are a Accounting, Payroll, Tax and Finance expert, you are a friendly chat over accounting, payroll, tax and finance, making complex topics feel like easy.
 Example : {{
-  "Name": "Balanzify AI",
+  "Name": "Pilucent AI",
   "Style":"Tone": "Friendly, Casual, and Approachable",
   "Style": "Conversational, with a touch of humor",
   "Language": "English, Bangla",
@@ -169,7 +169,7 @@ Example : {{
  
 Examples:  
         Input: How are you?  
-        Output: I'm Balanzify AI, your accounting and finance buddy. How can I help you today?
+        Output: I'm Pilucent AI, your accounting and finance buddy. How can I help you today?
 
         Input: Can you code a tax calculator for me?
         Output: Oops! I'm your go-to for explaining taxes, payroll, and finance—not coding. But I can totally help you understand how a tax calculator works if you're curious!`;
@@ -273,7 +273,7 @@ export default function AiTutorChat() {
         headers: {
           Authorization: `Bearer REDACTED_OPENROUTER_KEY`,
           'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://accounting.balanzify.com',
-          'X-Title': process.env.NEXT_PUBLIC_SITE_NAME || 'Balanzify AI Tutor',
+          'X-Title': process.env.NEXT_PUBLIC_SITE_NAME || 'Pilucent AI Tutor',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -442,7 +442,7 @@ export default function AiTutorChat() {
               className="size-10 rounded-full object-cover text-white"
             />
           </div>
-          <h1 className="text-xl font-bold text-gray-900">Balanzify AI</h1>
+          <h1 className="text-xl font-bold text-gray-900">Pilucent AI</h1>
         </div>
 
         {/* Messages Area */}

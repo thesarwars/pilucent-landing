@@ -309,7 +309,7 @@ const PreviewTransactions = ({
               </h2>
               <p className="mb-6 text-gray-600">
                 You have full control over how your banking information is added
-                to Balanzify. Transactions will only appear in your records once{" "}
+                to Pilucent. Transactions will only appear in your records once{" "}
                 {"you've "}
                 reviewed and approved them
               </p>

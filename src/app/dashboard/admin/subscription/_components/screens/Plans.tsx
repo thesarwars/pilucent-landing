@@ -548,7 +548,7 @@ export default function Plans() {
             </div>
             <p className="text-center text-[11px] text-[#9A95AE]">
               <ShieldCheck className="mb-0.5 mr-1 inline h-3 w-3" />
-              Secured by Balanzify Payments · PCI-DSS
+              Secured by Pilucent Payments · PCI-DSS
             </p>
           </div>
         }

@@ -357,7 +357,7 @@ const TransactionTable = ({ supplierId }: { supplierId: string }) => {
   
     const printWindow = window.open("", "", "height=620px,width:870px");
     if (printWindow) {
-      printWindow.document.write("<html><head><title>Transactions - Balanzify</title>");
+      printWindow.document.write("<html><head><title>Transactions - Pilucent</title>");
       printWindow.document.write('</head><body style="font-family: sans-serif;">');
       printWindow.document.write('<h1 style="text-align:center; margin-bottom:16px;">Transaction List</h1>');
       printWindow.document.write('<table border="1" style="border-collapse: collapse; width: 100%; text-align: center;">');

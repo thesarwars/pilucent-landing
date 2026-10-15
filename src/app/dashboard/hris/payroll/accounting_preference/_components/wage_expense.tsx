@@ -214,7 +214,7 @@ const WageExpenses: React.FC<WageExpensesProps> = ({ APData, refetch }) => {
               <div className="mb-6">
                 <p className="mb-4 text-lg text-gray-900">
                   <span className="mr-1 font-medium">1.</span> Where do you track employee wages in
-                  your Balanzify chart of accounts?
+                  your Pilucent chart of accounts?
                 </p>
 
                 <div className="space-y-5">

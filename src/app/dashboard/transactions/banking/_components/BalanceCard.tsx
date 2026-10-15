@@ -100,7 +100,7 @@
               <span className="text-xl font-medium text-[#131523]">
                 ${AccountData?.chart_of_account?.opening_balance}
               </span>
-              <span className="text-sm font-light">IN BALANZIFY</span>
+              <span className="text-sm font-light">IN PILUCENT</span>
             </p>
             <p
               className={`${kind == "card" ? "text-accent_soft_blue" : "text-[#131523]"} text-lg font-medium`}

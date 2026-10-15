@@ -8,13 +8,13 @@ import { Analytics } from '@vercel/analytics/next';
 import { ToastProvider } from '@/components/Toast/ToastProvider';
 import { ToastContainer as ToastifyContainer } from 'react-toastify';
 import { ToastContainer } from '@/components/Toast/ToastContainer';
-import { Inter, Lexend, Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter, JetBrains_Mono, Lexend, Noto_Sans_Bengali, Plus_Jakarta_Sans } from 'next/font/google';
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect, useState } from 'react';
 
 // export const metadata: Metadata = {
-//   title: 'Balanzify',
-//   description: 'Balanzify Accounting',
+//   title: 'Pilucent',
+//   description: 'Pilucent Accounting',
 // };
 
 const lexend = Lexend({
@@ -36,6 +36,19 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-jakarta',
   weight: ['400', '500', '600', '700', '800'],
+});
+
+// Bangla text (any element with lang="bn", see globals.css) and the rail's
+// monospace tags. Exposed as CSS vars only — nothing changes until used.
+const bengali = Noto_Sans_Bengali({
+  subsets: ['bengali'],
+  variable: '--font-bengali',
+  weight: ['400', '500', '600', '700'],
+});
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jbmono',
+  weight: ['400', '500', '600', '700'],
 });
 
 const useSecurePage = () => {
@@ -112,10 +125,10 @@ export default function RootLayout({
   // const blocked = useHardenPage();
 
   useEffect(() => {
-    document.title = 'Balanzify';
+    document.title = 'Pilucent';
     document
       .querySelector('meta[name="description"]')
-      ?.setAttribute('content', 'Balanzify Accounting');
+      ?.setAttribute('content', 'Pilucent Accounting');
   }, []);
 
   return (
@@ -123,7 +136,7 @@ export default function RootLayout({
       <head>
         <script src="https://js.moov.io/v1"></script>
       </head>
-      <body className={`${lexend.variable} ${inter.variable} ${jakarta.variable} antialiased`}>
+      <body className={`${lexend.variable} ${inter.variable} ${jakarta.variable} ${bengali.variable} ${mono.variable} antialiased`}>
         {/* {blocked ? (
           <div className="flex h-screen w-full items-center justify-center bg-black text-center text-white">
             <div>

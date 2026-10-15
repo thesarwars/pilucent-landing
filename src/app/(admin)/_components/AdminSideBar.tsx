@@ -551,10 +551,10 @@ const AdminSideBar = ({
           <div className="flex h-16 items-center justify-between border-b border-indigo-900/50 px-4">
             <div className="flex items-center text-xl font-bold">
               <div className="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
-                <span className="text-sm font-bold text-white">B</span>
+                <span className="text-sm font-bold text-white">P</span>
               </div>
               <span className="bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
-                balanzify
+                pilucent
               </span>
             </div>
             <Button
@@ -636,7 +636,7 @@ const AdminSideBar = ({
             <span
               className={`${collapsed && !hovering ? "hidden" : "visible"} bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent`}
             >
-              balanzify
+              pilucent
             </span>
           </div>
         </div>

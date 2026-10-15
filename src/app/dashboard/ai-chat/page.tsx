@@ -20,7 +20,7 @@ export default function Page() {
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
           <h1 className="mb-8 text-3xl font-bold text-gray-900">
-            Balanzify AI
+            Pilucent AI
           </h1>
           <p className="mx-auto mb-8 max-w-md text-gray-600">
             Your personal AI for Accounting services. Get help with Accounting

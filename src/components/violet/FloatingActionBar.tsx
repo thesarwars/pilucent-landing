@@ -17,7 +17,7 @@ export interface FloatingActionBarProps {
 export function FloatingActionBar({ label, value, children, className }: FloatingActionBarProps) {
   return (
     <div className={cn('sticky bottom-3.5 z-[60] animate-v-rise font-jakarta', className)}>
-      <div className="flex items-center gap-3.5 rounded-[18px] bg-v-ink900 py-3 pl-[22px] pr-3.5 shadow-v-bar">
+      <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2 rounded-[18px] bg-v-ink900 py-3 pl-[22px] pr-3.5 shadow-v-bar">
         {(label || value) && (
           <div>
             {label && (
@@ -30,8 +30,8 @@ export function FloatingActionBar({ label, value, children, className }: Floatin
             )}
           </div>
         )}
-        <span className="flex-1" />
-        {children}
+        {/* Together and right-aligned; on a narrow screen they wrap to a line of their own. */}
+        <div className="ml-auto flex items-center gap-2">{children}</div>
       </div>
     </div>
   );

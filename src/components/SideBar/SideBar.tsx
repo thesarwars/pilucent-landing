@@ -1,1059 +1,882 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
-import type React from 'react';
+/**
+ * The navigation rail — docs/frontend/sidebar-prompt.md.
+ *
+ * A floating glass card: 316px expanded, 76px collapsed, nothing in between
+ * (no hover-peek, no overlay). An Accounting group, the spec's three groups of
+ * BD modules, a language switch, a collapse control and the compliance badge.
+ *
+ * Departures from the prototype, each deliberate:
+ * - Modules without a page in this app yet are shown but inert, with a
+ *   "Soon" tag in the batch-tag slot. Batch tags themselves are off
+ *   (`SHOW_BATCH`), as the spec requires before release.
+ * - Collapsed, the header stacks vertically. In a row its logo, language and
+ *   collapse buttons are wider than the collapsed card, which clips them —
+ *   including the button that expands the rail again.
+ * - Under 768px the rail stays collapsed: an expanded 316px rail leaves no
+ *   room for the page on a phone, and the spec allows no overlay mode.
+ * - The spec's own open items are closed: a <nav aria-label="Main"> landmark,
+ *   aria-hidden icons, and #6E6883 for the muted ink (#8A83A6 fails 4.5:1).
+ * - Accounting (not in the spec) leads the rail, permission-filtered as the
+ *   old sidebar was, with react-icons (Lucide) icons. A section with
+ *   sub-pages folds behind a chevron and opens itself while one of its pages
+ *   is open. With it the rail passes the spec's ~30 rows, so group headings
+ *   fold too (spec §14.4). Sales tax and economic nexus stay out of the rail,
+ *   as in the prototype's BD compliance mode.
+ */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import * as React from 'react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import Button from '../ui/RawButton';
-import { useIsMobile } from '@/hooks/use-mobile';
-import Image from 'next/image';
-import TrialStatus from './trial-status-card';
 import { usePathname } from 'next/navigation';
+import type { IconType } from 'react-icons';
+import {
+  LuArrowLeftRight,
+  LuChartColumn,
+  LuChevronDown,
+  LuLayoutDashboard,
+  LuListTree,
+  LuPercent,
+  LuShoppingCart,
+  LuWallet,
+} from 'react-icons/lu';
+import { cn } from '@/lib/utils';
 import { useAppSelector } from '@/app/redux/store';
+import { useLang } from '@/app/dashboard/hris/employee/employees/_bd/i18n';
 
-interface SideBarProps {}
+type GroupId = 'people' | 'pay' | 'compliance';
 
-interface MenuItem {
-  id: string;
-  icon?: any;
-  activeIcon?: string;
+/** `[groupId, moduleId, label, batchTag, svgPath]` — spec §10, in order. */
+const MODULES: [GroupId, string, string, string, string][] = [
+  [
+    'people',
+    'employee',
+    'Employee profile',
+    'B1',
+    'M16 20v-2a4 4 0 0 0-8 0v2M12 12.4a3.4 3.4 0 1 0 0-6.8 3.4 3.4 0 0 0 0 6.8',
+  ],
+  [
+    'people',
+    'salary',
+    'Salary profile',
+    'B2A',
+    'M12 3.5v17M16.5 7.5H10a2.6 2.6 0 0 0 0 5.2h3.8a2.6 2.6 0 0 1 0 5.3H7',
+  ],
+  [
+    'people',
+    'attendance',
+    'Attendance',
+    'B3',
+    'M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V7A1.5 1.5 0 0 1 5 5.5M8 3.5v4M16 3.5v4M3.5 10.5h17M8 14.5h.01M12 14.5h.01M16 14.5h.01',
+  ],
+  [
+    'people',
+    'leaveconsole',
+    'Leave',
+    'LV',
+    'M12 21s-7-4.6-7-10a7 7 0 0 1 14 0c0 5.4-7 10-7 10M12 8.5v4l2.5 1.5',
+  ],
+  [
+    'people',
+    'idcards',
+    'ID cards',
+    'IDC',
+    'M4.5 5.5h15a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17V7a1.5 1.5 0 0 1 1.5-1.5M13.5 10h4M13.5 13.5h4M9.6 11.2a1.9 1.9 0 1 1-3.8 0 1.9 1.9 0 0 1 3.8 0M6 15.6c.4-1 1-1.5 1.7-1.5s1.3.5 1.7 1.5',
+  ],
+  [
+    'people',
+    'intake',
+    'Attendance intake',
+    'P3',
+    'M12 15.5V4M8 8l4-4 4 4M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15',
+  ],
+  [
+    'people',
+    'portal',
+    'Self service',
+    'P3',
+    'M7 3.5h10a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1M10.5 18h3',
+  ],
+
+  [
+    'pay',
+    'library',
+    'Components & structures',
+    'B2',
+    'M4.5 7h15M4.5 12h15M4.5 17h9M17 15v4M15 17h4',
+  ],
+  [
+    'pay',
+    'payroll',
+    'Payroll settings',
+    'B2',
+    'M4 6.5h16M4 12h16M4 17.5h10M18.5 15.5v4M16.5 17.5h4',
+  ],
+  [
+    'pay',
+    'runpayroll',
+    'Run payroll',
+    'RP',
+    'M4.5 7.5h15a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1M3.5 11.5h17M7.5 15h3',
+  ],
+  [
+    'pay',
+    'payslip',
+    'Payslip & compliance',
+    'PS',
+    'M7 3.5h10a1 1 0 0 1 1 1v16l-2.5-1.6L13 20.5l-2.5-1.6L8 20.5 6 19V4.5a1 1 0 0 1 1-1M9.5 8h5M9.5 11.5h5M9.5 15h3',
+  ],
+  [
+    'pay',
+    'taxsettlement',
+    'Tax settlement',
+    'TS',
+    'M12 3.5v17M8 7.5h5.5a2.5 2.5 0 0 1 0 5H9a2.5 2.5 0 0 0 0 5h6',
+  ],
+  [
+    'pay',
+    'payrollrun',
+    'Payroll register',
+    'B5',
+    'M6.5 3.5h11a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19V5a1.5 1.5 0 0 1 1.5-1.5M8.5 8h7M8.5 12h7M8.5 16h4',
+  ],
+  [
+    'pay',
+    'bonusrules',
+    'Bonus rules',
+    'FB',
+    'M12 3.5 14.3 8.4l5.4.8-3.9 3.8.9 5.3-4.7-2.5-4.7 2.5.9-5.3-3.9-3.8 5.4-.8Z',
+  ],
+  [
+    'pay',
+    'engine',
+    'Payroll engine',
+    'D5',
+    'M12 3.5v17M8.2 6.8H14a2.7 2.7 0 0 1 0 5.4h-4a2.7 2.7 0 0 0 0 5.4h5.8',
+  ],
+
+  [
+    'compliance',
+    'gates',
+    'Compliance gates',
+    'CG',
+    'M12 3.5 4.5 7v5.5c0 4.2 3.1 7.4 7.5 8.5 4.4-1.1 7.5-4.3 7.5-8.5V7L12 3.5ZM9 12l2.2 2.2L15.5 10',
+  ],
+  [
+    'compliance',
+    'determinism',
+    'Determinism',
+    'DT',
+    'M5 12a7 7 0 0 1 11.9-5M19 12a7 7 0 0 1-11.9 5M16 4.5v3h-3M8 19.5v-3h3',
+  ],
+  [
+    'compliance',
+    'declarations',
+    'Declarations',
+    'ID',
+    'M7 4.5h7l3.5 3.5V19a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1M9.5 12h5M9.5 15.5h3',
+  ],
+  [
+    'compliance',
+    'depositchain',
+    'Deposit chain',
+    'DC',
+    'M12 3.5v9M8.5 9 12 12.5 15.5 9M4.5 15v3.5a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1V15',
+  ],
+  [
+    'compliance',
+    'filings',
+    'Statutory filings',
+    'B5',
+    'M14 3.2H7A1.8 1.8 0 0 0 5.2 5v14A1.8 1.8 0 0 0 7 20.8h10a1.8 1.8 0 0 0 1.8-1.8V8M14 3.2V8h4.8M8.6 12.5h6.8M8.6 16h4.4',
+  ],
+  [
+    'compliance',
+    'settlement',
+    'Settlement',
+    'B6',
+    'M4.5 6.5h15M7.5 3.5v3M16.5 3.5v3M4.5 6.5v13a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-13M8.5 14l2.2 2.2L16 11',
+  ],
+  [
+    'compliance',
+    'vat',
+    'VAT & Mushak',
+    'B7',
+    'M8 3.5h8a1.5 1.5 0 0 1 1.5 1.5v15l-3-2-2.5 2-2.5-2-3 2V5A1.5 1.5 0 0 1 8 3.5M10 8h4M10 12h4',
+  ],
+  [
+    'compliance',
+    'documents',
+    'Documents & payments',
+    'P2',
+    'M7 3.5h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1M13.5 3.5v4.5H18M9 13h6M9 16.5h4',
+  ],
+  [
+    'compliance',
+    'rulebook',
+    'Rule book',
+    'RB',
+    'M5 4.5A1.5 1.5 0 0 1 6.5 3H18a1 1 0 0 1 1 1v13.5H6.5A1.5 1.5 0 0 0 5 19V4.5ZM5 19a1.5 1.5 0 0 0 1.5 1.5H19M9 7.5h6M9 11h6',
+  ],
+  [
+    'compliance',
+    'forms',
+    'Forms & filings',
+    'D6',
+    'M7 3.5h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1M13.5 3.5v4.5H18M9 12.5h6M9 16h4',
+  ],
+  [
+    'compliance',
+    'buildplan',
+    'Build plan',
+    'D4',
+    'M4.5 6.5h6M4.5 12h9M4.5 17.5h5M16.5 15.5l2 2 3.5-3.8M17 3.5v7M13.5 7h7',
+  ],
+  [
+    'compliance',
+    'lifecycle',
+    'Lifecycle',
+    'D3',
+    'M12 3.2a8.8 8.8 0 1 1-6.2 2.6M5.8 5.8V2.4M5.8 5.8h3.4M12 7.5v5l3 2',
+  ],
+  [
+    'compliance',
+    'datamodel',
+    'Data model',
+    'D2',
+    'M4.5 6.5c0-1.7 3.4-3 7.5-3s7.5 1.3 7.5 3-3.4 3-7.5 3-7.5-1.3-7.5-3ZM4.5 6.5v11c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-11M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3',
+  ],
+  [
+    'compliance',
+    'audit',
+    'Audit journal',
+    'A2',
+    'M12 3.2 4.5 6v6.2c0 4.3 3.1 7.6 7.5 8.6 4.4-1 7.5-4.3 7.5-8.6V6L12 3.2ZM9.2 12.1l2 2 3.6-3.9',
+  ],
+];
+
+const GROUPS: [GroupId, string][] = [
+  ['people', 'People'],
+  ['pay', 'Pay & benefits'],
+  ['compliance', 'Statutory & tax'],
+];
+
+interface Page {
   label: string;
-  href?: string;
-  active?: boolean;
+  href: string;
   permission?: string;
-  children?: MenuItem[];
+  /** Shown whatever the permissions say (the old sidebar's `show`). */
   show?: boolean;
 }
 
-const SideBar = ({}: SideBarProps) => {
-  // Internal state for SideBar - collapsed and mobile logic moved inside
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [hovering, setHovering] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
-  const [selectedRoute, setSelectedRoute] = useState<string[]>(['/dashboard']);
+interface Section {
+  id: string;
+  label: string;
+  icon: IconType;
+  /** The first visible page is where the row goes; the rest list beneath it. */
+  pages: Page[];
+  /** Active only on exactly this path (the dashboard is a prefix of everything). */
+  exact?: boolean;
+}
+
+/** The accounting pages, as the old sidebar reached them. */
+const ACCOUNTING: Section[] = [
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: LuLayoutDashboard,
+    pages: [{ label: 'Dashboard', href: '/dashboard', permission: 'view_dashboard' }],
+    exact: true,
+  },
+  {
+    id: 'coa',
+    label: 'Chart of accounts',
+    icon: LuListTree,
+    pages: [
+      {
+        label: 'Chart of accounts',
+        href: '/dashboard/transactions/chart-of-accounts',
+        permission: 'view_chartofaccount',
+      },
+      {
+        label: 'COA tree',
+        href: '/dashboard/transactions/coa_tree',
+        permission: 'view_chartofaccount',
+      },
+    ],
+  },
+  {
+    id: 'transactions',
+    label: 'Transactions',
+    icon: LuArrowLeftRight,
+    pages: [
+      {
+        label: 'Bank transactions',
+        href: '/dashboard/transactions/banking',
+        permission: 'view_bankdeposit',
+      },
+      {
+        label: 'Reconcile',
+        href: '/dashboard/transactions/reconcile',
+        permission: 'view_bankreconciliation',
+      },
+      {
+        label: 'Journal entries',
+        href: '/dashboard/transactions/journal',
+        permission: 'view_journalentry',
+      },
+      // The backend does not emit `view_recurring` yet; the old sidebar force-showed it.
+      { label: 'Recurring transactions', href: '/dashboard/transactions/recurring', show: true },
+    ],
+  },
+  {
+    id: 'sales',
+    label: 'Sales',
+    icon: LuShoppingCart,
+    pages: [
+      { label: 'All sales', href: '/dashboard/sales/all_sales', permission: 'view_sale' },
+      { label: 'Customers', href: '/dashboard/sales/customers', permission: 'view_customer' },
+      {
+        label: 'Products & services',
+        href: '/dashboard/sales/product_services',
+        permission: 'view_product',
+      },
+      {
+        label: 'Warehouse locations',
+        href: '/dashboard/sales/warehouse_location',
+        permission: 'view_warehouse',
+      },
+    ],
+  },
+  {
+    id: 'expenses',
+    label: 'Expenses',
+    icon: LuWallet,
+    pages: [
+      { label: 'Expenses', href: '/dashboard/expenses/expenses', permission: 'view_expense' },
+      { label: 'Suppliers', href: '/dashboard/expenses/suppliers', permission: 'view_supplier' },
+    ],
+  },
+  {
+    id: 'taxes',
+    label: 'Taxes',
+    icon: LuPercent,
+    pages: [
+      {
+        label: 'Taxes & agencies',
+        href: '/dashboard/taxes/taxes_agencies',
+        permission: 'view_agency',
+      },
+    ],
+  },
+  {
+    id: 'reports',
+    label: 'Reports',
+    icon: LuChartColumn,
+    pages: [{ label: 'Reports', href: '/dashboard/reports', permission: 'view_reports' }],
+  },
+];
+
+/** Modules that have a page in this app. Add one here when its page lands. */
+const ROUTES: Record<string, string> = {
+  employee: '/dashboard/hris/employee/employees',
+  salary: '/dashboard/hris/salary',
+};
+
+/** Development scaffolding (spec §8.4): off before any customer sees the rail. */
+const SHOW_BATCH = false;
+
+const STORAGE_KEY = 'pilucent.rail.expanded';
+const FOLDED_KEY = 'pilucent.rail.folded';
+const INK_MUTED = '#6E6883'; // spec §3.2 / §15 #1: #8A83A6 measures 3.57:1
+
+function useNarrowScreen() {
+  const [narrow, setNarrow] = React.useState(false);
+  React.useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)');
+    const update = () => setNarrow(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  return narrow;
+}
+
+function Icon({ d, size = 18, stroke = 1.75 }: { d: string; size?: number; stroke?: number }) {
+  return (
+    <svg
+      aria-hidden="true"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={stroke}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d={d} />
+    </svg>
+  );
+}
+
+const SMALL_BUTTON =
+  'flex h-7 shrink-0 items-center justify-center rounded-[9px] border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7C4DFF]';
+
+export default function SideBar() {
   const path = usePathname();
+  const narrow = useNarrowScreen();
+  const { lang, setLang } = useLang();
+  const [expandedPref, setExpandedPref] = React.useState(true);
+  const expanded = expandedPref && !narrow;
+  const isBangla = lang === 'bn';
   const { Permissions } = useAppSelector((state) => state.Permissions);
   const { UserData: user } = useAppSelector((state) => state.userData);
-  const [isMounted, setIsMounted] = useState(false);
-  const [expandedChildMenus, setExpandedChildMenus] = useState<string[]>([]);
-  const isMobile = useIsMobile();
+  const [folded, setFolded] = React.useState<string[]>([]);
 
-  useEffect(() => {
-    const fn = async () => {
-      if (path) {
-        setSelectedRoute([path]);
-        if (path?.startsWith('/dashboard/transactions')) {
-          setExpandedMenus(['transactions']);
-        } else if (path?.startsWith('/dashboard/sales')) {
-          setExpandedMenus(['sales']);
-        } else if (path?.startsWith('/dashboard/expenses')) {
-          setExpandedMenus(['expenses']);
-        } else if (path?.startsWith('/dashboard/admin')) {
-          setExpandedMenus(['admin']);
-        } else if (path?.startsWith('/dashboard/hris')) {
-          setExpandedMenus(['hris']);
-        } else if (path?.startsWith('/dashboard/taxes')) {
-          setExpandedMenus(['taxes']);
-        } else if (path?.startsWith('/dashboard/reports')) {
-          setExpandedMenus(['/dashboard/reports']);
-        }
-
-        if (path?.startsWith('/dashboard/hris/employee')) {
-          setExpandedChildMenus(['employee']);
-        } else if (path?.startsWith('/dashboard/hris/payroll')) {
-          setExpandedChildMenus(['payroll']);
-        } else if (path?.startsWith('/dashboard/hris/attendance')) {
-          setExpandedChildMenus(['attendance']);
-        }
-
-        setIsMounted(true);
-      }
-    };
-    fn();
-
-    if (path?.includes('/dashboard/snap-expense')) {
-      setCollapsed(true);
-    }
-  }, [path]);
-
-  // Restore persisted collapse preference on mount (desktop).
-  // Skip on snap-expense, which always forces the rail collapsed.
-  useEffect(() => {
-    if (path?.includes('/dashboard/snap-expense')) return;
+  React.useEffect(() => {
     try {
-      const saved = localStorage.getItem('sidebar_collapsed');
-      if (saved !== null) setCollapsed(saved === 'true');
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved !== null) setExpandedPref(saved === 'true');
+      const savedFolded = JSON.parse(localStorage.getItem(FOLDED_KEY) || '[]');
+      if (Array.isArray(savedFolded)) setFolded(savedFolded.filter((x) => typeof x === 'string'));
     } catch {
-      // ignore unavailable storage
+      /* storage blocked: start expanded, nothing folded */
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const EmployeeHrefs = [
-    {
-      id: '/dashboard/hris/employee/shifts',
-      label: 'Shifts',
-      href: '/dashboard/hris/employee/shifts',
-      permission: 'view_companyshift',
-    },
-    {
-      id: '/dashboard/hris/employee/departments',
-      label: 'Departments',
-      href: '/dashboard/hris/employee/departments',
-      permission: 'view_companydepartment',
-    },
-    {
-      id: '/dashboard/hris/employee/designations',
-      label: 'Designations',
-      href: '/dashboard/hris/employee/designations',
-      permission: 'view_companydesignation',
-    },
-    {
-      id: '/dashboard/hris/employee/employees',
-      label: 'Employees',
-      href: '/dashboard/hris/employee/employees',
-      permission: 'view_employee',
-    },
-    {
-      id: '/dashboard/hris/employee/employee-leaves',
-      label: 'Leave Requests',
-      href: '/dashboard/hris/employee/employee-leaves',
-      permission: 'view_leaverequests',
-    },
-    {
-      id: '/dashboard/hris/employee/holiday',
-      label: 'Holiday',
-      href: '/dashboard/hris/employee/holiday',
-      permission: 'view_holiday',
-    },
-    {
-      id: '/dashboard/hris/employee/leave-type',
-      label: 'Leave Type',
-      href: '/dashboard/hris/employee/leave-type',
-      permission: 'view_leavetype',
-    },
-    {
-      id: '/dashboard/hris/employee/leave-balance',
-      label: 'Leave Balance',
-      href: '/dashboard/hris/employee/leave-balance',
-      permission: 'view_leavebalance',
-    },
-    {
-      id: '/dashboard/hris/employee/leave-encashments',
-      label: 'Leave Encashment',
-      href: '/dashboard/hris/employee/leave-encashments',
-      permission: 'view_leaveencashment',
-    },
-    {
-      id: '/dashboard/hris/employee/leave-approval',
-      label: 'Leave Approval',
-      href: '/dashboard/hris/employee/leave-approval',
-      permission: 'view_leaveapproval',
-    },
-  ];
-
-  const menuItems: MenuItem[] = [
-    {
-      id: '/dashboard',
-      icon: '/icons/sidebar/dashboard-v2.svg',
-      activeIcon: '/icons/sidebar/dashboard-v2.svg',
-      label: 'Dashboard',
-      href: '/dashboard',
-      permission: 'view_dashboard',
-      show: !user?.is_employee || user?.is_admin,
-    },
-    {
-      id: 'transactions',
-      icon: '/icons/sidebar/transactions-v2.svg',
-      activeIcon: '/icons/sidebar/transactions-v2.svg',
-      label: 'Transactions',
-      active: false,
-      children: [
-        {
-          id: '/dashboard/transactions/chart-of-accounts',
-          label: 'Chart Of Accounts',
-          href: '/dashboard/transactions/chart-of-accounts',
-          permission: 'view_chartofaccount',
-        },
-
-        {
-          id: '/dashboard/transactions/coa_tree',
-          label: 'COA Tree',
-          href: '/dashboard/transactions/coa_tree',
-          permission: 'view_chartofaccount',
-        },
-        {
-          id: '/dashboard/transactions/banking',
-          label: 'Bank Transaction',
-          href: '/dashboard/transactions/banking',
-          permission: 'view_bankdeposit',
-        },
-        {
-          id: '/dashboard/transactions/reconcile',
-          label: 'Reconcile',
-          href: '/dashboard/transactions/reconcile',
-          permission: 'view_bankreconciliation',
-        },
-        {
-          id: '/dashboard/transactions/journal',
-          label: 'Journal Entry',
-          href: '/dashboard/transactions/journal',
-          permission: 'view_journalentry',
-        },
-        {
-          id: '/dashboard/transactions/recurring',
-          label: 'Recurring Transactions',
-          href: '/dashboard/transactions/recurring',
-          permission: 'view_recurring',
-          // Backend doesn't emit `view_recurring` yet — force-show from the frontend.
-          show: true,
-        },
-        // {
-        //   id: '/dashboard/transactions/payment-setup',
-        //   label: 'Payment Setup',
-        //   href: '/dashboard/transactions/payment-setup',
-        //   permission: 'view_paymentmethod',
-        // },
-      ],
-    },
-    {
-      id: 'sales',
-      icon: '/icons/sidebar/sales-v2.svg',
-      activeIcon: '/icons/sidebar/sales-v2.svg',
-      label: 'Sales',
-      href: '',
-      children: [
-        {
-          id: '/dashboard/sales/all_sales',
-          label: 'All Sales',
-          href: '/dashboard/sales/all_sales',
-          permission: 'view_sale',
-        },
-
-        {
-          id: '/dashboard/sales/customers',
-          label: 'Customers',
-          href: '/dashboard/sales/customers',
-          permission: 'view_customer',
-        },
-        {
-          id: '/dashboard/sales/product_services',
-          label: 'Products & Services',
-          href: '/dashboard/sales/product_services',
-          permission: 'view_product',
-        },
-        {
-          id: '/dashboard/sales/warehouse_location',
-          label: 'Warehouse Locations',
-          href: '/dashboard/sales/warehouse_location',
-          permission: 'view_warehouse',
-        },
-      ],
-    },
-    {
-      id: 'expenses',
-      icon: '/icons/sidebar/expense-v2.svg',
-      activeIcon: '/icons/sidebar/expense-v2.svg',
-      label: 'Expenses',
-      href: '',
-      children: [
-        {
-          id: '/dashboard/expenses/expenses',
-          label: 'Expenses',
-          href: '/dashboard/expenses/expenses',
-          permission: 'view_expense',
-        },
-
-        {
-          id: '/dashboard/expenses/suppliers',
-          label: 'Suppliers',
-          href: '/dashboard/expenses/suppliers',
-          permission: 'view_supplier',
-        },
-      ],
-    },
-    {
-      id: '/dashboard/reports',
-      icon: '/icons/sidebar/reports-v2.svg',
-      activeIcon: '/icons/sidebar/reports-v2.svg',
-      label: 'Reports',
-      permission: 'view_reports',
-      href: '/dashboard/reports',
-    },
-    {
-      id: 'taxes',
-      icon: '/icons/sidebar/taxes-v2.svg',
-      activeIcon: '/icons/sidebar/taxes-v2.svg',
-      label: 'Taxes',
-      href: '',
-      children: [
-        {
-          id: '/dashboard/taxes/taxes_agencies',
-          label: 'Taxes & Agencies',
-          href: '/dashboard/taxes/taxes_agencies',
-          permission: 'view_agency',
-        },
-        {
-          id: '/dashboard/taxes/sales',
-          label: 'Sales Tax',
-          href: '/dashboard/taxes/sales',
-          permission: 'view_agencytax',
-        },
-        {
-          id: '/dashboard/taxes/economic_nexus',
-          label: 'Economic Nexus',
-          href: '/dashboard/taxes/economic_nexus',
-          permission: 'view_agencytax',
-        },
-        // {
-        //   id: '/dashboard/taxes/tax-process-tracker',
-        //   label: 'Tax Process Tracker',
-        //   href: '/dashboard/taxes/tax-process-tracker',
-        //   permission: 'view_salestax',
-        // },
-      ],
-    },
-    {
-      id: 'hris',
-      icon: '/icons/sidebar/hris-v2.svg',
-      activeIcon: '/icons/sidebar/hris-v2.svg',
-      label: 'HRIS',
-      href: '',
-      children: [
-        {
-          id: `/dashboard/hris/profile?uid=${user?.employee?.uid}`,
-          label: 'Your Profile',
-          show: user?.is_employee,
-          href: `/dashboard/hris/profile?uid=${user?.employee?.uid}`,
-          permission: 'view_employee_profile',
-        },
-        {
-          id: 'employee',
-          label: 'Employee',
-          href: '',
-          children: [...EmployeeHrefs],
-        },
-        {
-          id: 'payroll',
-          label: 'Payroll',
-          href: '',
-          children: [
-            {
-              id: '/dashboard/hris/payroll/salaries',
-              label: 'Employee Salary',
-              href: '/dashboard/hris/payroll/salaries',
-              permission: 'view_employeesalary',
-            },
-
-            {
-              id: '/dashboard/hris/payroll/addition-deductions',
-              label: 'Addition & Deduction',
-              href: '/dashboard/hris/payroll/addition-deductions',
-              permission: 'view_employeeearning',
-            },
-            {
-              id: '/dashboard/hris/payroll/salary_process',
-              label: 'Run Payroll',
-              href: '/dashboard/hris/payroll/salary_process',
-              permission: 'view_payrollsalaryprocess',
-            },
-            {
-              id: '/dashboard/hris/payroll/payroll_tax',
-              label: 'Payroll Tax',
-              href: '/dashboard/hris/payroll/payroll_tax',
-              permission: 'view_payrollstatetaxinfosetting',
-            },
-            {
-              id: '/dashboard/hris/payroll/deduction_contribution',
-              label: 'Deduction Contribution',
-              href: '/dashboard/hris/payroll/deduction_contribution',
-              permission: 'view_deductionandcontributions',
-            },
-
-            {
-              id: '/dashboard/hris/payroll/pay-schedules',
-              label: 'Pay Schedule',
-              href: '/dashboard/hris/payroll/pay-schedules',
-              permission: 'view_payschedule',
-            },
-
-            {
-              id: '/dashboard/hris/payroll/payment',
-              label: 'Salary & Payments',
-              href: '/dashboard/hris/payroll/payment',
-              permission: 'view_paymentinformation',
-            },
-            {
-              id: '/dashboard/hris/payroll/settings',
-              label: 'Payroll Settings',
-              href: '/dashboard/hris/payroll/settings',
-              permission: 'view_payrollgeneralsettings',
-            },
-          ],
-        },
-        {
-          id: 'attendance',
-          label: 'Attendance',
-          href: '',
-          children: [
-            {
-              id: '/dashboard/hris/attendance/attendance_list',
-              label: 'Attendance List',
-              href: '/dashboard/hris/attendance/attendance_list',
-              permission: 'view_attendance',
-            },
-
-            {
-              id: '/dashboard/hris/attendance/attendance_process',
-              label: 'Attendance Process',
-              href: '/dashboard/hris/attendance/attendance_process',
-              permission: 'view_attendanceprocess',
-            },
-            {
-              id: '/dashboard/hris/attendance/daily_attendance',
-              label: 'Daily Attendance',
-              href: '/dashboard/hris/attendance/daily_attendance',
-              permission: 'view_dailytimetracking',
-            },
-            {
-              id: '/dashboard/hris/attendance/punch_data_import',
-              label: 'Punch Data Import',
-              href: '/dashboard/hris/attendance/punch_data_import',
-              permission: 'view_punchdatadailytime',
-            },
-          ],
-        },
-        {
-          id: `/dashboard/hris/employee/employees/summary/${user?.employee?.uid}`,
-          label: 'Your Attendance',
-          href: `/dashboard/hris/employee/employees/summary/${user?.employee?.uid}`,
-          show: user?.is_employee,
-          permission: 'view_attendance_summary',
-        },
-        {
-          id: '/dashboard/hris/reports',
-          label: 'Payroll Reports',
-          href: '/dashboard/hris/reports',
-          permission: 'view_reports',
-        },
-        {
-          id: '/dashboard/hris/snap-expense',
-          label: 'Snap Expense',
-          href: '/dashboard/snap-expense',
-          permission: 'view_expense',
-        },
-      ],
-    },
-    {
-      id: 'admin',
-      icon: '/icons/sidebar/admin-v2.svg',
-      activeIcon: '/icons/sidebar/admin-v2.svg',
-      label: 'Admin',
-      href: '',
-      children: [
-        {
-          id: '/dashboard/admin/currency_management',
-          label: 'Currencies',
-          href: '/dashboard/admin/currency_management',
-          permission: 'view_currency',
-        },
-        {
-          id: '/dashboard/admin/company_settings',
-          label: 'Company Settings',
-          href: '/dashboard/admin/company_settings',
-          permission: 'view_companysetting',
-        },
-        {
-          id: '/dashboard/admin/audit_log',
-          label: 'Audit Logs',
-          href: '/dashboard/admin/audit_log',
-          permission: 'view_logentry',
-        },
-        {
-          id: '/dashboard/admin/subscription',
-          label: 'Subscription',
-          href: '/dashboard/admin/subscription',
-          permission: 'view_companysubscription',
-        },
-        {
-          id: '/dashboard/admin/terms',
-          label: 'Terms',
-          href: '/dashboard/admin/terms',
-          permission: 'view_term',
-        },
-        {
-          id: '/dashboard/admin/attachment',
-          label: 'Attachments',
-          href: '/dashboard/admin/attachment',
-          permission: 'view_fileitem',
-        },
-        {
-          id: '/dashboard/admin/documents',
-          label: 'Documents',
-          href: '/dashboard/admin/documents',
-          permission: 'view_fileitem',
-        },
-        {
-          id: '/dashboard/admin/migrate',
-          label: 'Migrate',
-          href: '/dashboard/admin/migrate',
-          permission: 'view_datamigrationjob',
-        },
-        {
-          id: '/dashboard/admin/roles',
-          label: 'Roles',
-          href: '/dashboard/admin/roles',
-          permission: 'view_companyrole',
-        },
-        {
-          id: '/dashboard/admin/payment_management',
-          label: 'Payments',
-          href: '/dashboard/admin/payment_management',
-          permission: 'view_paymentinformation',
-        },
-      ],
-    },
-    {
-      id: '/dashboard/support',
-      icon: '/icons/sidebar/support-v2.svg',
-      activeIcon: '/icons/sidebar/support-v2.svg',
-      label: 'Support',
-      permission: 'view_inbox',
-      href: '/dashboard/support',
-    },
-  ];
-
-  const filterMenuItems = (items: MenuItem[]): MenuItem[] => {
-    return items.reduce<MenuItem[]>((acc, item) => {
-      if (item.children && item.children.length > 0) {
-        const filteredChildren = filterMenuItems(item.children);
-        if (filteredChildren.length > 0) {
-          acc.push({ ...item, children: filteredChildren });
-        }
-      } else if (!item.permission || Permissions?.includes(item.permission) || item.show) {
-        acc.push(item);
-      }
-      return acc;
-    }, []);
-  };
-
-  const filteredMenuItems = filterMenuItems(menuItems);
-
-  // Resizing state (desktop only)
-  const [isResizing, setIsResizing] = useState(false);
-  const [SideBarWidth, setSideBarWidth] = useState(collapsed ? 85 : 280);
-  const SideBarRef = useRef<HTMLDivElement>(null);
-
-  // Constants
-  const MIN_WIDTH = 85;
-  const MAX_WIDTH = 400;
-  const COLLAPSED_WIDTH = 85;
-  const EXPANDED_WIDTH = 280;
-  const MOBILE_WIDTH = 280;
-
-  // Sync SideBarWidth with collapsed state (desktop only)
-  useEffect(() => {
-    if (!isMobile) {
-      const fn = async () => {
-        setSideBarWidth(collapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH);
-      };
-      fn();
-    }
-  }, [collapsed, isMobile]);
-
-  // Close mobile SideBar when clicking outside
-  useEffect(() => {
-    if (!isMobile || !mobileOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (SideBarRef.current && !SideBarRef.current.contains(event.target as Node)) {
-        setMobileOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isMobile, mobileOpen]);
-
-  // Prevent body scroll when mobile SideBar is open
-  useEffect(() => {
-    if (isMobile && mobileOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isMobile, mobileOpen]);
-
-  const toggleMenu = (menuId: string) => {
-    if (expandedMenus.includes(menuId)) {
-      setExpandedMenus([]);
-    } else {
-      setExpandedMenus([menuId]);
+  const toggleGroup = (id: string) => {
+    const next = folded.includes(id) ? folded.filter((x) => x !== id) : [...folded, id];
+    setFolded(next);
+    try {
+      localStorage.setItem(FOLDED_KEY, JSON.stringify(next));
+    } catch {
+      /* the preference lasts for this page only */
     }
   };
 
-  const isExpanded = (menuId: string) => expandedMenus.includes(menuId);
+  // The old sidebar's rule: a page shows when it needs no permission, the
+  // user holds it, or it is forced visible; a section shows when any page does.
+  const visible = (page: Page) =>
+    page.show ||
+    !page.permission ||
+    (Permissions as string[] | undefined)?.includes(page.permission) ||
+    (page.href === '/dashboard' && (!user?.is_employee || user?.is_admin));
+  const accounting = ACCOUNTING.map((section) => ({
+    ...section,
+    pages: section.pages.filter(visible),
+  })).filter((section) => section.pages.length > 0);
 
-  const handleMouseEnter = () => {
-    if (!isMobile && collapsed) {
-      setHovering(true);
+  // Sections with sub-pages fold. The one holding the open page opens itself.
+  const [openSections, setOpenSections] = React.useState<string[]>([]);
+  const currentSection = accounting.find((section) => sectionContains(section, path ?? ''))?.id;
+  React.useEffect(() => {
+    if (currentSection) {
+      setOpenSections((open) => (open.includes(currentSection) ? open : [...open, currentSection]));
+    }
+  }, [currentSection]);
+  const toggleSection = (id: string) =>
+    setOpenSections((open) => (open.includes(id) ? open.filter((x) => x !== id) : [...open, id]));
+
+  const toggleRail = () => {
+    const next = !expandedPref;
+    setExpandedPref(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, String(next));
+    } catch {
+      /* the preference lasts for this page only */
     }
   };
 
-  const handleMouseLeave = (e: React.MouseEvent) => {
-    if (!isMobile) {
-      // When collapsed and hovering, check if mouse is actually leaving the expanded area
-      if (collapsed && hovering) {
-        const rect = SideBarRef.current?.getBoundingClientRect();
-        if (rect) {
-          const mouseX = e.clientX;
-          const mouseY = e.clientY;
+  const activeId = Object.entries(ROUTES).find(([, href]) => path?.startsWith(href))?.[0];
+  const langTitle = isBangla
+    ? 'Switch to English'
+    : 'বাংলায় দেখুন — switch the interface to Bangla';
+  const railTitle = expanded ? 'Collapse menu' : 'Expand menu';
 
-          // Check if mouse is still within the expanded SideBar area
-          const isWithinExpandedArea =
-            mouseX >= rect.left &&
-            mouseX <= rect.left + EXPANDED_WIDTH &&
-            mouseY >= rect.top &&
-            mouseY <= rect.bottom;
-
-          if (!isWithinExpandedArea) {
-            setHovering(false);
-          }
-        }
-      } else {
-        setHovering(false);
-      }
-    }
-  };
-
-  // Resize handlers with useCallback for better performance
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!isResizing || isMobile) return;
-
-      const newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, e.clientX));
-      setSideBarWidth(newWidth);
-
-      // Auto-collapse/expand logic
-      const shouldBeCollapsed = newWidth <= 120;
-
-      if (shouldBeCollapsed !== collapsed) {
-        setCollapsed(shouldBeCollapsed);
-      }
-    },
-    [isResizing, isMobile, collapsed]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    if (!isResizing) return;
-
-    setIsResizing(false);
-
-    // Snap to proper width
-    if (collapsed) {
-      setSideBarWidth(COLLAPSED_WIDTH);
-    } else if (SideBarWidth < 200) {
-      setSideBarWidth(EXPANDED_WIDTH);
-    }
-
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-    document.body.style.pointerEvents = '';
-  }, [isResizing, collapsed, SideBarWidth]);
-
-  // Add/remove event listeners
-  useEffect(() => {
-    if (isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = 'ew-resize';
-      document.body.style.userSelect = 'none';
-      document.body.style.pointerEvents = 'none';
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      document.body.style.pointerEvents = '';
-    };
-  }, [isResizing, handleMouseMove, handleMouseUp]);
-
-  const startResizing = (e: React.MouseEvent) => {
-    if (isMobile) return;
-    e.preventDefault();
-    setIsResizing(true);
-  };
-
-  // Calculate effective width
-  const getEffectiveWidth = () => {
-    if (isMobile) return MOBILE_WIDTH;
-    // When collapsed, always return collapsed width for layout purposes
-    if (collapsed) return COLLAPSED_WIDTH;
-    return SideBarWidth;
-  };
-
-  const effectiveWidth = getEffectiveWidth();
-
-  const renderMenuItem = (item: MenuItem, level = 0, isLast = false, isFirst = false) => {
-    const hasChildren = item.children && item.children.length > 0;
-    const isMenuExpanded = isExpanded(item.id);
-    const showChildren = hasChildren && isMenuExpanded;
-    const collapsedVisual = collapsed && !hovering && !isMobile;
-    const itemActive =
-      (selectedRoute?.includes(item?.id) && !!item?.href) || expandedMenus?.includes(item?.id);
-
-    return (
-      <li key={item.id} className="relative">
-        <div className="relative z-[100000]">
-          <Link
-            href={item.href || '#'}
-            className={cn(
-              'group z-[1000] flex items-center justify-start gap-2 rounded-xl py-3 transition-all duration-300',
-              level > 0 && !(collapsed && !hovering && !isMobile) ? 'ml-16' : '',
-              collapsed && !hovering && !isMobile ? 'justify-center px-2' : 'px-4',
-              itemActive
-                ? collapsedVisual
-                  ? 'bg-v-tint100 text-v-primary'
-                  : 'bg-white/90 font-semibold text-v-ink900 shadow-[0_6px_16px_-8px_rgba(22,23,42,0.25)]'
-                : 'text-v-ink700 hover:bg-white/55 hover:text-v-ink900'
-            )}
-            onClick={(e) => {
-              item?.href && setSelectedRoute([item?.id]);
-              if (hasChildren) {
-                e.preventDefault();
-                toggleMenu(item.id);
-              }
-            }}
+  return (
+    <div
+      className="flex shrink-0 py-4 pl-4"
+      style={{ width: expanded ? 316 : 76, transition: 'width 0.22s ease' }}
+    >
+      <nav
+        aria-label="Main"
+        className="flex min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden rounded-[22px] border border-[rgba(255,255,255,0.78)] bg-[rgba(255,255,255,0.46)] px-2.5 pb-3 pt-4 font-jakarta text-[#16172A] shadow-[0_24px_60px_-36px_rgba(22,23,42,0.5)] backdrop-blur-[24px]"
+        style={{ scrollbarWidth: 'none' }}
+      >
+        {/* Header: logo → wordmark → language → collapse. Stacked when collapsed. */}
+        <div
+          className={cn(
+            'flex min-w-0 items-center',
+            expanded ? 'gap-2.5 px-1 pb-4' : 'flex-col gap-2 pb-3'
+          )}
+        >
+          <div
+            className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[11px] text-[17px] font-bold text-white shadow-[0_8px_22px_-8px_rgba(124,77,255,0.7)]"
+            style={{ background: 'linear-gradient(140deg, #7C4DFF, #5A2BE0)' }}
           >
-            {level === 0 && (
-              <Image
-                src={
-                  (selectedRoute?.includes(item?.id) && item?.href) ||
-                  expandedMenus?.includes(item?.id)
-                    ? item?.activeIcon
-                    : item?.icon
-                }
-                width={100}
-                height={100}
-                alt="icon"
-                className={cn(
-                  'h-6 w-6 transition-all duration-200',
-                  selectedRoute?.includes(item?.id) || expandedMenus?.includes(item?.id)
-                    ? 'opacity-100'
-                    : 'opacity-70 group-hover:opacity-100'
-                )}
-              />
+            p
+          </div>
+          {expanded && (
+            <div className="min-w-0 flex-1">
+              <div className="whitespace-nowrap text-[15.5px] font-bold tracking-[-0.01em]">
+                Pilucent
+              </div>
+              <div
+                className="mt-px whitespace-nowrap text-[10.5px] font-bold uppercase tracking-[0.05em]"
+                style={{ color: INK_MUTED }}
+              >
+                Bangladesh
+              </div>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setLang(isBangla ? 'en' : 'bn')}
+            title={langTitle}
+            aria-label={langTitle}
+            aria-pressed={isBangla}
+            lang={isBangla ? 'bn' : undefined}
+            className={cn(
+              SMALL_BUTTON,
+              'px-[9px] text-[11px] font-extrabold tracking-[0.04em] hover:border-[rgba(124,77,255,0.5)]',
+              isBangla
+                ? 'border-[rgba(124,77,255,0.4)] bg-[rgba(124,77,255,0.14)] text-[#6B3FE8]'
+                : 'border-[rgba(255,255,255,0.75)] bg-[rgba(255,255,255,0.75)] text-[#44405C]'
             )}
-            <span
+            style={{ lineHeight: 1, fontFamily: 'inherit' }}
+          >
+            {isBangla ? 'বাং' : 'EN'}
+          </button>
+          {!narrow && (
+            <button
+              type="button"
+              onClick={toggleRail}
+              title={railTitle}
+              aria-label={railTitle}
+              style={{ fontFamily: 'inherit' }}
               className={cn(
-                'whitespace-nowrap text-sm font-medium',
-                collapsed && !hovering && !isMobile
-                  ? 'hidden opacity-0'
-                  : 'opacity-100 transition-all duration-200',
-                level > 0 ? '' : ''
+                SMALL_BUTTON,
+                'w-7 border-[rgba(255,255,255,0.75)] bg-[rgba(255,255,255,0.55)] text-[#6F6A85] hover:bg-[rgba(255,255,255,0.9)] hover:text-[#7C4DFF]'
               )}
             >
-              {item.label}
-            </span>
-            {hasChildren && (
-              <ChevronDown
-                className={cn(
-                  'ml-auto h-4 w-4 transition-all duration-200',
-                  isMenuExpanded ? 'rotate-180' : '',
-                  collapsed && !hovering && !isMobile ? 'hidden opacity-0' : 'opacity-100',
-                  isMenuExpanded ? 'text-v-primary' : 'text-v-ink400'
-                )}
-              />
-            )}
-          </Link>
+              <span style={{ display: 'flex', transform: expanded ? 'none' : 'rotate(180deg)' }}>
+                <Icon d="M11 17l-5-5 5-5M18 17l-5-5 5-5" size={13} stroke={2.2} />
+              </span>
+            </button>
+          )}
         </div>
 
-        {showChildren && (
-          <ul
-            className={cn(
-              'relative ml-4 mt-2 space-y-0.5 pl-6',
-              collapsed && !hovering && !isMobile ? 'hidden' : ''
-            )}
+        {accounting.length > 0 && (
+          <div className="mb-2 flex flex-col gap-[3px]">
+            <GroupHeading
+              id="accounting"
+              label="Accounting"
+              expanded={expanded}
+              open={!folded.includes('accounting')}
+              onToggle={toggleGroup}
+            />
+            {(!expanded || !folded.includes('accounting')) &&
+              accounting.map((section) => (
+                <SectionRow
+                  key={section.id}
+                  section={section}
+                  path={path ?? ''}
+                  expanded={expanded}
+                  open={openSections.includes(section.id)}
+                  onToggle={toggleSection}
+                />
+              ))}
+          </div>
+        )}
+
+        {GROUPS.map(([groupId, groupLabel]) => (
+          <div key={groupId} className="mb-2 flex flex-col gap-[3px]">
+            <GroupHeading
+              id={groupId}
+              label={groupLabel}
+              expanded={expanded}
+              open={!folded.includes(groupId)}
+              onToggle={toggleGroup}
+            />
+            {(!expanded || !folded.includes(groupId)) &&
+              MODULES.filter(([g]) => g === groupId).map(([, id, label, batch, d]) => (
+                <ModuleRow
+                  key={id}
+                  label={label}
+                  batch={batch}
+                  d={d}
+                  href={ROUTES[id]}
+                  active={id === activeId}
+                  expanded={expanded}
+                />
+              ))}
+          </div>
+        ))}
+
+        <span className="flex-1" />
+
+        {expanded ? (
+          <div className="min-w-0 rounded-2xl border border-[rgba(34,211,238,0.28)] bg-[rgba(34,211,238,0.09)] px-3 py-[13px]">
+            <div className="flex items-center gap-[7px]">
+              <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-[#22D3EE]" />
+              <span className="whitespace-nowrap text-[10.5px] font-extrabold uppercase tracking-[0.06em] text-[#0E7490]">
+                BD compliance mode
+              </span>
+            </div>
+            <div className="mt-[7px] text-[11px] leading-[1.5] text-[#0E5A70]">
+              Statutory figures load from the rules module. Draft values need compliance sign-off
+              before release.
+            </div>
+          </div>
+        ) : (
+          <div
+            title="Bangladesh compliance mode"
+            className="mx-auto flex h-[30px] w-9 items-center justify-center rounded-full border border-[rgba(34,211,238,0.36)] bg-[rgba(34,211,238,0.14)] text-[10.5px] font-extrabold tracking-[0.04em] text-[#0E7490]"
           >
-            <div className="absolute bottom-0 left-0 top-0 -z-[1] w-[1px] -translate-y-[30px] overflow-hidden rounded-2xl bg-[rgba(22,23,42,0.10)]"></div>
-            {item.children?.map((child, index) => {
-              const hasChildChildren = child.children && child.children.length > 0;
-              const isChildMenuExpanded = expandedChildMenus.includes(child.id);
-              const showChildChildren = hasChildChildren && isChildMenuExpanded;
-              if (!hasChildChildren) {
-                const childActive =
-                  selectedRoute?.includes(child?.id) || selectedRoute?.[0]?.startsWith(child?.id);
-                return (
-                  <li key={child.id} className="flex items-center justify-center gap-1">
-                    {/* Elbow connector using borders */}
-
-                    <div className="z-[10] h-6 w-6 -translate-x-6 -translate-y-2 rounded-bl-2xl border-b border-l border-[rgba(22,23,42,0.10)]"></div>
-                    <Link
-                      href={child.href || '#'}
-                      className={cn(
-                        'group -ml-8 flex w-full flex-1 items-center gap-2 rounded-2xl px-4 py-2.5 transition-all duration-200',
-                        childActive
-                          ? 'bg-white/90 font-semibold text-v-primary shadow-[0_6px_16px_-8px_rgba(22,23,42,0.25)]'
-                          : 'text-v-ink700 hover:bg-white/55 hover:text-v-ink900'
-                      )}
-                      onClick={() => {
-                        setSelectedRoute([child?.id]);
-                      }}
-                    >
-                      <span
-                        className={cn(
-                          'h-1.5 w-1.5 shrink-0 rounded-full bg-v-primary transition-opacity',
-                          childActive ? 'opacity-100' : 'opacity-0'
-                        )}
-                      />
-                      <span className="whitespace-nowrap">{child.label}</span>
-                    </Link>
-                  </li>
-                );
-              } else {
-                return (
-                  <li key={child.id} className="z-[5000] flex items-start justify-between gap-1">
-                    <div className="flex items-center gap-1">
-                      {/* Elbow connector using borders */}
-                      <div className="z-[10] h-6 w-6 -translate-x-6 -translate-y-2 rounded-bl-2xl border-b border-l border-[rgba(22,23,42,0.10)]"></div>
-                      <Link
-                        href={child.href || '#'}
-                        className={cn(
-                          'group z-[5000] -ml-8 flex w-full flex-1 items-center gap-2 rounded-xl px-4 py-2.5 transition-all duration-200',
-                          expandedChildMenus.includes(child?.id)
-                            ? 'bg-white/55 font-semibold text-v-ink900'
-                            : 'text-v-ink700 hover:bg-white/55 hover:text-v-ink900'
-                        )}
-                        onClick={(e) => {
-                          if (hasChildChildren) {
-                            e.preventDefault();
-                            setExpandedChildMenus((prev) =>
-                              prev.includes(child.id)
-                                ? prev.filter((id) => id !== child.id)
-                                : [...prev, child.id]
-                            );
-                          }
-                        }}
-                      >
-                        <span className="whitespace-nowrap">{child.label}</span>
-                        {hasChildChildren && (
-                          <ChevronDown
-                            className={cn(
-                              'ml-auto h-4 w-4 transition-all duration-200',
-                              isChildMenuExpanded ? 'rotate-180' : '',
-                              expandedChildMenus.includes(child?.id)
-                                ? 'text-v-primary'
-                                : 'text-v-ink400'
-                            )}
-                          />
-                        )}
-                      </Link>
-                    </div>
-                    {showChildChildren && (
-                      <ul
-                        className={`relative ${child?.id == 'employee' ? '-ml-6' : child?.id == 'attendance' ? '-ml-8' : ''} mt-8 -translate-x-16`}
-                      >
-                        <div className="absolute bottom-0 left-0 top-0 -z-[1] -translate-x-[24px] -translate-y-[30px] overflow-hidden rounded-2xl border-r border-[rgba(22,23,42,0.10)]"></div>
-                        {/* <div
-                          className={`absolute ${child?.id == "attendance" ? "" : "hidden"} -left-10 bottom-0 top-0 -z-[1] w-[1px] -translate-x-[24px] -translate-y-[30px] overflow-hidden rounded-2xl bg-accent_primary`}
-                        ></div> */}
-                        {child.children?.map((grandChild: any) => (
-                          <li key={grandChild.id}>
-                            <div className="z-[10] h-4 w-6 -translate-x-6 translate-y-[17px] rounded-bl-2xl border-b border-l border-[rgba(22,23,42,0.10)]"></div>
-                            <Link
-                              onClick={() => {
-                                setSelectedRoute([grandChild?.id]);
-                              }}
-                              href={grandChild.href || '#'}
-                              className={`flex items-center text-nowrap rounded-lg px-2 py-1.5 text-[13px] transition-all duration-200 ${selectedRoute?.includes(grandChild?.id) ? 'bg-white/90 font-semibold text-v-primary shadow-[0_6px_16px_-8px_rgba(22,23,42,0.25)]' : 'text-v-ink700 hover:bg-white/55 hover:text-v-ink900'}`}
-                            >
-                              {grandChild.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                );
-              }
-            })}
-          </ul>
+            BD
+          </div>
         )}
-      </li>
-    );
-  };
+      </nav>
+    </div>
+  );
+}
 
-  // Mobile SideBar overlay
-  if (isMobile) {
-    return (
-      <>
-        {/* Mobile hamburger - open sidebar when closed */}
-        {!mobileOpen && (
-          <button
-            className="fixed left-4 top-5 z-30 flex h-10 w-10 items-center justify-center rounded-xl border border-white/70 bg-white/60 text-v-ink700 backdrop-blur-lg transition-colors hover:bg-white/80 hover:text-v-primary"
-            onClick={() => setMobileOpen(true)}
-            title="Open menu"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        )}
-        {mobileOpen && (
-          <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setMobileOpen(false)} />
-        )}
-
-        <aside
-          ref={SideBarRef}
-          className={cn(
-            'fixed left-0 top-0 z-[50000] flex h-full transform flex-col bg-white/85 font-jakarta text-sm font-light text-v-ink700 backdrop-blur-2xl transition-transform duration-300 ease-in-out',
-            mobileOpen ? 'translate-x-0' : '-translate-x-full'
-          )}
+function ModuleRow({
+  label,
+  batch,
+  d,
+  href,
+  active,
+  expanded,
+}: {
+  label: string;
+  batch: string;
+  d: string;
+  href?: string;
+  active: boolean;
+  expanded: boolean;
+}) {
+  const built = !!href;
+  const tag = built ? (SHOW_BATCH ? batch : null) : 'Soon';
+  const className = cn(
+    'flex w-full min-w-0 items-center gap-[11px] rounded-[13px] px-2.5 py-[11px] text-left text-[13.5px] outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#7C4DFF] focus-visible:[outline-offset:-2px]',
+    active
+      ? 'bg-[rgba(255,255,255,0.95)] font-bold text-[#6B3FE8] shadow-[0_6px_18px_-10px_rgba(22,23,42,0.45)]'
+      : built
+        ? 'font-medium text-[#44405C] hover:bg-[rgba(255,255,255,0.62)]'
+        : 'cursor-default font-medium',
+    !expanded && 'justify-center'
+  );
+  const content = (
+    <>
+      <span
+        className="flex h-5 w-5 shrink-0 items-center justify-center"
+        style={{ color: active ? '#7C4DFF' : built ? '#6F6A85' : '#9A94AE' }}
+      >
+        <Icon d={d} />
+      </span>
+      {expanded && (
+        <span
+          className="min-w-0 flex-1 truncate"
+          style={built || active ? undefined : { color: INK_MUTED }}
+        >
+          {label}
+        </span>
+      )}
+      {expanded && tag && (
+        <span
+          className="shrink-0 rounded-md border px-1.5 py-0.5 text-[9.5px] font-bold"
           style={{
-            width: '280px',
-            // backgroundImage: "linear-gradient(to bottom, #1a1155, #191052)",
+            fontFamily: "var(--font-jbmono), 'JetBrains Mono', monospace",
+            color: active ? '#6B3FE8' : INK_MUTED,
+            background: active ? 'rgba(124,77,255,0.12)' : 'rgba(22,23,42,0.05)',
+            borderColor: active ? 'rgba(124,77,255,0.26)' : 'rgba(22,23,42,0.09)',
           }}
         >
-          <div className="flex h-16 items-center justify-between border-b border-v-border/60 px-4">
-            <div className="flex items-center text-xl font-bold">
-              <div className="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#7C4DFF] to-[#5A2BE0] shadow-[0_8px_22px_-8px_rgba(124,77,255,0.7)]">
-                <span className="font-bold text-white">b</span>
-              </div>
-              <span className="text-v-ink900">balanzify</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileOpen(false)}
-              className="text-v-ink400 transition-colors hover:bg-v-tint100 hover:text-v-primary"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
+          {tag}
+        </span>
+      )}
+    </>
+  );
 
-          <div className="flex flex-1 flex-col overflow-y-auto">
-            <nav className="flex-1 px-3 py-4">
-              <ul className="space-y-1.5">
-                {filteredMenuItems.map((item) => renderMenuItem(item))}
-              </ul>
-            </nav>
-          </div>
-          {/* <div className="overflow-x-hidden border-t border-indigo-900/50 p-2">
-            <TrialStatus isCollapsed={collapsed} isHovering={hovering} />
-          </div> */}
-        </aside>
+  // `title` is load-bearing: collapsed, it is the only name a row has (spec §8.3).
+  if (built) {
+    return (
+      <Link
+        href={href}
+        title={label}
+        aria-current={active ? 'page' : 'false'}
+        className={className}
+      >
+        {content}
+      </Link>
+    );
+  }
+  return (
+    <span
+      role="link"
+      aria-disabled="true"
+      tabIndex={-1}
+      title={`${label} — not built yet`}
+      className={className}
+    >
+      {content}
+    </span>
+  );
+}
 
-        <style jsx>{`
-          @keyframes slideInFromLeft {
-            from {
-              opacity: 0;
-              transform: translateX(-20px) translateY(26px);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(0) translateY(26px);
-            }
-          }
-        `}</style>
-      </>
+/** Expanded: a heading that folds its group. Collapsed: the spec's 1px rule. */
+function GroupHeading({
+  id,
+  label,
+  expanded,
+  open,
+  onToggle,
+}: {
+  id: string;
+  label: string;
+  expanded: boolean;
+  open: boolean;
+  onToggle: (id: string) => void;
+}) {
+  if (!expanded) return <div className="mx-2 my-1.5 h-px bg-[rgba(22,23,42,0.09)]" />;
+  return (
+    <button
+      type="button"
+      onClick={() => onToggle(id)}
+      aria-expanded={open}
+      style={{ fontFamily: 'inherit' }}
+      className="group flex w-full items-center gap-1 whitespace-nowrap rounded-lg px-[11px] pb-1 pt-2 text-left text-[10px] font-extrabold uppercase tracking-[0.09em] text-[#9A94AE] outline-none hover:text-[#6E6883] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#7C4DFF] focus-visible:[outline-offset:-2px]"
+    >
+      <span className="min-w-0 flex-1">{label}</span>
+      <span
+        className="flex opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+        style={{ transform: open ? 'none' : 'rotate(-90deg)' }}
+      >
+        <LuChevronDown size={12} strokeWidth={2.4} aria-hidden="true" />
+      </span>
+    </button>
+  );
+}
+
+function sectionContains(section: Section, path: string) {
+  return section.exact
+    ? path === section.pages[0].href
+    : section.pages.some((page) => path.startsWith(page.href));
+}
+
+const ROW =
+  'flex w-full min-w-0 items-center gap-[11px] rounded-[13px] px-2.5 py-[11px] text-left text-[13.5px] outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#7C4DFF] focus-visible:[outline-offset:-2px]';
+const LIFTED =
+  'bg-[rgba(255,255,255,0.95)] font-bold text-[#6B3FE8] shadow-[0_6px_18px_-10px_rgba(22,23,42,0.45)]';
+
+/**
+ * An accounting section. With sub-pages (expanded rail) it is a toggle with a
+ * chevron, and its pages hang beneath it on a guide line. Without them — or
+ * in the collapsed rail, where there is no room for the list — the row goes
+ * straight to the section's first page.
+ */
+function SectionRow({
+  section,
+  path,
+  expanded,
+  open,
+  onToggle,
+}: {
+  section: Section;
+  path: string;
+  expanded: boolean;
+  open: boolean;
+  onToggle: (id: string) => void;
+}) {
+  const SectionIcon = section.icon;
+  const inSection = sectionContains(section, path);
+  const foldable = expanded && section.pages.length > 1;
+  const activePage = section.pages.find((page) => path.startsWith(page.href))?.href;
+  const icon = (
+    <span
+      className="flex h-5 w-5 shrink-0 items-center justify-center"
+      style={{ color: inSection ? '#7C4DFF' : '#6F6A85' }}
+    >
+      <SectionIcon size={18} strokeWidth={1.75} aria-hidden="true" />
+    </span>
+  );
+
+  if (!foldable) {
+    return (
+      <Link
+        href={section.pages[0].href}
+        // Collapsed, the tooltip is the row's only name (spec §8.3).
+        title={expanded ? undefined : section.label}
+        aria-current={inSection ? 'page' : 'false'}
+        className={cn(
+          ROW,
+          inSection ? LIFTED : 'font-medium text-[#44405C] hover:bg-[rgba(255,255,255,0.62)]',
+          !expanded && 'justify-center'
+        )}
+      >
+        {icon}
+        {expanded && <span className="min-w-0 flex-1 truncate">{section.label}</span>}
+      </Link>
     );
   }
 
-  // Desktop SideBar
+  const listId = `rail-section-${section.id}`;
   return (
     <>
-      <aside
-        ref={SideBarRef}
+      <button
+        type="button"
+        onClick={() => onToggle(section.id)}
+        aria-expanded={open}
+        aria-controls={listId}
+        style={{ fontFamily: 'inherit' }}
         className={cn(
-          'sticky top-5 z-10 hidden h-full max-h-[calc(100vh-40px)] min-h-[calc(100vh-40px)] flex-col overflow-x-hidden rounded-[24px] border border-white/75 bg-white/[0.42] px-3.5 pb-4 pt-5 font-jakarta text-sm font-normal text-v-ink700 shadow-[0_24px_60px_-36px_rgba(22,23,42,0.5)] backdrop-blur-[24px] md:flex',
-          `max-w-[${MAX_WIDTH}px]`,
-          collapsed && !hovering ? 'items-center px-2' : '',
-          !isResizing && 'transition-all duration-300 ease-in-out'
+          ROW,
+          // Folded with the open page inside: lift the section so the place still shows.
+          inSection && !open
+            ? LIFTED
+            : inSection
+              ? 'font-bold text-[#6B3FE8] hover:bg-[rgba(255,255,255,0.62)]'
+              : 'font-medium text-[#44405C] hover:bg-[rgba(255,255,255,0.62)]'
         )}
-        style={{
-          width: hovering && collapsed ? `${EXPANDED_WIDTH}px` : `${effectiveWidth}px`,
-        }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
-        {/* Brand + collapse toggle */}
-        <div
-          className={cn(
-            'mb-3 flex w-full shrink-0 items-center',
-            collapsed && !hovering ? 'flex-col gap-2.5' : 'gap-2.5 px-1'
-          )}
-        >
-          <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#7C4DFF] to-[#5A2BE0] text-[19px] font-bold leading-none text-white shadow-[0_8px_22px_-8px_rgba(124,77,255,0.7)]">
-            b
-          </div>
-          {!(collapsed && !hovering) && (
-            <span className="truncate text-[17px] font-bold tracking-[-0.01em] text-v-ink900">
-              Balanzify
-            </span>
-          )}
-          {!(collapsed && !hovering) && <span className="flex-1" />}
-          <button
-            className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] border border-white/75 bg-white/60 transition-colors hover:bg-white/90"
-            onClick={() => {
-              const next = !collapsed;
-              setCollapsed(next);
-              try {
-                localStorage.setItem('sidebar_collapsed', String(next));
-              } catch {
-                // ignore unavailable storage
-              }
-            }}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <Image
-              src="/icons/sidebar/collapse.svg"
-              alt={collapsed ? 'Expand' : 'Collapse'}
-              width={16}
-              height={16}
-              className={cn('transition-transform duration-200', collapsed && 'rotate-180')}
-            />
-          </button>
-        </div>
-
-        <div
+        {icon}
+        <span className="min-w-0 flex-1 truncate">{section.label}</span>
+        <LuChevronDown
+          size={15}
+          strokeWidth={2}
+          aria-hidden="true"
+          className="shrink-0 transition-transform duration-200"
           style={{
-            scrollbarWidth: 'thin',
-            msOverflowStyle: 'none',
-            scrollbarColor: '#E3DDFE transparent',
+            transform: open ? 'none' : 'rotate(-90deg)',
+            color: inSection ? '#7C4DFF' : '#9A94AE',
           }}
-          className="flex w-full flex-1 flex-col overflow-y-auto overflow-x-hidden"
+        />
+      </button>
+      {open && (
+        <div
+          id={listId}
+          className="mb-1 ml-[19px] flex flex-col gap-[2px] border-l border-[rgba(22,23,42,0.1)] pl-2"
         >
-          <nav className="flex-1">
-            <ul className="space-y-1.5">{filteredMenuItems.map((item) => renderMenuItem(item))}</ul>
-          </nav>
+          {section.pages.map((page) => {
+            const active = page.href === activePage;
+            return (
+              <Link
+                key={page.href}
+                href={page.href}
+                aria-current={active ? 'page' : 'false'}
+                className={cn(
+                  'block min-w-0 truncate rounded-[11px] px-3 py-[7px] text-[13px] outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#7C4DFF] focus-visible:[outline-offset:-2px]',
+                  active ? LIFTED : 'font-medium text-[#44405C] hover:bg-[rgba(255,255,255,0.62)]'
+                )}
+              >
+                {page.label}
+              </Link>
+            );
+          })}
         </div>
-        {/* <div className="overflow-x-hidden p-2">
-          <TrialStatus isCollapsed={collapsed} isHovering={hovering} />
-        </div> */}
-      </aside>
-
-      <style jsx>{`
-        @keyframes slideInFromLeft {
-          from {
-            opacity: 0;
-            transform: translateX(-20px) translateY(26px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0) translateY(26px);
-          }
-        }
-      `}</style>
+      )}
     </>
   );
-};
-
-export default SideBar;
+}

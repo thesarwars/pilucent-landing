@@ -1,4 +1,3 @@
-import Button from '@/components/ui/RawButton';
 import React, { useEffect, useRef, useState } from 'react';
 import { IoIosArrowDown } from 'react-icons/io';
 import LinkButton from './LinkButton';
@@ -30,14 +29,17 @@ const DropdownButton = () => {
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
       <div>
-        <Button
-          type="button"
-          className="inline-flex w-full justify-center rounded-md border bg-accent_soft_black p-1 text-white shadow-sm focus:outline-none"
+        {/* A split button: two buttons side by side in one frame. The frame is
+            a div — a <button> may not contain other buttons. */}
+        <div
+          role="group"
+          className="inline-flex w-full justify-center rounded-md border bg-accent_soft_black p-1 text-base font-medium text-white shadow-sm"
         >
           {UserData?.is_2fa_enabled ? (
             <LinkButton />
           ) : (
             <button
+              type="button"
               className="px-4"
               onClick={() =>
                 toast.error('To link your account please enable 2FA  from your profile settings')
@@ -46,10 +48,17 @@ const DropdownButton = () => {
               Link Account
             </button>
           )}
-          <p onClick={toggleDropdown} className="border-l px-2 py-2">
+          <button
+            type="button"
+            onClick={toggleDropdown}
+            aria-label="More bank options"
+            aria-haspopup="menu"
+            aria-expanded={isOpen}
+            className="border-l px-2 py-2"
+          >
             <IoIosArrowDown className="text-xl" />
-          </p>
-        </Button>
+          </button>
+        </div>
       </div>
 
       {isOpen && (

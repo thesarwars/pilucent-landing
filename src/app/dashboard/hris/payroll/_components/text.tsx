@@ -55,7 +55,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           <div className="mb-6 p-4 bg-blue-50 rounded-md flex gap-3">
             <IoInformationCircleOutline className="text-blue-500 text-xl flex-shrink-0 mt-1" />
             <div className="text-sm text-gray-600">
-              Enter the payment date. Once you click record payment, Balanzify provides specific instructions about how to pay this tax.
+              Enter the payment date. Once you click record payment, Pilucent provides specific instructions about how to pay this tax.
             </div>
           </div>
 
@@ -93,7 +93,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           {/* Payment method */}
           <div className="mb-6">
             <h3 className="font-medium mb-2">How this will be paid</h3>
-            <p className="text-gray-700 mb-2">Outside of Balanzify</p>
+            <p className="text-gray-700 mb-2">Outside of Pilucent</p>
             <p className="text-gray-500 text-sm mb-3">Make the Payment yourself and we`&apos;`ll add it to your books here.</p>
             
             <div className="flex items-center mb-2">

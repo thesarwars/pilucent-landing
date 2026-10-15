@@ -175,7 +175,7 @@ const TaxLiabilities: React.FC<TaxLiabilitiesProps> = ({
             <div className="mb-6">
               <p className="mb-4 text-sm text-gray-700">
                 <span className="mr-1 font-medium">2.</span> Where do you track employer taxes that
-                you owe liabilities in your Balanzify Chart of Accounts?
+                you owe liabilities in your Pilucent Chart of Accounts?
               </p>
 
               <div className="space-y-5">

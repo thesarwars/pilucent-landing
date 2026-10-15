@@ -1,9 +1,10 @@
 {
-  "name": "balanzify-client",
+  "name": "pilucent-client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:login": "node scripts/dev-login.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

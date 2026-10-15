@@ -204,7 +204,7 @@ const Page = () => {
     Accounts?.find((a: any) => a?.chart_of_account?.uid === selectedBank?.uid) || Accounts?.[0];
   const accountTitle = selectedBank?.title || selectedOverview?.chart_of_account?.title || 'Bank account';
   const bankBalance = selectedOverview?.bank_balance;
-  const inBalanzify = selectedOverview?.chart_of_account?.opening_balance ?? selectedBank?.opening_balance;
+  const inPilucent = selectedOverview?.chart_of_account?.opening_balance ?? selectedBank?.opening_balance;
   const forReviewCount = Number(selectedOverview?.status_for_review);
 
   return (
@@ -289,7 +289,7 @@ const Page = () => {
                   </div>
                   <div className="mt-1.5 flex items-center gap-1.5 text-[11.5px] text-white/60">
                     <RefreshCw className="h-3.5 w-3.5" />
-                    In Balanzify {fmtMoney(inBalanzify)} · synced just now
+                    In Pilucent {fmtMoney(inPilucent)} · synced just now
                   </div>
                 </div>
               </div>

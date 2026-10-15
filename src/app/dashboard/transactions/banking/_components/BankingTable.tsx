@@ -686,9 +686,8 @@ export default function ResizableTable<T>({
                   </React.Fragment>
                 );
               })
-            ) : (
-              ''
-            )}
+            ) : // Nothing, not '': a text node may not be a child of <tbody>.
+            null}
           </tbody>
         </table>
       </div>

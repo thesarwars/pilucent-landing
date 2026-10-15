@@ -1,9 +1,13 @@
 import { toast } from "@/lib/ToastService";
 import axios from "axios";
 
-export const baseURL = "https://balanzifyapi.jumatechs.xyz/api/v1";
+// The Pilucent API. Set NEXT_PUBLIC_API_URL per environment (see .env.example);
+// the default is the local Docker backend.
+export const baseURL = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1"
+).replace(/\/+$/, "");
 
-const axiosApi = axios.create({
+export const axiosApi = axios.create({
   baseURL: baseURL,
 });
 

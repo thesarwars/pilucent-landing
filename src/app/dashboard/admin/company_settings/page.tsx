@@ -494,7 +494,7 @@ const Company = () => {
       <SettingsCard
         icon={<Building2 />}
         title="Company info"
-        sub="Used across Balanzify and on everything you send."
+        sub="Used across Pilucent and on everything you send."
         isEditing={editSection === 'companyInfo'}
         onEditClick={() => handleEditClick('companyInfo')}
         delay="0.06s"
