@@ -581,59 +581,106 @@ button.bd-chip:focus-visible {
   background: rgba(22, 23, 42, 0.07);
 }
 
-/* ── tabs (§9) ────────────────────────────────────────────────────── */
+/* ── tabs (§9): a column beside the content ─────────────────────────
+ * The eight tabs sit in a 216px glass column, sticky while the content
+ * scrolls, with the legend under a divider. When the content area itself is
+ * too narrow for a column beside it (a container query, not the viewport —
+ * the rail's width varies), the column becomes a scrolling strip on top.
+ */
+
+.bd-profile-body {
+  container-type: inline-size;
+  padding: 16px;
+}
+.bd-profile-grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.bd-side {
+  position: sticky;
+  top: 16px;
+  width: 216px;
+  flex-shrink: 0;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px -40px rgba(22, 23, 42, 0.5);
+}
 
 .bd-tabs {
   display: flex;
-  gap: 4px;
-  padding: 5px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.42);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(24px);
-  overflow-x: auto;
+  flex-direction: column;
+  gap: 2px;
   scrollbar-width: none;
 }
 .bd-tabs::-webkit-scrollbar {
   display: none;
 }
+
 .bd-tabitem {
+  position: relative;
+  flex-shrink: 0;
+}
+/* The whole row is the tab; the dot sits over its left padding. */
+.bd-tab {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  height: 36px;
-  padding: 0 4px 0 12px;
-  border-radius: 11px;
-  transition: background 0.12s ease;
-}
-.bd-tabitem:hover {
-  background: rgba(255, 255, 255, 0.55);
-}
-.bd-tabitem.is-active {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 6px 18px -10px rgba(22, 23, 42, 0.45);
-}
-.bd-tab {
-  height: 100%;
-  padding: 0 10px 0 0;
+  width: 100%;
+  padding: 11px 12px 11px 39px;
   border: none;
+  border-radius: 13px;
   background: transparent;
   color: var(--bd-ink-2);
   font-size: 13.5px;
   font-weight: 500;
+  text-align: left;
   white-space: nowrap;
   cursor: pointer;
+  transition: background 0.12s ease;
+}
+.bd-tab:hover {
+  background: rgba(255, 255, 255, 0.6);
 }
 .bd-tab[aria-current='page'] {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 18px -10px rgba(22, 23, 42, 0.45);
   color: var(--bd-violet-primary);
   font-weight: 700;
 }
-.bd-tab:focus-visible,
+.bd-tab:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: -2px;
+}
+
+/* A plain dot lets clicks through to the tab; a blocked dot is its own button. */
+.bd-tabdot {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  pointer-events: none;
+}
+.bd-tabdot .bd-dot {
+  width: 17px;
+  height: 17px;
+  border-width: 1.6px;
+}
+.bd-dot-btn {
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
 .bd-dot-btn:focus-visible {
   outline: 2px solid var(--bd-violet);
   outline-offset: 2px;
-  border-radius: 6px;
 }
 
 .bd-dot {
@@ -650,12 +697,69 @@ button.bd-chip:focus-visible {
   font-weight: 800;
   line-height: 1;
 }
-.bd-dot-btn {
-  display: inline-flex;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
+
+.bd-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 7px;
+  padding: 11px 12px 5px;
+  border-top: 1px solid rgba(22, 23, 42, 0.09);
+  font-size: 11px;
+  color: var(--bd-ink-muted);
+}
+.bd-legend > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bd-legend .bd-dot {
+  width: 11px;
+  height: 11px;
+  border-width: 1.4px;
+  font-size: 7px;
+}
+
+@container (max-width: 760px) {
+  .bd-profile-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bd-side {
+    position: static;
+    width: auto;
+    padding: 5px;
+    border-radius: 16px;
+  }
+  .bd-tabs {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .bd-tab {
+    padding: 9px 12px 9px 37px;
+  }
+  .bd-legend {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-top: 5px;
+    padding: 8px 9px 4px;
+  }
+}
+
+/* The rule-book notice heads the content column. */
+.bd-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  border-radius: 15px;
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  font-size: 12px;
+  line-height: 1.5;
+  color: #0e5a70;
 }
 
 /* ── the field system (§10) ───────────────────────────────────────── */

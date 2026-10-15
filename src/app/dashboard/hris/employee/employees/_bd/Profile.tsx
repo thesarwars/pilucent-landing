@@ -23,7 +23,7 @@ import { initials } from './format';
 import { useCompliance, useEmployeeMutation, useProfile } from './hooks';
 import { LangProvider, useLang } from './i18n';
 import type { DocumentKind, Profile as ProfileT, TabId, TabState } from './types';
-import { Chip, ErrorBlock, LoadingBlock, Note, TAB_STATE, TabDot, focusField, type Tone } from './ui';
+import { Chip, ErrorBlock, LoadingBlock, TAB_STATE, TabDot, focusField, type Tone } from './ui';
 import { ClassificationModal, ComplianceDrawer, SeparationModal, TimelineModal } from './modals';
 import { PersonalTab } from './tabs/PersonalTab';
 import { EmploymentTab } from './tabs/EmploymentTab';
@@ -96,7 +96,7 @@ function ProfileScreen({ code }: { code: string }) {
     <div className="bd" lang={lang}>
       <div className="bd-page">
         <ChromeRow onBack={back} />
-        <div className="space-y-3.5 px-4 pt-3.5 max-md:px-3">
+        <div className="px-4 pt-3 max-md:px-3">
           <IdentityCard
             profile={p}
             blocks={compliance.data?.blocks.length ?? null}
@@ -105,21 +105,34 @@ function ProfileScreen({ code }: { code: string }) {
             onSeparate={() => setSeparating(true)}
             goTo={goTo}
           />
-          <TabBar tab={tab} states={compliance.data?.tabStates} onSelect={(t) => goTo(t)} onBlocked={() => setDrawer(true)} />
-          <Note tone="violet" className="!text-[12px] !font-medium">
-            Statutory figures come from the rule book, not the screen. A value below Verified is labelled where it appears, may drive a preview, and
-            cannot reach a released payslip. Bangla labels are machine-drafted and await a native speaker&apos;s review.
-          </Note>
+        </div>
+        <div className="bd-profile-body max-md:!px-3">
+          <div className="bd-profile-grid">
+            <TabBar tab={tab} states={compliance.data?.tabStates} onSelect={(t) => goTo(t)} onBlocked={() => setDrawer(true)} />
+            <div className="min-w-0 flex-1">
+              <div className="bd-notice">
+                <svg aria-hidden="true" className="mt-px shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0E7490" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 11v5" />
+                  <path d="M12 7.8h.01" />
+                </svg>
+                <div className="min-w-0 flex-1">
+                  Statutory figures come from the rule book, not the screen. A value below Verified is labelled where it appears, may drive a
+                  preview, and cannot reach a released payslip. Bangla labels are machine-drafted and await a native speaker&apos;s review.
+                </div>
+              </div>
 
-          <div role="tabpanel" aria-label={TABS.find((x) => x.id === tab)?.en}>
-            {tab === 'personal' && <PersonalTab profile={p} />}
-            {tab === 'employment' && <EmploymentTab profile={p} onClock={setTimeline} onClassify={setClassifyTo} />}
-            {tab === 'salary' && <SalaryTab profile={p} />}
-            {tab === 'statutory' && <StatutoryTab profile={p} goTo={goTo} />}
-            {tab === 'tax' && <TaxTab profile={p} />}
-            {tab === 'payment' && <PaymentTab profile={p} />}
-            {tab === 'documents' && <DocumentsTab code={code} goTo={goTo} />}
-            {tab === 'history' && <HistoryTab code={code} />}
+              <div role="tabpanel" aria-label={TABS.find((x) => x.id === tab)?.en}>
+                {tab === 'personal' && <PersonalTab profile={p} />}
+                {tab === 'employment' && <EmploymentTab profile={p} onClock={setTimeline} onClassify={setClassifyTo} />}
+                {tab === 'salary' && <SalaryTab profile={p} />}
+                {tab === 'statutory' && <StatutoryTab profile={p} goTo={goTo} />}
+                {tab === 'tax' && <TaxTab profile={p} />}
+                {tab === 'payment' && <PaymentTab profile={p} />}
+                {tab === 'documents' && <DocumentsTab code={code} goTo={goTo} />}
+                {tab === 'history' && <HistoryTab code={code} />}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -408,41 +421,46 @@ function TabBar({
 }) {
   const { t } = useLang();
   const nav = React.useRef<HTMLElement>(null);
-  // On a phone the strip scrolls sideways; keep the open tab in view.
+  // As a strip on a narrow screen it scrolls sideways; keep the open tab in view.
   React.useEffect(() => {
-    nav.current?.querySelector('.is-active')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+    nav.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
   }, [tab]);
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-      <nav ref={nav} aria-label="Profile sections" className="bd-tabs max-w-full">
+    <div className="bd-side">
+      <nav ref={nav} aria-label="Profile sections" className="bd-tabs">
         {TABS.map((x) => {
           const active = x.id === tab;
           const state = states?.[x.id];
-          const label = t(x.en, x.id);
           return (
-            <div key={x.id} className={cn('bd-tabitem', active && 'is-active')}>
+            <div key={x.id} className="bd-tabitem">
+              <button type="button" className="bd-tab" aria-current={active ? 'page' : undefined} onClick={() => onSelect(x.id)}>
+                {t(x.en, x.id)}
+                {state && <span className="sr-only">, {TAB_STATE[state].title.toLowerCase()}</span>}
+              </button>
               {state === 'blocked' ? (
-                <button type="button" className="bd-dot-btn" onClick={onBlocked} aria-label={`${x.en}: blocks payroll — see what`} title="Blocks payroll — see what">
+                <button
+                  type="button"
+                  className="bd-tabdot bd-dot-btn"
+                  onClick={onBlocked}
+                  aria-label={`${x.en}: blocks payroll — see what`}
+                  title="Blocks payroll — see what"
+                >
                   <TabDot state="blocked" />
                 </button>
               ) : (
                 state && (
-                  <span aria-hidden="true" className="flex">
+                  <span aria-hidden="true" className="bd-tabdot">
                     <TabDot state={state} />
                   </span>
                 )
               )}
-              <button type="button" className="bd-tab" aria-current={active ? 'page' : undefined} onClick={() => onSelect(x.id)}>
-                {label}
-                {state && <span className="sr-only">, {TAB_STATE[state].title.toLowerCase()}</span>}
-              </button>
             </div>
           );
         })}
       </nav>
-      <div className="flex flex-wrap gap-3 text-[11px] font-semibold text-[#6F6A85]" aria-hidden="true">
+      <div className="bd-legend" aria-hidden="true">
         {(['complete', 'partial', 'empty', 'blocked'] as const).map((s) => (
-          <span key={s} className="flex items-center gap-1.5">
+          <span key={s}>
             <TabDot state={s} />
             {TAB_STATE[s].title}
           </span>
