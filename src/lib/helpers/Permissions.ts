@@ -221,6 +221,12 @@ export const permissions = [
     path: '/dashboard/hris/attendance/punch_data_import',
     codeName: 'view_punchdatadailytime',
   },
+  // BD attendance. After the legacy /attendance/* entries: the first prefix
+  // match wins, and this one would otherwise claim them.
+  {
+    path: '/dashboard/hris/attendance',
+    codeName: 'view_employee',
+  },
   {
     path: '/dashboard/reports',
     codeName: 'view_reports',
