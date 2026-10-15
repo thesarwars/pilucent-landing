@@ -10,7 +10,6 @@
 import { AxiosError } from 'axios';
 import { axiosApi } from '@/app/helpers/api';
 import type {
-  AssignInput,
   ClassificationResult,
   Compliance,
   DocumentKind,
@@ -23,10 +22,8 @@ import type {
   Nominee,
   Paged,
   Profile,
-  ReviseInput,
   RosterFilter,
   RosterRow,
-  SalaryOutcome,
   SalaryRead,
   SeparationEntitlement,
   TaxProjection,
@@ -57,7 +54,7 @@ export class ApiError extends Error {
   }
 }
 
-function toApiError(err: unknown): ApiError {
+export function toApiError(err: unknown): ApiError {
   if (err instanceof ApiError) return err;
   const ax = err as AxiosError<any>;
   const status = ax?.response?.status ?? 0;
@@ -80,7 +77,7 @@ function toApiError(err: unknown): ApiError {
   return new ApiError(status, String(message), [], body?.consequence ?? null);
 }
 
-async function call<T>(fn: () => Promise<{ data: T }>): Promise<T> {
+export async function call<T>(fn: () => Promise<{ data: T }>): Promise<T> {
   try {
     return (await fn()).data;
   } catch (err) {
@@ -90,7 +87,7 @@ async function call<T>(fn: () => Promise<{ data: T }>): Promise<T> {
 
 // The shared instance's multipart helpers blank its default Content-Type, so
 // every JSON call here states its own.
-const JSON_HEADERS = { headers: { 'Content-Type': 'application/json' } };
+export const JSON_HEADERS = { headers: { 'Content-Type': 'application/json' } };
 
 const enc = encodeURIComponent;
 const emp = (code: string, suffix = '') => `${BASE}/${enc(code)}${suffix}`;
@@ -145,17 +142,6 @@ export const getTaxProjection = (code: string) =>
 
 export const getSalary = (code: string, on?: string) =>
   call<SalaryRead>(() => axiosApi.get(emp(code, '/salary'), { params: on ? { on } : {} }));
-
-export const assignSalary = (code: string, input: AssignInput) =>
-  call<SalaryOutcome>(() => axiosApi.post(emp(code, '/salary'), input, JSON_HEADERS));
-
-export const reviseSalary = (code: string, input: ReviseInput) =>
-  call<SalaryOutcome>(() => axiosApi.post(emp(code, '/salary/revise'), input, JSON_HEADERS));
-
-export const getSalaryHistory = (code: string) =>
-  call<{ structures: SalaryRead['structure'][]; empty: boolean; message: string | null }>(() =>
-    axiosApi.get(emp(code, '/salary/history'))
-  );
 
 /* ── gated operations ─────────────────────────────────────────────── */
 

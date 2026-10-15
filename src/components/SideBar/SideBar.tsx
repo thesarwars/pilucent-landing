@@ -380,6 +380,7 @@ const ACCOUNTING: Section[] = [
 /** Modules that have a page in this app. Add one here when its page lands. */
 const ROUTES: Record<string, string> = {
   employee: '/dashboard/hris/employee/employees',
+  salary: '/dashboard/hris/salary',
 };
 
 /** Development scaffolding (spec §8.4): off before any customer sees the rail. */

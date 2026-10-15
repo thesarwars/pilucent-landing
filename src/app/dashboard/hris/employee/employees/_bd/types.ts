@@ -43,6 +43,9 @@ export interface RosterRow {
   classification: string;
   dateOfJoining: ISODate | null;
   grossMonthly: Money | null;
+  /** True when the caller may not see salary figures (grossMonthly is then null). */
+  salaryMasked?: boolean;
+  hasSalary?: boolean;
   blockerCount: number;
   fresh: boolean;
 }
@@ -194,6 +197,26 @@ export interface SalaryComponent {
   amount: Money;
   percentOfGross: string | null;
   basis: string | null;
+  /** The template's percentage, on the line's own base (house rent: of basic). */
+  templatePct?: string | null;
+  effectivePct?: string | null;
+  /** "Template: 6% of gross" — set only on an overridden line. */
+  templateBasis?: string | null;
+  /** Measured by the server: |effective − template| ≥ 0.5pp. */
+  isOverridden?: boolean;
+  isBalancing?: boolean;
+}
+
+export interface SalaryOverrideRecord {
+  code: string;
+  name: string;
+  basis: 'PCT_GROSS' | 'PCT_BASIC' | 'FIXED';
+  value: string;
+  templatePct: string | null;
+  reason: string;
+  approvedBy: string;
+  approvedAt: string | null;
+  excludedFromTemplateRevision: boolean;
 }
 
 export interface Words {
@@ -201,24 +224,63 @@ export interface Words {
   bn: string;
 }
 
+export type SalaryStatus = 'ACTIVE' | 'SCHEDULED' | 'SUPERSEDED' | 'CANCELLED';
+
 export interface SalaryStructure {
   uid: string;
+  masked?: false;
+  status?: SalaryStatus;
   effectiveFrom: ISODate;
   effectiveTo: ISODate | null;
   template: string;
   templateName: string;
+  templateRetired?: boolean;
   gross: Money;
   grossInWords: Words;
+  basic?: Money;
   basicPercentOfGross: string | null;
   components: SalaryComponent[];
+  overrideCount?: number;
+  overrides?: SalaryOverrideRecord[];
   revisionType: string | null;
+  revisionTypeLabel?: string | null;
   method: string | null;
   reason: string;
   reopenedPeriods: string[];
+  arrearsFrom?: string | null;
   arrears: Money;
   arrearsRun: string | null;
   supersededBy: string | null;
+  ruleSet?: string | null;
+  gradeFloorApplied?: Money | null;
+  clearsFloor?: boolean | null;
+  approvedBy?: string | null;
+  approvedAt?: string | null;
+  cancelledAt?: string | null;
+  cancelReason?: string | null;
 }
+
+/**
+ * What a caller who may not see salary figures is sent: that a structure
+ * exists, its template, dates and floor position. No amounts — the server
+ * omits them, it does not hide them.
+ */
+export interface MaskedSalaryStructure {
+  uid: string;
+  masked: true;
+  status: SalaryStatus;
+  effectiveFrom: ISODate;
+  effectiveTo: ISODate | null;
+  template: string;
+  templateName: string;
+  revisionType: string | null;
+  revisionTypeLabel: string | null;
+  clearsFloor: boolean | null;
+}
+
+export type AnySalaryStructure = SalaryStructure | MaskedSalaryStructure;
+
+export const isMasked = (s: AnySalaryStructure | null | undefined): s is MaskedSalaryStructure => !!s && s.masked === true;
 
 export interface Profile {
   code: string;
@@ -233,7 +295,7 @@ export interface Profile {
   taxProfile: TaxProfile;
   investments: Investment[];
   payment: Payment;
-  salary: SalaryStructure | null;
+  salary: AnySalaryStructure | null;
   history: HistoryEntry[];
 }
 
@@ -270,8 +332,20 @@ export interface Compliance {
 export interface SalaryTemplate {
   id: string;
   name: string;
+  nameBn?: string | null;
+  /** States what choosing it costs, not who it is for. */
+  note?: string;
+  /** "60 / 50 / 6 / 4": basic % of gross / house rent % of basic / medical / conveyance. */
+  split?: string | null;
+  basicPct?: string | null;
+  hrPctOfBasic?: string | null;
+  medPct?: string | null;
+  convPct?: string | null;
+  remainderPct?: string | null;
+  balancing?: string | null;
   mode: 'GROSS_DOWN' | 'BASIC_UP';
   amountMeans: 'gross' | 'basic';
+  version?: ISODate | null;
   rule: string;
 }
 
@@ -308,6 +382,8 @@ export interface Consequence {
   prorationDivisor: string;
   floors?: FloorCheck[];
   warnings?: Warning[];
+  /** On a floor refusal: the gross on this template that clears both floors. */
+  requiredGross?: Money | null;
 }
 
 export interface Unavailable {
@@ -358,7 +434,8 @@ export interface Derived {
 
 export interface SalaryRead {
   on: ISODate;
-  structure: SalaryStructure | null;
+  masked?: boolean;
+  structure: AnySalaryStructure | null;
   message: string | null;
   templates: SalaryTemplate[];
   revisionDefault: ISODate;
@@ -366,39 +443,59 @@ export interface SalaryRead {
   floors: FloorCheck[] | Unavailable | null;
 }
 
+export interface FloorPosition {
+  floor: Money;
+  totalFloor: Money;
+  basic?: Money;
+  clears: boolean;
+  /** A failure states the penalty. */
+  note: string;
+  grade: string | null;
+  gradeLabel: string;
+  rule: string;
+  citation: string | null;
+  confidence: Confidence;
+}
+
+export interface EmployerCostRow {
+  key: 'gross' | 'providentFund' | 'gratuity' | 'festivalBonus' | 'insurance';
+  label: string;
+  amount: Money;
+  /** The arithmetic, checkable on paper: "8% of basic", "Basic × 2 ÷ 12". */
+  basis: string;
+}
+
+export interface EmployerCost {
+  rows: EmployerCostRow[];
+  total: Money;
+  annual: Money;
+  overheadPct: string | null;
+  overheadLabel: string | null;
+  tenure: { service: ServiceParts; years: number; roundedUp: boolean; daysPerYear: number; label: string } | null;
+  lead: string;
+}
+
 export interface SalaryOutcome {
   preview: boolean;
   saved: boolean;
+  replayed?: boolean;
   effectiveFrom: ISODate;
+  status: SalaryStatus;
   backdated: boolean;
   template: string;
+  templateName: string;
   gross: Money;
   grossInWords: Words;
+  basic: Money;
   components: SalaryComponent[];
   floors: FloorCheck[];
+  floor: FloorPosition;
   warnings: Warning[];
   consequence: Consequence;
+  employerCost: EmployerCost;
+  gratuity: { years: number; before: Money; after: Money; delta: Money; note: string } | null;
   structure: SalaryStructure | null;
-}
-
-export interface AssignInput {
-  template: string;
-  amount?: string | null;
-  effectiveFrom?: ISODate | null;
-  arrearsRun?: string;
-  preview?: boolean;
-}
-
-export interface ReviseInput {
-  method: string;
-  value?: string | null;
-  effectiveFrom?: ISODate | null;
-  reason?: string;
-  template?: string;
-  rounding?: number;
-  type?: string;
-  arrearsRun?: string;
-  preview?: boolean;
+  engineVersion: string;
 }
 
 /* ── gated operations ─────────────────────────────────────────────── */

@@ -79,14 +79,6 @@ export function useHistory(code: string, field: string, enabled = true) {
   });
 }
 
-export function useSalaryHistory(code: string, enabled = true) {
-  return useQuery({
-    queryKey: [...keys.employee(code), 'salary-history'],
-    queryFn: () => api.getSalaryHistory(code),
-    enabled,
-    ...opts,
-  });
-}
 
 export function useDocuments(code: string) {
   return useQuery({ queryKey: [...keys.employee(code), 'documents'], queryFn: () => api.getDocuments(code), ...opts });

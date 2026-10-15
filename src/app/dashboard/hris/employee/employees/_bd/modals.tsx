@@ -3,11 +3,9 @@
 /** The profile's overlays: compliance drawer, gated operations, field timeline. */
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import { AlertOctagon, AlertTriangle, ChevronRight, Clock3, UserMinus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Modal, VioletButton } from '@/components/violet';
-import { useEscape, useLockScroll, usePortalNode } from '@/components/violet/overlay';
 import { toast } from '@/lib/ToastService';
 import * as api from './api';
 import { ENUMS, enumLabel } from './enums';
@@ -15,7 +13,7 @@ import { plural, todayISO } from './format';
 import { useEmployeeMutation, useHistory } from './hooks';
 import { useLang } from './i18n';
 import type { Compliance, Finding, Profile, SeparationEntitlement, TabId } from './types';
-import { Chip, ConfidenceTag, DateInput, ErrorBlock, Field, LoadingBlock, Note, SelectInput, Spinner, SwitchRow, TextArea, type Tone } from './ui';
+import { Chip, ConfidenceTag, DateInput, ErrorBlock, Field, LoadingBlock, Note, SelectInput, DrawerHead, SideDrawer, Spinner, SwitchRow, TextArea, type Tone } from './ui';
 import { HistoryList } from './tabs/HistoryTab';
 import { useDebounced } from './salary/shared';
 import { MIN_REASON, reasonLength } from './validate';
@@ -64,22 +62,12 @@ export function ComplianceDrawer({
 
   return (
     <SideDrawer onClose={onClose} labelledBy={titleId}>
-      <div className="flex items-start gap-3 border-b border-[rgba(22,23,42,0.07)] px-5 pb-4 pt-5">
-        <div className="min-w-0 flex-1">
-          <h2 id={titleId} className="m-0 text-[16px] font-bold tracking-[-0.01em]">
-            Compliance
-          </h2>
-          <p className="mt-1 text-[12.5px] leading-snug text-[#6F6A85]">
-            {blocks ? `${plural(blocks, 'item must', 'items must')} be fixed before the next payroll run.` : 'Nothing blocks payroll for this employee.'}
-          </p>
-        </div>
-        <button type="button" onClick={onClose} aria-label="Close" title="Close" className="bd-iconbtn !h-8 !w-8 hover:!bg-[rgba(22,23,42,0.06)] hover:!text-[#16172A]">
-          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
+      <DrawerHead
+        id={titleId}
+        title="Compliance"
+        sub={blocks ? `${plural(blocks, 'item must', 'items must')} be fixed before the next payroll run.` : 'Nothing blocks payroll for this employee.'}
+        onClose={onClose}
+      />
       <div className="flex-1 overflow-y-auto px-5 py-4">
         {groups.map(([severity, items]) => {
           const sev = SEVERITY[severity];
@@ -133,52 +121,6 @@ export function ComplianceDrawer({
         })}
       </div>
     </SideDrawer>
-  );
-}
-
-/**
- * The right drawer: full height, white, sliding in from the right in 220ms.
- * Focus moves into it on open and back to whatever opened it on close.
- */
-function SideDrawer({ onClose, labelledBy, children }: { onClose: () => void; labelledBy: string; children: React.ReactNode }) {
-  const node = usePortalNode();
-  const panel = React.useRef<HTMLDivElement>(null);
-  useLockScroll(true);
-  useEscape(true, onClose);
-
-  React.useEffect(() => {
-    const opener = document.activeElement as HTMLElement | null;
-    return () => opener?.focus?.();
-  }, []);
-  React.useEffect(() => {
-    if (node) panel.current?.focus();
-  }, [node]);
-
-  /** Keep Tab inside the panel while it is open. */
-  const trap = (e: React.KeyboardEvent) => {
-    if (e.key !== 'Tab' || !panel.current) return;
-    const items = panel.current.querySelectorAll<HTMLElement>('button:not(:disabled), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    if (!items.length) return;
-    const first = items[0];
-    const last = items[items.length - 1];
-    if (e.shiftKey && (document.activeElement === first || document.activeElement === panel.current)) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  };
-
-  if (!node) return null;
-  return createPortal(
-    <>
-      <div className="bd-scrim" onClick={onClose} aria-hidden="true" />
-      <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={labelledBy} tabIndex={-1} className="bd-drawer" onKeyDown={trap}>
-        {children}
-      </div>
-    </>,
-    node
   );
 }
 

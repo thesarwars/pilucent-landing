@@ -1,9 +1,10 @@
 'use client';
 
 /**
- * Pieces shared by the salary assignment wizard and the revision modal. Both
- * compute nothing themselves: every figure comes from the backend's
- * `preview: true` answer, so the screen and the saved record cannot disagree.
+ * Pieces shared by the salary profile's drawers and the employee profile's
+ * read-only salary tab. They compute nothing themselves: every figure comes
+ * from the backend (a saved structure, or a `preview: true` answer), so the
+ * screen and the saved record cannot disagree.
  */
 
 import * as React from 'react';
@@ -13,7 +14,7 @@ import { ApiError } from '../api';
 import { useLang } from '../i18n';
 import { formatMonthYear } from '../format';
 import { ENUMS } from '../enums';
-import type { Consequence, FloorCheck, SalaryComponent, SalaryOutcome, Warning, Words } from '../types';
+import type { Consequence, Derived, Figure, FloorCheck, SalaryComponent, SalaryOutcome, Warning, Words } from '../types';
 import { ConfidenceTag } from '../ui';
 
 export function useDebounced<T>(value: T, ms = 350): T {
@@ -245,6 +246,142 @@ export function RefusalNote({ error, except = [] }: { error: ApiError | null; ex
   return (
     <div role="alert" className="rounded-xl border border-[rgba(244,63,94,0.26)] bg-[rgba(244,63,94,0.07)] px-3 py-2 text-[12px] font-semibold text-[#E11D48]">
       {messages.length ? messages.join(' ') : error.message}
+    </div>
+  );
+}
+
+/* ── what a salary means ──────────────────────────────────────────── */
+
+type Card = {
+  title: string;
+  figures: [string, string][];
+  basis?: string;
+  citation?: string | null;
+  confidence?: Figure['confidence'];
+  alert?: string;
+};
+
+/**
+ * What the structure drives (salary profile §10, employee profile §7): basic
+ * drives four statutory entitlements, gross almost nothing but tax. Every
+ * figure comes from the server with its basis, citation and confidence.
+ */
+export function DerivationPanel({
+  derived,
+  unavailable,
+  classification,
+  taxMonthly,
+  className,
+}: {
+  derived: Derived | null;
+  unavailable?: string | null;
+  classification: string | null;
+  taxMonthly?: Figure | null;
+  className?: string;
+}) {
+  const { t, money, date, n } = useLang();
+  const isWorker = classification === 'WORKER';
+  const crossing = derived?.gratuityBreakpoint;
+  const cards: Card[] = [];
+  if (derived) {
+    cards.push({
+      title: t('Overtime', 'overtime'),
+      figures: [['Hourly rate', money(derived.overtimeHourly.value, 2)]],
+      basis: derived.overtimeHourly.basis,
+      citation: derived.overtimeHourly.citation,
+      confidence: derived.overtimeHourly.confidence,
+    });
+    if (derived.providentFund) {
+      const pf = derived.providentFund;
+      cards.push({
+        title: t('Provident fund', 'pf'),
+        figures: [
+          ['Employee', pf.employee ? money(pf.employee.value, 2) : '—'],
+          ['Employer', pf.employer ? money(pf.employer.value, 2) : '—'],
+        ],
+        basis: pf.employee?.basis,
+        citation: pf.employee?.citation,
+        confidence: pf.employee?.confidence,
+      });
+    }
+    if (derived.gratuity) {
+      const g = derived.gratuity;
+      cards.push({
+        title: t('Gratuity', 'gratuity'),
+        figures: [
+          ['Accruing monthly', money(g.monthlyProvision.value, 2)],
+          ['Accrued to date', money(g.amount.value)],
+        ],
+        basis: g.amount.basis,
+        citation: g.amount.citation,
+        confidence: g.amount.confidence,
+        alert:
+          crossing && crossing.withinTwelveMonths
+            ? `Rises from ${n(crossing.daysFrom)} to ${n(crossing.daysTo)} days per year on ${date(crossing.ratesRiseOn)}. Provision becomes ${money(crossing.monthlyProvisionAfter.value, 2)}/month.`
+            : undefined,
+      });
+    }
+    const fb = derived.festivalBonus;
+    cards.push({
+      title: t('Festival bonus', 'bonus'),
+      figures: [
+        ['Per bonus', money(fb.perBonus.value)],
+        ['Provision monthly', money(fb.monthlyProvision.value)],
+      ],
+      basis: `${fb.annual.basis}. ${fb.eligible ? 'Eligible' : `Eligible from ${date(fb.eligibleFrom)}`}.`,
+      citation: fb.perBonus.citation,
+      confidence: fb.perBonus.confidence,
+    });
+    cards.push({
+      title: t('Leave encashment', 'encash'),
+      figures: [['Daily rate', money(derived.leave.encashment.dailyRate.value, 2)]],
+      basis: derived.leave.encashment.dailyRate.basis,
+      citation: derived.leave.encashment.dailyRate.citation,
+      confidence: derived.leave.encashment.dailyRate.confidence,
+    });
+  }
+  if (taxMonthly) {
+    cards.push({
+      title: t('Income tax', 'incomeTax'),
+      figures: [['This period', money(taxMonthly.value)]],
+      basis: 'Estimate — the final figure is calculated when payroll runs.',
+      citation: taxMonthly.citation,
+      confidence: taxMonthly.confidence,
+    });
+  }
+  return (
+    <div className={cn('space-y-2.5', className)}>
+      {!isWorker && (
+        <div className="bd-note bd-tone-neutral !text-[12px] !font-medium">
+          These entitlements apply to workers under the Labour Act. This employee is classified as{' '}
+          {classification ? 'non-worker' : 'unclassified'}, so the amounts follow company policy rather than statute.
+        </div>
+      )}
+      {!derived && unavailable && <div className="bd-note bd-tone-warn !text-[12px]">The statutory figures are unavailable: {unavailable}</div>}
+      {cards.map((c) => (
+        <div key={c.title} className="rounded-2xl border border-[rgba(22,23,42,0.08)] bg-white/70 p-3.5">
+          <div className="flex items-center gap-2">
+            <div className="text-[12.5px] font-bold text-[#16172A]">{c.title}</div>
+            <ConfidenceTag value={c.confidence} />
+          </div>
+          <div className="mt-2 space-y-1">
+            {c.figures.map(([label, value]) => (
+              <div key={label} className="flex items-baseline justify-between gap-3 text-[12px]">
+                <span className="text-[#6F6A85]">{label}</span>
+                <span className="bd-mono text-[13px] font-bold text-[#16172A]">{value}</span>
+              </div>
+            ))}
+          </div>
+          {c.basis && <div className="mt-2 text-[11.5px] leading-snug text-[#6F6A85]">{c.basis}</div>}
+          {c.citation && <div className="mt-1 text-[10.5px] text-[#6E6883]">{c.citation}</div>}
+          {c.alert && (
+            <div className="mt-2.5 flex items-start gap-1.5 rounded-xl bg-[rgba(245,178,46,0.12)] px-2.5 py-2 text-[11.5px] font-semibold text-[#8A5A06]">
+              <AlertTriangle aria-hidden="true" className="mt-px h-3.5 w-3.5 shrink-0" />
+              {c.alert}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

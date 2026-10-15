@@ -2,8 +2,8 @@
  * Contract test: the screens' own API module against a live Pilucent backend.
  *
  * Skipped unless BD_E2E_EMAIL and BD_E2E_PASSWORD are set, with
- * NEXT_PUBLIC_API_URL pointing at a backend whose company has EMP-0142 (with a
- * structure, nominees at 60%, three processed periods ending the month before
+ * NEXT_PUBLIC_API_URL pointing at a backend whose company has EMP-0142 (with an
+ * officer-template structure, nominees at 60%, three processed periods ending the month before
  * this one) and EMP-0150 (no structure, NON_WORKER). Run against a throwaway
  * instance, never a shared database — it writes.
  */
@@ -11,6 +11,8 @@
 import axios from 'axios';
 import { baseURL } from '@/app/helpers/api';
 import * as api from '../api';
+import * as salaryApi from '@/app/dashboard/hris/salary/_bd/api';
+import { isMasked } from '../types';
 
 const EMAIL = process.env.BD_E2E_EMAIL;
 const PASSWORD = process.env.BD_E2E_PASSWORD;
@@ -56,7 +58,7 @@ live('BD employee API contract', () => {
 
     const profile = await api.getProfile('EMP-0142');
     expect(profile.personal.nameEn).toBe('Md. Rafiqul Islam');
-    expect(profile.salary?.gross).toBe('22000.00');
+    expect(profile.salary && !isMasked(profile.salary) ? profile.salary.gross : null).toBe('22000.00');
   });
 
   test('a section edit is refused with a UI field id, then saved', async () => {
@@ -80,36 +82,30 @@ live('BD employee API contract', () => {
   });
 
   test('a backdated revision is refused with its consequence, then saved with a reason', async () => {
-    const salary = await api.getSalary('EMP-0142');
-    expect(salary.structure?.template).toBe('std');
+    const salary = await salaryApi.getSalaryProfile('EMP-0142');
+    expect(salary.structure?.template).toBe('officer');
     // Two months before the next unprocessed period: reopens the last two processed.
-    const backTo = monthsBefore(salary.revisionDefault, 2);
-    const err = await refusal(
-      api.reviseSalary('EMP-0142', { method: 'PERCENTAGE_INCREASE', value: '10', effectiveFrom: backTo, preview: true })
-    );
+    const backTo = monthsBefore(salary.defaults.nextPeriodStart, 2);
+    const revise = { method: 'PERCENTAGE_INCREASE', value: '10', effectiveFrom: backTo, expectedStructure: salary.latest };
+    const err = await refusal(salaryApi.writeStructure('EMP-0142', { ...revise, preview: true }));
+    expect(err.status).toBe(422);
     expect(err.messagesFor('reason').length).toBe(1);
     expect((err.consequence as any).reopenedCount).toBe(2);
     expect((err.consequence as any).arrears).toBe('4400.00');
 
-    const saved = await api.reviseSalary('EMP-0142', {
-      method: 'PERCENTAGE_INCREASE',
-      value: '10',
-      effectiveFrom: backTo,
-      reason: 'Annual increment agreed late',
-      type: 'INCREMENT',
-    });
+    const saved = await salaryApi.writeStructure('EMP-0142', { ...revise, reason: 'Annual increment agreed late', revisionType: 'INCREMENT' });
     expect(saved.saved).toBe(true);
     expect(saved.structure?.gross).toBe('24200.00');
-    const history = await api.getSalaryHistory('EMP-0142');
-    expect(history.structures.map((s) => s?.gross)).toEqual(['24200.00', '22000.00']);
+    const history = await salaryApi.getSalaryProfileHistory('EMP-0142');
+    expect(history.structures.map((s) => s.gross)).toEqual(['24200.00', '22000.00']);
   });
 
   test('assignment preview and floors', async () => {
     // No date of joining on file, so the date is required.
-    const noDate = await refusal(api.assignSalary('EMP-0150', { template: 'rmg', preview: true }));
+    const noDate = await refusal(salaryApi.writeStructure('EMP-0150', { templateCode: 'rmg', preview: true }));
     expect(noDate.messagesFor('effectiveFrom').length).toBe(1);
-    const preview = await api.assignSalary('EMP-0150', {
-      template: 'rmg',
+    const preview = await salaryApi.writeStructure('EMP-0150', {
+      templateCode: 'rmg',
       effectiveFrom: new Date().toISOString().slice(0, 10),
       preview: true,
     });

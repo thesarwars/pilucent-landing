@@ -457,6 +457,20 @@ button.bd-chip:focus-visible {
   outline: 2px solid var(--bd-violet);
   outline-offset: -2px;
 }
+/* A row whose link is one element in it: the link stretches over the whole
+   row, and any other button in the row sits above the stretch. */
+.bd-row-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.bd-row-link:focus-visible {
+  outline: none;
+}
+.bd-row-link:focus-visible::after {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: -2px;
+}
 .bd-row-line1 {
   display: flex;
   align-items: center;
@@ -1030,6 +1044,300 @@ select.bd-input {
     opacity: 1;
   }
 }
+/* A 620px drawer travels a little further, or it reads as appearing. */
+@keyframes bdSlideLWide {
+  from {
+    transform: translateX(28px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.bd-drawer.is-wide {
+  animation-name: bdSlideLWide;
+}
+
+/* ── salary profile (docs/frontend/salary-profile.md) ─────────────── */
+
+.bd-stat {
+  flex: 1;
+  min-width: 150px;
+  padding: 13px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 20px 50px -44px rgba(22, 23, 42, 0.5);
+}
+.bd-stat-figure {
+  font-family: var(--bd-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.bd-stat-caption {
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bd-ink-faint);
+}
+
+.bd-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bd-ink-faint);
+}
+
+/* A plain white panel inside a drawer. */
+.bd-panel {
+  background: #fff;
+  border: 1px solid rgba(22, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 17px 19px;
+}
+
+/* Gross and basic, always together: gross alone cannot answer the floor question. */
+.bd-moneypair {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 9px;
+  flex-shrink: 0;
+  font-family: var(--bd-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bd-moneypair > :first-child {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--bd-ink);
+}
+.bd-moneypair > :last-child {
+  font-size: 11px;
+  color: var(--bd-ink-faint);
+}
+
+/* Tables of figures: a real <table>, so it reads as rows and columns. */
+.bd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.bd-table th,
+.bd-table td {
+  padding: 10px 15px;
+  text-align: left;
+  vertical-align: baseline;
+  border-top: 1px solid rgba(22, 23, 42, 0.06);
+}
+.bd-table thead th {
+  border-top: none;
+  background: rgba(22, 23, 42, 0.04);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bd-ink-faint);
+}
+.bd-table .num {
+  text-align: right;
+  font-family: var(--bd-mono);
+  font-variant-numeric: tabular-nums;
+}
+.bd-table tfoot th,
+.bd-table tfoot td {
+  border-top: 1px solid rgba(22, 23, 42, 0.14);
+  background: rgba(124, 77, 255, 0.05);
+  font-weight: 700;
+}
+.bd-table-wrap {
+  /* Scrolls inside its own frame on a narrow screen rather than clip a column. */
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(22, 23, 42, 0.09);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.bd-costtable {
+  width: 100%;
+  border-collapse: collapse;
+}
+.bd-costtable th,
+.bd-costtable td {
+  padding: 9px 2px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--bd-ink-2);
+  text-align: left;
+  vertical-align: baseline;
+}
+.bd-costtable td.basis {
+  padding: 9px 10px;
+  font-family: var(--bd-mono);
+  font-size: 11px;
+  color: var(--bd-ink-faint);
+}
+.bd-costtable td.num {
+  min-width: 110px;
+  text-align: right;
+  font-family: var(--bd-mono);
+  font-variant-numeric: tabular-nums;
+}
+/* The only row with a rule above it. */
+.bd-costtable tr.total > * {
+  border-top: 1px solid rgba(22, 23, 42, 0.12);
+  padding-top: 10px;
+  font-weight: 700;
+  color: #5a2be0;
+}
+.bd-costtable tr.total td.num {
+  font-size: 17px;
+}
+.bd-costtable tr.annual > * {
+  font-weight: 700;
+  color: var(--bd-ink);
+}
+.bd-costtable tr.annual td.num {
+  font-size: 13.5px;
+}
+
+/* The total monthly cost: the deepest violet, used once. */
+.bd-cost-total {
+  color: #5a2be0;
+}
+
+.bd-tag-override {
+  display: inline-flex;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(124, 77, 255, 0.12);
+  color: var(--bd-violet-primary);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+/* A scheduled change nobody can see is a surprise: amber, on the profile. */
+.bd-scheduled {
+  border-color: rgba(217, 119, 6, 0.28);
+  color: #92400e;
+}
+
+.bd-perm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+.bd-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.bd-step {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 11px;
+  border: 1px solid rgba(22, 23, 42, 0.1);
+  background: #fff;
+  color: var(--bd-ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bd-step[aria-current='step'] {
+  border-color: rgba(124, 77, 255, 0.34);
+  background: rgba(124, 77, 255, 0.06);
+  color: var(--bd-violet-deep);
+  font-weight: 700;
+}
+.bd-step:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.bd-step:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+}
+.bd-step-n {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: rgba(22, 23, 42, 0.08);
+  font-family: var(--bd-mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+.bd-step[aria-current='step'] .bd-step-n {
+  background: var(--bd-violet);
+  color: #fff;
+}
+
+/* A card that is also a choice (templates, override modes). */
+.bd-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(22, 23, 42, 0.1);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.bd-choice[aria-checked='true'] {
+  border-color: rgba(124, 77, 255, 0.34);
+  background: rgba(124, 77, 255, 0.05);
+}
+.bd-choice:focus-visible {
+  outline: 2px solid var(--bd-violet);
+  outline-offset: 2px;
+}
+.bd-radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(22, 23, 42, 0.2);
+}
+.bd-choice[aria-checked='true'] .bd-radio {
+  border-color: var(--bd-violet);
+}
+.bd-choice[aria-checked='true'] .bd-radio::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--bd-violet);
+}
+
+.bd-masked {
+  font-family: var(--bd-mono);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #a6a1b8;
+}
 
 /* ── narrow screens ───────────────────────────────────────────────── */
 
@@ -1042,7 +1350,8 @@ select.bd-input {
   }
   .bd-help,
   .bd-chip,
-  .bd-error {
+  .bd-error,
+  .bd-moneypair > :last-child {
     font-size: 12px;
   }
   .bd-list-head,
@@ -1074,5 +1383,15 @@ select.bd-input {
   }
   .bd-nominees.is-head {
     display: none;
+  }
+  .bd-table th,
+  .bd-table td {
+    padding: 8px 10px;
+  }
+  .bd-costtable td.num {
+    min-width: 0;
+  }
+  .bd-costtable td.basis {
+    padding: 9px 6px;
   }
 }

@@ -10,9 +10,11 @@
  */
 
 import * as React from 'react';
-import { AlertCircle, Clock3, Loader2 } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FloatingActionBar, VioletButton } from '@/components/violet';
+import { useEscape, useLockScroll, usePortalNode } from '@/components/violet/overlay';
 import { toast } from '@/lib/ToastService';
 import { ApiError } from './api';
 import type { Option } from './enums';
@@ -607,3 +609,95 @@ export function SaveBar({
 
 /** Errors for a key, by payload path or UI id. */
 export const errs = (errors: Errors, ...keys: string[]) => keys.flatMap((k) => errors[k] ?? []);
+
+/* ── side drawer ──────────────────────────────────────────────────── */
+
+/**
+ * The right drawer: full height, white, sliding in from the right. Focus
+ * moves into it on open, Tab stays inside, and focus returns to whatever
+ * opened it on close. `width` is the spec's: 460 for compliance, 620 for the
+ * salary drawers (which also travel a little further, 28px).
+ */
+export function SideDrawer({
+  onClose,
+  labelledBy,
+  width = 460,
+  children,
+}: {
+  onClose: () => void;
+  labelledBy: string;
+  width?: number;
+  children: React.ReactNode;
+}) {
+  const node = usePortalNode();
+  const panel = React.useRef<HTMLDivElement>(null);
+  useLockScroll(true);
+  useEscape(true, onClose);
+
+  React.useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    return () => opener?.focus?.();
+  }, []);
+  React.useEffect(() => {
+    if (node) panel.current?.focus();
+  }, [node]);
+
+  /** Keep Tab inside the panel while it is open. */
+  const trap = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab' || !panel.current) return;
+    const items = panel.current.querySelectorAll<HTMLElement>(
+      'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+    );
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === panel.current)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
+  if (!node) return null;
+  return createPortal(
+    <>
+      <div className="bd-scrim" onClick={onClose} aria-hidden="true" />
+      <div
+        ref={panel}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={labelledBy}
+        tabIndex={-1}
+        className={cn('bd-drawer', width > 460 && 'is-wide')}
+        style={{ width: `min(${width}px, 100%)` }}
+        onKeyDown={trap}
+      >
+        {children}
+      </div>
+    </>,
+    node
+  );
+}
+
+/** The drawer's header: title, one line under it, and the close button. */
+export function DrawerHead({ id, title, sub, onClose }: { id: string; title: React.ReactNode; sub?: React.ReactNode; onClose: () => void }) {
+  return (
+    <div className="flex items-start gap-3 border-b border-[rgba(22,23,42,0.07)] px-5 pb-4 pt-5">
+      <div className="min-w-0 flex-1">
+        <h2 id={id} className="m-0 text-[16px] font-bold tracking-[-0.01em]">
+          {title}
+        </h2>
+        {sub && <p className="mt-1 text-[12.5px] leading-snug text-[#6F6A85]">{sub}</p>}
+      </div>
+      <button type="button" onClick={onClose} aria-label="Close" title="Close" className="bd-iconbtn !h-8 !w-8 hover:!bg-[rgba(22,23,42,0.06)] hover:!text-[#16172A]">
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+    </div>
+  );
+}
+

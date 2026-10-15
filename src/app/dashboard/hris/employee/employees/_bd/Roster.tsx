@@ -183,6 +183,10 @@ function RosterRowLink({ row: r, odd }: { row: RosterRow; odd: boolean }) {
         <span className={cn('font-semibold', r.classification ? 'text-[#44405C]' : 'text-[#8A5A06]')}>{classification}</span>
         {r.grossMonthly ? (
           <span className="bd-mono font-semibold text-[#16172A]">{money(r.grossMonthly)}</span>
+        ) : r.salaryMasked && r.hasSalary ? (
+          <span className="bd-mono text-[#6E6883]" title="You do not have permission to view salary figures.">
+            ৳ ••••••
+          </span>
         ) : (
           <Chip tone="warn">No salary structure</Chip>
         )}

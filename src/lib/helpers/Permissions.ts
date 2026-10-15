@@ -119,6 +119,12 @@ export const permissions = [
     path: '/dashboard/hris/employee/employees/summary',
     isPass: true,
   },
+  // The salary profiles open to whoever may see employees; the figures in them
+  // are masked by the server for anyone without `view_salary_figures`.
+  {
+    path: '/dashboard/hris/salary',
+    codeName: 'view_employee',
+  },
   {
     path: '/dashboard/hris/profile',
     isPass: true,
