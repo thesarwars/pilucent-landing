@@ -59,7 +59,18 @@ interface LangValue {
 const LangContext = React.createContext<LangValue | null>(null);
 const STORAGE_KEY = 'pilucent.bd.lang';
 
+/**
+ * Provides the language state, or reuses the one above it: the dashboard
+ * shell provides it once, so the rail's switch and a screen's own switch are
+ * the same state and the interface is never half-translated.
+ */
 export function LangProvider({ children }: { children: React.ReactNode }) {
+  const parent = React.useContext(LangContext);
+  if (parent) return <>{children}</>;
+  return <LangStateProvider>{children}</LangStateProvider>;
+}
+
+function LangStateProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = React.useState<Lang>('en');
   const [banglaNumerals, setNumerals] = React.useState(false);
 

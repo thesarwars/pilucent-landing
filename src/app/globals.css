@@ -283,3 +283,17 @@ backdrop-filter: blur(1.700000047683716px);
 .scrollbar-hide {
   scrollbar-width: none;
 }
+
+/* Bangla, scoped by attribute: conjuncts collide with the line above at the
+   Latin line-height, so Bangla runs at 1.65. */
+[lang='bn'] {
+  font-family: var(--font-bengali), 'Noto Sans Bengali', var(--font-jakarta), sans-serif;
+  line-height: 1.65;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

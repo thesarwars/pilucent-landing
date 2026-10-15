@@ -4,12 +4,19 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import MainLoader from '@/components/MainLoader/MainLoader';
 import { useAppDispatch, useAppSelector } from '../redux/store';
-import { buildPricingHandoffUrl, getCompany, getUser, postRefreshToken, verifyAccessToken } from '../helpers/backend';
+import {
+  buildPricingHandoffUrl,
+  getCompany,
+  getUser,
+  postRefreshToken,
+  verifyAccessToken,
+} from '../helpers/backend';
 import { setUser } from '../redux/UserData/UserData';
 import { setCompanyData } from '../redux/CompanyData/CompanyData';
 import PermissionRoute from '@/components/PrivateRoute/PermissionRoute';
 import { setPermissions } from '../redux/UserPermissionData/PermissionData';
 import Sidebar from '@/components/SideBar/SideBar';
+import { LangProvider } from '@/app/dashboard/hris/employee/employees/_bd/i18n';
 import TopNavbar from '@/components/DashboardHeader/DashboardHeader';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { permissions } from '@/lib/helpers/Permissions';
@@ -241,7 +248,7 @@ const LayoutContent = ({
 
   return (
     <div
-      className={`relative flex min-h-screen flex-col overflow-hidden px-4 font-inter md:px-7 lg:px-10 xl:px-12`}
+      className={`relative flex min-h-screen flex-col overflow-hidden pr-4 font-inter md:pr-7 lg:pr-10 xl:pr-12`}
       style={{ background: 'linear-gradient(135deg, #C7C0DF 0%, #E8E4F4 55%, #C8C1E2 100%)' }}
     >
       {/* Violet Suite decorative orbs */}
@@ -262,23 +269,25 @@ const LayoutContent = ({
         }}
       />
       <SubscriptionCheckoutReturnHandler />
-      <div className={`relative z-[1] flex h-screen w-full flex-col overflow-hidden`}>
-        <div
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          className="flex min-h-0 flex-1 gap-8 overflow-hidden"
-        >
-          {/* Sidebar runs full-height from the top */}
-          <Sidebar />
+      <LangProvider>
+        <div className={`relative z-[1] flex h-screen w-full flex-col overflow-hidden`}>
+          <div
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex min-h-0 flex-1 gap-4 overflow-hidden"
+          >
+            {/* The navigation rail supplies its own 16px float on the left, top and bottom. */}
+            <Sidebar />
 
-          {/* Content column: header (with global search) aligned beside the sidebar */}
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <TopNavbar />
-            <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
-              <PermissionRoute>{children}</PermissionRoute>
-            </main>
+            {/* Content column: header (with global search) aligned beside the sidebar */}
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <TopNavbar />
+              <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+                <PermissionRoute>{children}</PermissionRoute>
+              </main>
+            </div>
           </div>
         </div>
-      </div>
+      </LangProvider>
     </div>
   );
 };
