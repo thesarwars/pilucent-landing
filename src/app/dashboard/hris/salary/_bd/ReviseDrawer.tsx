@@ -43,7 +43,8 @@ export function ReviseDrawer({ profile: p, structure, onClose }: { profile: Sala
   const invalidate = useSalaryInvalidate(code);
   // The structure a revision follows: the latest -- a scheduled change if there is one.
   const base = (p.scheduled && !p.scheduled.masked ? (p.scheduled as SalaryStructure) : structure) ?? structure;
-  const rmg = base.template === 'rmg';
+  // Basic-up (RMG and any company basic-up template): revised by a new basic, not a new gross.
+  const rmg = p.templates.find((t) => t.id === base.template)?.amountMeans === 'basic' || base.template === 'rmg';
   const methods = [
     { value: 'PERCENTAGE_INCREASE', label: 'Percentage increase' },
     { value: 'FIXED_INCREASE', label: 'Fixed increase' },

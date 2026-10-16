@@ -385,6 +385,7 @@ const ROUTES: Record<string, string> = {
   leaveconsole: '/dashboard/hris/leave',
   idcards: '/dashboard/hris/idcards',
   intake: '/dashboard/hris/attendance-intake',
+  library: '/dashboard/hris/pay-library',
 };
 
 /** Development scaffolding (spec §8.4): off before any customer sees the rail. */
