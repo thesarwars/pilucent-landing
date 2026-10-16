@@ -232,6 +232,10 @@ export const permissions = [
     codeName: 'view_employee',
   },
   {
+    path: '/dashboard/hris/idcards',
+    codeName: 'view_employee',
+  },
+  {
     path: '/dashboard/reports',
     codeName: 'view_reports',
   },

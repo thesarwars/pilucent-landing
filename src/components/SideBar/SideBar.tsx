@@ -383,6 +383,7 @@ const ROUTES: Record<string, string> = {
   salary: '/dashboard/hris/salary',
   attendance: '/dashboard/hris/attendance',
   leaveconsole: '/dashboard/hris/leave',
+  idcards: '/dashboard/hris/idcards',
 };
 
 /** Development scaffolding (spec §8.4): off before any customer sees the rail. */
