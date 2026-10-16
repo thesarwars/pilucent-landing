@@ -36,3 +36,7 @@ export function useLeaveInvalidate() {
   const qc = useQueryClient();
   return () => qc.invalidateQueries({ queryKey: leaveKeys.all });
 }
+
+export const useStatements = (quarter: string | null) =>
+  useQuery({ queryKey: k('statements', quarter), queryFn: () => api.getStatements(quarter ?? undefined), placeholderData: (p) => p, ...opts });
+export const useStatement = (uid: string | null) => useQuery({ queryKey: k('statement', uid), queryFn: () => api.getStatement(uid!), enabled: !!uid, ...opts });

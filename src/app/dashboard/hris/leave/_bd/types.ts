@@ -1,7 +1,7 @@
 /** The leave API's shapes (backend: weapi/django_rest/views/bd_leave.py). Days are decimal strings. */
 
 export type TypeCode = 'EARNED' | 'CASUAL' | 'SICK' | 'MATERNITY' | 'COMPENSATORY' | 'BEREAVEMENT' | string;
-export type Tab = 'balances' | 'applications' | 'approvals' | 'away' | 'encashment' | 'yearend' | 'policy';
+export type Tab = 'balances' | 'applications' | 'approvals' | 'away' | 'encashment' | 'maternity' | 'statements' | 'yearend' | 'policy';
 export type BalanceFilter = 'ALL' | 'CLAIMED' | 'NOTHING' | 'OVERDRAWN';
 
 export interface Can {
@@ -321,10 +321,24 @@ export interface EncashPreview {
   divisor: number;
 }
 
+export type MaternityStatus = 'NOTIFIED' | 'ON_LEAVE_PRE' | 'DELIVERED' | 'ON_LEAVE_POST' | 'COMPLETED' | 'CANCELLED';
+export type MaternityEventKind = 'NOTICE' | 'PROOF_OF_PREGNANCY' | 'PAY_FIRST' | 'DELIVERY' | 'PROOF_OF_BIRTH' | 'PAY_SECOND' | 'RETURN' | 'CANCEL';
+
+export interface ReferenceLine {
+  month: string;
+  label: string;
+  wage: string | null;
+  days: string;
+  daysSource: string;
+  wageSource: string;
+}
+
+/** No restricted field: expected and actual delivery and the surviving children are read one at a time, logged. */
 export interface MaternityCase {
   reference: string;
-  employee: EmployeeRef;
-  status: 'NOTIFIED' | 'DELIVERED';
+  employee: { code: string; nameEn: string; department: string | null };
+  status: MaternityStatus;
+  statusLabel: string;
   noticeDate: string;
   noticeMethod: 'WRITTEN' | 'ORAL';
   noticeRecordedBy: string | null;
@@ -340,6 +354,94 @@ export interface MaternityCase {
   employmentBanEnd: string;
   request: string;
   deliveryRecorded: boolean;
+  benefit: {
+    basis: string;
+    basisLabel: string;
+    electedBy: string | null;
+    text: string | null;
+    lines: ReferenceLine[];
+    averageDailyWage: string | null;
+    days: number;
+    amount: string | null;
+    first: string | null;
+    second: string | null;
+    other: { basis: string; label: string; benefit: string; difference: string | null } | null;
+    masked: boolean;
+  };
+  dates: Record<'proofOfPregnancy' | 'firstPaid' | 'proofOfBirth' | 'secondPaid' | 'returned' | 'cancelled', string | null>;
+  schedule: Record<string, string | number | boolean | null>;
+  next: { label: string; due: string | null; overdue: boolean; event: MaternityEventKind | null };
+  events: { event: MaternityEventKind; label: string; on: string; note: string; by: string | null }[];
+}
+
+export interface MaternityList {
+  rows: MaternityCase[];
+  open: number;
+  overdue: number;
+  committed: string | null;
+  masked: boolean;
+  can: Can;
+}
+
+export interface BenefitPreview {
+  lines: ReferenceLine[];
+  bases: { key: string; label: string; citation: string; isDefault: boolean; averageDailyWage: string | null; benefit: string | null; text: string | null }[];
+  masked: boolean;
+  benefitDays: number;
+  confidence: string | null;
+}
+
+export interface StatementRow {
+  type: string;
+  name: string;
+  nameBn: string | null;
+  opening: string;
+  earned: string;
+  taken: string;
+  refused: string;
+  encashed: string;
+  other: string;
+  closing: string;
+}
+
+export interface StatementOut {
+  uid: string;
+  employee: { code: string; nameEn: string; nameBn: string | null };
+  rows: StatementRow[];
+  issued: { method: string; label: string; on: string; detail: string | null; by: string | null }[];
+  acknowledgedAt: string | null;
+}
+
+export interface StatementsRead {
+  quarter: string;
+  label: string;
+  from: string;
+  to: string;
+  unlocked: string[];
+  ready: boolean;
+  quarters: { id: string; label: string }[];
+  batch: null | {
+    uid: string;
+    version: number;
+    generatedAt: string;
+    generatedBy: string | null;
+    unlockedAtGeneration: string[];
+    generated: number;
+    issued: number;
+    acknowledged: number;
+    outstanding: number;
+    byMethod: Record<string, number>;
+    chase: { code: string; nameEn: string; why: string }[];
+    rows: StatementOut[];
+  };
+  can: Can;
+}
+
+export interface StatementPrint extends StatementOut {
+  quarter: string;
+  period: string;
+  version: number;
+  employer: string;
 }
 
 export interface Restricted {

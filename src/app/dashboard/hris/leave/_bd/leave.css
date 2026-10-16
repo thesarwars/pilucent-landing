@@ -550,3 +550,24 @@ textarea.lc-input {
     animation: none;
   }
 }
+
+/* ── printing a statement: only the statement ─────────────────────── */
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .lc-print,
+  .lc-print * {
+    visibility: visible !important;
+  }
+  .lc-print {
+    position: fixed;
+    inset: 0;
+    padding: 12mm;
+    background: #fff;
+  }
+  .lc-noprint {
+    display: none !important;
+  }
+}

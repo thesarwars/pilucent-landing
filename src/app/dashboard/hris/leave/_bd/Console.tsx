@@ -14,6 +14,7 @@ import { LangProvider, useLang } from '@/app/dashboard/hris/employee/employees/_
 import { fmtDays } from './defs';
 import { AccrualDrawer, ApplyDrawer, BulkDrawer, EncashDrawer, GrantDrawer, HistoryDrawer, MaternityDrawer } from './Drawers';
 import { useSummary } from './hooks';
+import { MaternityCaseDrawer, MaternityTab, StatementDrawer, StatementsTab } from './Lifecycle';
 import { ApplicationsTab, ApprovalsTab, AwayTab, BalancesTab, EncashmentTab, PolicyTab, YearEndTab } from './Tabs';
 import type { Tab } from './types';
 
@@ -25,6 +26,8 @@ type Drawer =
   | { kind: 'encash'; code?: string }
   | { kind: 'history'; code: string }
   | { kind: 'maternity'; code?: string }
+  | { kind: 'case'; reference: string }
+  | { kind: 'statement'; uid: string }
   | null;
 
 const TABS: { id: Tab; label: string; count?: 'applications' | 'approvals' | 'encashment' }[] = [
@@ -33,6 +36,8 @@ const TABS: { id: Tab; label: string; count?: 'applications' | 'approvals' | 'en
   { id: 'approvals', label: 'Approvals', count: 'approvals' },
   { id: 'away', label: 'Who is away' },
   { id: 'encashment', label: 'Encashment', count: 'encashment' },
+  { id: 'maternity', label: 'Maternity' },
+  { id: 'statements', label: 'Statements' },
   { id: 'yearend', label: 'Year-end' },
   { id: 'policy', label: 'Policy' },
 ];
@@ -122,6 +127,8 @@ function Screen() {
         {tab === 'approvals' && <ApprovalsTab can={can} />}
         {tab === 'away' && <AwayTab onOpen={openHistory} />}
         {tab === 'encashment' && <EncashmentTab onEncash={() => setDrawer({ kind: 'encash' })} />}
+        {tab === 'maternity' && <MaternityTab onNew={() => setDrawer({ kind: 'maternity' })} onOpen={(reference) => setDrawer({ kind: 'case', reference })} />}
+        {tab === 'statements' && <StatementsTab onPrint={(uid) => setDrawer({ kind: 'statement', uid })} />}
         {tab === 'yearend' && <YearEndTab can={can} onAccrual={() => setDrawer({ kind: 'accrual' })} />}
         {tab === 'policy' && <PolicyTab />}
       </div>
@@ -132,6 +139,8 @@ function Screen() {
       {drawer?.kind === 'accrual' && <AccrualDrawer onClose={close} />}
       {drawer?.kind === 'encash' && <EncashDrawer code={drawer.code} onClose={close} />}
       {drawer?.kind === 'maternity' && <MaternityDrawer code={drawer.code} onClose={close} />}
+      {drawer?.kind === 'case' && <MaternityCaseDrawer reference={drawer.reference} onClose={close} />}
+      {drawer?.kind === 'statement' && <StatementDrawer uid={drawer.uid} onClose={close} />}
       {drawer?.kind === 'history' && (
         <HistoryDrawer code={drawer.code} onClose={close} onApply={(code) => setDrawer({ kind: 'apply', code })} onGrant={(code) => setDrawer({ kind: 'grant', code })} />
       )}

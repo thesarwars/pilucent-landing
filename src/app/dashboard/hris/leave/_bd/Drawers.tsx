@@ -14,7 +14,7 @@ import * as api from './api';
 import { OUTCOME, fmtDays, longDate, plural, reasonError, shortDate, span, todayISO } from './defs';
 import { useBalances, useEncashPreview, useHistory, useTypes } from './hooks';
 import { Field, Note, PositionLine, Tag, errorText, useWrite } from './parts';
-import type { AccrualRun, BulkResult, LedgerRow, Position, Preview } from './types';
+import type { AccrualRun, BenefitPreview, BulkResult, LedgerRow, Position, Preview } from './types';
 
 const REVERSIBLE = new Set(['OPENING', 'ACCRUAL', 'ACCRUAL_CAPPED', 'ADJUSTMENT', 'CREDIT_EARNED', 'CREDIT_EXPIRED', 'FORFEITURE']);
 
@@ -487,7 +487,24 @@ export function MaternityDrawer({ code: initial = '', onClose }: { code?: string
   const [expected, setExpected] = React.useState('');
   const [children, setChildren] = React.useState('0');
   const [leaveFrom, setLeaveFrom] = React.useState('');
+  const [basis, setBasis] = React.useState('');
+  const [bases, setBases] = React.useState<BenefitPreview | null>(null);
   const w = useWrite();
+  React.useEffect(() => {
+    if (!code || !noticeDate) return;
+    let live = true;
+    api
+      .benefitPreview(code, noticeDate)
+      .then((b) => {
+        if (!live) return;
+        setBases(b);
+        setBasis((cur) => (b.bases.some((x) => x.key === cur) ? cur : b.bases.find((x) => x.isDefault)?.key ?? b.bases[0]?.key ?? ''));
+      })
+      .catch(() => live && setBases(null));
+    return () => {
+      live = false;
+    };
+  }, [code, noticeDate]);
   return (
     <SideDrawer onClose={onClose} labelledBy="lc-mat" width={620}>
       <DrawerHead id="lc-mat" title="Record a maternity notice" sub="Recording the notice grants the leave: statutory, approved, not refusable (s.46)." onClose={onClose} />
@@ -518,6 +535,27 @@ export function MaternityDrawer({ code: initial = '', onClose }: { code?: string
         <Field label="Leave starts (optional)" htmlFor="mt-lf" hint="Defaults to the days before the expected delivery the rule book allows.">
           <input id="mt-lf" type="date" className="lc-input" value={leaveFrom} onChange={(e) => setLeaveFrom(e.target.value)} />
         </Field>
+        {bases && (
+          <fieldset className="lc-card space-y-2 px-4 py-3">
+            <legend className="lc-label px-1">Benefit basis — an election on the record</legend>
+            <p className="lc-caption m-0">
+              The rule book marks the basis {bases.confidence ? bases.confidence.toLowerCase() : 'unsettled'}: the Act divides three months&apos; wages by the days actually worked, the
+              2022 Rules divide one month by 26. Both are worked out from {bases.lines.map((l) => l.label).join(', ')}.
+            </p>
+            {bases.bases.map((b) => (
+              <label key={b.key} className="flex items-start gap-2.5 py-1">
+                <input type="radio" name="mat-basis" className="mt-1" checked={basis === b.key} onChange={() => setBasis(b.key)} />
+                <span>
+                  <span className="block text-[13.5px] font-semibold">
+                    {b.label} {b.isDefault && <span className="lc-sub">(the rule book&apos;s default)</span>}
+                  </span>
+                  <span className="lc-sub block">{bases.masked ? 'Amounts need the “view salary figures” permission.' : `${b.text} = ৳${b.benefit}`}</span>
+                  <span className="lc-sub block">{b.citation}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        )}
         <p className="lc-caption m-0">Whether the benefit is paid is a separate question. Where it is not, the leave still stands.</p>
         {w.error && <div className="lc-error">{w.error}</div>}
         <button
@@ -527,7 +565,16 @@ export function MaternityDrawer({ code: initial = '', onClose }: { code?: string
           onClick={() =>
             void w
               .run(
-                () => api.openMaternity({ employeeCode: code, noticeDate, noticeMethod: method, expectedDelivery: expected, survivingChildren: children, leaveFrom: leaveFrom || undefined }),
+                () =>
+                  api.openMaternity({
+                    employeeCode: code,
+                    noticeDate,
+                    noticeMethod: method,
+                    expectedDelivery: expected,
+                    survivingChildren: children,
+                    basis: basis || undefined,
+                    leaveFrom: leaveFrom || undefined,
+                  }),
                 (c) => `${c.reference}: ${c.totalDays} days of maternity leave, ${span(c.leaveFrom, c.leaveTo)}`
               )
               .then((c) => c && onClose())

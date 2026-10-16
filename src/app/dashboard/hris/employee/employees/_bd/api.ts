@@ -150,7 +150,7 @@ export const changeClassification = (code: string, data: { to: string; effective
 
 export const separate = (
   code: string,
-  data: { type: string; date: string; reason?: string; grossMisconduct?: boolean; preview?: boolean }
+  data: { type: string; date: string; reason?: string; grossMisconduct?: boolean; maternityOverride?: boolean; preview?: boolean }
 ) => call<SeparationEntitlement & Record<string, unknown>>(() => axiosApi.post(emp(code, '/separation'), data, JSON_HEADERS));
 
 /* ── history and documents ────────────────────────────────────────── */

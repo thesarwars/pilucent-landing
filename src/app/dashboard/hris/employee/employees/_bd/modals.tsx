@@ -219,11 +219,16 @@ export function SeparationModal({ profile, onClose }: { profile: Profile; onClos
   const [date, setDate] = React.useState<string | null>(todayISO());
   const [reason, setReason] = React.useState('');
   const [grossMisconduct, setGross] = React.useState(false);
+  const [maternityOverride, setMaternityOverride] = React.useState(false);
   const [preview, setPreview] = React.useState<SeparationEntitlement | null>(null);
   const [previewError, setPreviewError] = React.useState<api.ApiError | null>(null);
   const [loading, setLoading] = React.useState(false);
   const input = useDebounced(JSON.stringify({ type, date, grossMisconduct: type === 'DISMISSAL' && grossMisconduct }));
-  const mutation = useEmployeeMutation(code, (d: { type: string; date: string; reason: string; grossMisconduct: boolean }) => api.separate(code, d));
+  const mutation = useEmployeeMutation(code, (d: { type: string; date: string; reason: string; grossMisconduct: boolean; maternityOverride: boolean }) =>
+    api.separate(code, d)
+  );
+  // s.50: inside maternity protection a separation needs an explicit override, and the reason.
+  const protectedBy = preview?.warnings?.find((w) => w.key === 'maternity');
   const length = reasonLength(reason);
 
   React.useEffect(() => {
@@ -244,7 +249,7 @@ export function SeparationModal({ profile, onClose }: { profile: Profile; onClos
   const confirm = async () => {
     if (!date) return;
     try {
-      await mutation.mutateAsync({ type, date, reason, grossMisconduct: type === 'DISMISSAL' && grossMisconduct });
+      await mutation.mutateAsync({ type, date, reason, grossMisconduct: type === 'DISMISSAL' && grossMisconduct, maternityOverride: !!protectedBy && maternityOverride });
       toast.success('Separation recorded — final settlement outstanding');
       onClose();
     } catch {
@@ -268,7 +273,12 @@ export function SeparationModal({ profile, onClose }: { profile: Profile; onClos
           <VioletButton variant="outline" size="sm" onClick={onClose}>
             Cancel
           </VioletButton>
-          <VioletButton variant="danger" size="sm" disabled={length < MIN_REASON || !date || mutation.isPending} onClick={() => void confirm()}>
+          <VioletButton
+            variant="danger"
+            size="sm"
+            disabled={length < MIN_REASON || !date || mutation.isPending || (!!protectedBy && !maternityOverride)}
+            onClick={() => void confirm()}
+          >
             {mutation.isPending ? 'Recording…' : 'Record separation'}
           </VioletButton>
         </>
@@ -282,6 +292,12 @@ export function SeparationModal({ profile, onClose }: { profile: Profile; onClos
           <DateInput id="sep-date" value={date} min={profile.employment.doj ?? undefined} onChange={setDate} />
         </Field>
       </div>
+      {protectedBy && (
+        <div className="mt-3">
+          <Note tone="danger">{protectedBy.message}</Note>
+          <SwitchRow checked={maternityOverride} onChange={setMaternityOverride} label="Override the maternity protection — the reason below goes on the record" />
+        </div>
+      )}
       {type === 'DISMISSAL' && (
         <div className="mt-2">
           <SwitchRow

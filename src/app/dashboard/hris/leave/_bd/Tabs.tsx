@@ -16,9 +16,9 @@ import type { Confidence } from '@/app/dashboard/hris/employee/employees/_bd/typ
 import { formatBDT } from '@/app/dashboard/hris/employee/employees/_bd/format';
 import * as api from './api';
 import { ESTABLISHMENT, PHASE, TYPE_COLOUR, TYPE_SHORT, csv, download, fmtDays, kindFill, longDate, monthLabel, plural, reasonError, shiftMonth, shortDate, span, todayISO } from './defs';
-import { useApplications, useApprovals, useAway, useBalances, useEncashments, useMaternity, usePolicy } from './hooks';
-import { Empty, Figure, Note, Tag, errorText, useWrite } from './parts';
-import type { BalanceFilter, BalanceRow, Can, MaternityCase, QueueCard, Restricted, YearEnd } from './types';
+import { useApplications, useApprovals, useAway, useBalances, useEncashments, usePolicy } from './hooks';
+import { Empty, Figure, Note, Tag, useWrite } from './parts';
+import type { BalanceFilter, BalanceRow, Can, QueueCard, YearEnd } from './types';
 
 const FILTERS: { id: BalanceFilter; label: string }[] = [
   { id: 'ALL', label: 'Everyone' },
@@ -253,7 +253,6 @@ export function ApplicationsTab({ can, onOpen }: { can: Can | undefined; onOpen:
           </div>
         )}
       </div>
-      <MaternityCases can={can} />
     </div>
   );
 }
@@ -286,76 +285,6 @@ function ReasonAction({ label, required, cta, run, done, onCancel }: { label: st
           Back
         </button>
       </div>
-    </div>
-  );
-}
-
-function MaternityCases({ can }: { can: Can | undefined }) {
-  const m = useMaternity();
-  const rows = m.data?.rows ?? [];
-  if (!rows.length) return null;
-  return (
-    <div>
-      <h2 className="lc-section-title mb-2">Maternity cases</h2>
-      <div className="grid gap-3">
-        {rows.map((c) => (
-          <MaternityCard key={c.reference} c={c} can={can} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MaternityCard({ c, can }: { c: MaternityCase; can: Can | undefined }) {
-  const [restricted, setRestricted] = React.useState<Restricted | null>(null);
-  const [delivery, setDelivery] = React.useState('');
-  const w = useWrite();
-  const reveal = async () => {
-    try {
-      setRestricted(await api.readRestricted(c.reference));
-    } catch (err) {
-      toast.error(errorText(err));
-    }
-  };
-  return (
-    <div className="lc-card px-4 py-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-bold">{c.employee.nameEn}</span>
-        <span className="lc-sub">{c.employee.code}</span>
-        <Tag tone="violet">Statutory · not refusable</Tag>
-        <Tag tone={c.benefitPayable ? 'pos' : 'warn'}>{c.benefitPayable ? 'Benefit payable' : 'Benefit not payable'}</Tag>
-        <span className="flex-1" />
-        <span className="lc-mono text-[12.5px] text-[#6E6883]">{c.reference}</span>
-      </div>
-      <div className="mt-1 text-[13.5px]">
-        {c.totalDays} days, {span(c.leaveFrom, c.leaveTo)} · notice {c.noticeMethod.toLowerCase()} on {longDate(c.noticeDate)}
-      </div>
-      <div className="lc-sub mt-1">{c.eligibility}</div>
-      <div className="lc-sub">
-        Protected from dismissal {longDate(c.protectionStart)} – {longDate(c.protectionEnd)} · no employment until {longDate(c.employmentBanEnd)}
-      </div>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        {restricted ? (
-          <span className="text-[13px]">
-            Expected delivery {longDate(restricted.expectedDelivery)}
-            {restricted.actualDelivery ? ` · delivered ${longDate(restricted.actualDelivery)}` : ''} · {restricted.survivingChildren} surviving children{' '}
-            <span className="lc-sub">(this read was logged)</span>
-          </span>
-        ) : (
-          <button type="button" className="lc-btn !min-h-[32px]" onClick={() => void reveal()} title="Restricted to HR; every read is logged, a refused one too">
-            Show the restricted fields
-          </button>
-        )}
-        {can?.apply && !c.deliveryRecorded && (
-          <>
-            <input type="date" className="lc-input !min-h-[32px] !w-[160px]" aria-label="Actual delivery" value={delivery} onChange={(e) => setDelivery(e.target.value)} />
-            <button type="button" className="lc-btn !min-h-[32px]" disabled={!delivery || w.busy} onClick={() => void w.run(() => api.recordDelivery(c.reference, delivery), 'Delivery recorded; the leave after it is protected')}>
-              Record the delivery
-            </button>
-          </>
-        )}
-      </div>
-      {w.error && <div className="lc-error mt-1">{w.error}</div>}
     </div>
   );
 }

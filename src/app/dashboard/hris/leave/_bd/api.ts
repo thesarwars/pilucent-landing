@@ -14,11 +14,15 @@ import type {
   History,
   LeaveRequest,
   LeaveTypeInfo,
+  BenefitPreview,
   MaternityCase,
+  MaternityList,
   Policy,
   Preview,
   QueueCard,
   Restricted,
+  StatementPrint,
+  StatementsRead,
   Summary,
   YearEnd,
 } from './types';
@@ -38,7 +42,7 @@ export const getAway = (month?: string, dept?: string) => call<Away>(() => axios
 export const getHistory = (code: string, type = 'ALL') => call<History>(() => axiosApi.get(`${BASE}/employees/${enc(code)}`, { params: { type } }));
 export const getEncashments = () => call<{ rows: Encashment[]; counts: Record<string, number>; masked: boolean; can: Can }>(() => axiosApi.get(`${BASE}/encashments`));
 export const getEncashPreview = (code: string) => call<EncashPreview>(() => axiosApi.get(`${BASE}/employees/${enc(code)}/encashment`));
-export const getMaternity = () => call<{ rows: MaternityCase[]; can: Can }>(() => axiosApi.get(`${BASE}/maternity`));
+export const getMaternity = () => call<MaternityList>(() => axiosApi.get(`${BASE}/maternity`));
 export const readRestricted = (reference: string) => call<Restricted>(() => axiosApi.get(`${BASE}/maternity/${enc(reference)}/restricted`));
 
 export interface ApplyInput {
@@ -80,6 +84,17 @@ export const openMaternity = (input: {
   noticeMethod: string;
   expectedDelivery: string;
   survivingChildren: string;
+  basis?: string;
   leaveFrom?: string;
 }) => post<MaternityCase>('/maternity', input);
-export const recordDelivery = (reference: string, actualDelivery: string) => post<MaternityCase>(`/maternity/${enc(reference)}/delivery`, { actualDelivery });
+export const benefitPreview = (employeeCode: string, noticeDate: string) =>
+  call<BenefitPreview>(() => axiosApi.get(`${BASE}/maternity/benefit`, { params: { employeeCode, noticeDate } }));
+export const maternityEvent = (reference: string, body: { event: string; on?: string; date?: string; note?: string }) =>
+  post<MaternityCase>(`/maternity/${enc(reference)}/events`, body);
+
+export const getStatements = (quarter?: string) => call<StatementsRead>(() => axiosApi.get(`${BASE}/statements`, { params: { quarter } }));
+export const generateStatements = (quarter: string, acknowledgeUnlocked: boolean) => post<StatementsRead>('/statements', { quarter, acknowledgeUnlocked });
+export const issueStatements = (quarter: string, method: string, employeeCodes?: string[]) =>
+  post<StatementsRead & { issued: number }>('/statements/issue', { quarter, method, employeeCodes });
+export const acknowledgeStatement = (uid: string) => post(`/statements/${enc(uid)}/acknowledge`);
+export const getStatement = (uid: string) => call<StatementPrint>(() => axiosApi.get(`${BASE}/statements/${enc(uid)}`));
