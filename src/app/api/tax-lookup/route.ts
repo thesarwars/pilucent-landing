@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  
   try {
     if (state == "NY") {
       const county = await geocodeCounty(street, city, state, zip);
