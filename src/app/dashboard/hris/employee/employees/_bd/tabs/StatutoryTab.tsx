@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import * as api from '../api';
-import { ENUMS } from '../enums';
 import { useEmployeeMutation, useSalary } from '../hooks';
 import { useLang } from '../i18n';
 import { enumLabel } from '../enums';
@@ -18,19 +17,21 @@ import {
   Note,
   SaveBar,
   Section,
-  SelectInput,
   SwitchRow,
   TextInput,
   errs,
   useSectionForm,
 } from '../ui';
 
-type Form = Omit<Statutory, 'pfConstituted'>;
+type Form = Omit<Statutory, 'pfConstituted' | 'gratuityBasis' | 'gratuityMethod' | 'gratuityFund' | 'participation'>;
+
+const BASIS: Record<string, string> = { BASIC: 'Basic (the library’s gratuity base)', GROSS: 'Gross', CUSTOM: 'Custom components' };
+const METHOD: Record<string, string> = { MONTHLY_PROVISION: 'Monthly provision', FUNDED_SCHEME: 'Funded scheme' };
 
 export function StatutoryTab({ profile, goTo }: { profile: Profile; goTo: (tab: TabId, field?: string | null) => void }) {
   const { money, date, n } = useLang();
   const code = profile.code;
-  const { pfConstituted, ...server } = profile.statutory;
+  const { pfConstituted, gratuityBasis, gratuityMethod, gratuityFund, participation, ...server } = profile.statutory;
   const salary = useSalary(code);
   const derived = salary.data?.derived && !('available' in salary.data.derived) ? (salary.data.derived as Derived) : null;
   const mutation = useEmployeeMutation(code, (changes: Partial<Form>) => api.patchSection(code, 'statutory', changes));
@@ -44,6 +45,9 @@ export function StatutoryTab({ profile, goTo }: { profile: Profile; goTo: (tab: 
   const grat = derived?.gratuity;
 
   const classification = profile.employment.classification;
+  // Switching a membership off is an opt-out, and an opt-out carries its reason (payroll settings §3.7).
+  const leaving = (['pfMember', 'gratuityEligible', 'insuranceCovered'] as const).filter((k) => server[k] && !v[k]);
+  const since = (scheme: string) => participation?.find((p) => p.scheme === scheme && !p.optedOutOn)?.enrolledOn ?? null;
 
   return (
     <div className="space-y-4">
@@ -84,8 +88,8 @@ export function StatutoryTab({ profile, goTo }: { profile: Profile; goTo: (tab: 
               <Field htmlFor="f-pfnum" label="Membership number" span={3} errors={errs(e, 'pfNumber')}>
                 <TextInput id="f-pfnum" value={v.pfNumber} onChange={(x) => set('pfNumber', x)} />
               </Field>
-              <Field htmlFor="f-pfdate" label="Enrolment date" span={3} errors={errs(e, 'pfEnrolled')}>
-                <DateInput id="f-pfdate" value={v.pfEnrolled} onChange={(x) => set('pfEnrolled', x)} />
+              <Field htmlFor="f-pfdate" label="Enrolment date" span={3} errors={errs(e, 'pfEnrolled')} help={server.pfMember ? 'A membership runs from its date; opt out and enrol again to change it.' : 'Empty: from today.'}>
+                <DateInput id="f-pfdate" value={v.pfEnrolled} onChange={(x) => set('pfEnrolled', x)} disabled={server.pfMember} />
               </Field>
               <Field htmlFor="f-pfemp" label="Employee contribution %" span={3} errors={errs(e, 'pfEmployee', 'f-pfemp')}>
                 <TextInput id="f-pfemp" inputMode="decimal" value={v.pfEmployee} onChange={(x) => set('pfEmployee', x || null)} invalid={!!errs(e, 'pfEmployee').length} className="bd-mono" />
@@ -94,7 +98,7 @@ export function StatutoryTab({ profile, goTo }: { profile: Profile; goTo: (tab: 
                 htmlFor="f-pfer"
                 label="Employer contribution %"
                 span={3}
-                help="Matches the employee contribution."
+                help="Empty or the fund's rate: the fund's rate applies, and follows it when it changes."
                 errors={errs(e, 'pfEmployer')}
               >
                 <TextInput id="f-pfer" inputMode="decimal" value={v.pfEmployer} onChange={(x) => set('pfEmployer', x || null)} className="bd-mono" />
@@ -116,19 +120,14 @@ export function StatutoryTab({ profile, goTo }: { profile: Profile; goTo: (tab: 
           right={<SwitchRow id="f-gratuity" checked={v.gratuityEligible} onChange={(x) => set('gratuityEligible', x)} title="Gratuity eligibility" />}
         >
           {v.gratuityEligible ? (
-            <FieldGrid>
-              <Field htmlFor="f-gratbasis" label="Wage basis" span={3} help="Basic is the common default. Confirm against your service rules." errors={errs(e, 'gratuityBasis')}>
-                <SelectInput id="f-gratbasis" value={v.gratuityBasis} onChange={(x) => set('gratuityBasis', x)} options={ENUMS.gratuityBasis} />
-              </Field>
-              <Field htmlFor="f-gratmethod" label="Accrual method" span={3} errors={errs(e, 'gratuityMethod')}>
-                <SelectInput id="f-gratmethod" value={v.gratuityMethod} onChange={(x) => set('gratuityMethod', x)} options={ENUMS.gratuityMethod} />
-              </Field>
-              {v.gratuityMethod === 'FUNDED' && (
-                <Field htmlFor="f-gratfund" label="Fund name" span={6} errors={errs(e, 'gratuityFund')}>
-                  <TextInput id="f-gratfund" value={v.gratuityFund} onChange={(x) => set('gratuityFund', x)} />
-                </Field>
-              )}
-            </FieldGrid>
+            <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[12.5px]">
+              <dt className="text-v-ink500">Wage basis</dt>
+              <dd className="m-0 font-semibold">{gratuityBasis ? BASIS[gratuityBasis] ?? gratuityBasis : 'Not elected — gratuity cannot be computed'}</dd>
+              <dt className="text-v-ink500">Accrual</dt>
+              <dd className="m-0 font-semibold">{gratuityMethod ? METHOD[gratuityMethod] ?? gratuityMethod : '—'}{gratuityFund ? ` · ${gratuityFund}` : ''}</dd>
+              {since('GRATUITY') && (<><dt className="text-v-ink500">Eligible since</dt><dd className="m-0 font-semibold">{date(since('GRATUITY'))}</dd></>)}
+              <dd className="col-span-2 m-0 text-[11.5px] text-v-ink500">The basis and the accrual are the company&apos;s — elected in <a className="font-bold text-[#6B3FE8]" href="/dashboard/hris/payroll-settings">Payroll settings</a>, not per employee.</dd>
+            </dl>
           ) : (
             <p className="text-[12.5px] text-v-ink500">
               Off: a separation compares compensation with nil gratuity (&ldquo;gratuity, if any&rdquo;).
@@ -203,6 +202,15 @@ export function StatutoryTab({ profile, goTo }: { profile: Profile; goTo: (tab: 
           <Citation>{bonus?.perBonus.citation}</Citation>
         </Section>
       </div>
+      {leaving.length > 0 && (
+        <Section title="Opting out" desc="Leaving a scheme ends the membership from today; the record keeps why.">
+          <FieldGrid>
+            <Field htmlFor="f-optout" label="Reason" required span={6} errors={errs(e, 'optOutReason', 'f-optout')}>
+              <TextInput id="f-optout" value={v.optOutReason ?? ''} onChange={(x) => set('optOutReason', x)} placeholder="Contract worker, outside the fund's rules" />
+            </Field>
+          </FieldGrid>
+        </Section>
+      )}
       <SaveBar dirty={form.dirty} saving={form.saving} onSave={() => void form.submit()} onDiscard={form.reset} />
     </div>
   );

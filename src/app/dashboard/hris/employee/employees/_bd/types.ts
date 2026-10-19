@@ -128,8 +128,9 @@ export interface Statutory {
   pfEmployee: string | null;
   pfEmployer: string | null;
   gratuityEligible: boolean;
-  gratuityBasis: string;
-  gratuityMethod: string;
+  /** The company's election and scheme (Payroll settings), read-only here. Null basis is unanswered. */
+  gratuityBasis: string | null;
+  gratuityMethod: string | null;
   gratuityFund: string;
   insuranceCovered: boolean;
   insurancePolicy: string;
@@ -137,6 +138,9 @@ export interface Statutory {
   insurer: string;
   festivalGranted: boolean;
   festivalReason: string;
+  /** Write-only: why a membership is switched off. */
+  optOutReason?: string;
+  participation?: { uid: string; scheme: string; enrolledOn: ISODate; optedOutOn: ISODate | null; optOutReason: string | null }[];
 }
 
 export interface TaxProfile {

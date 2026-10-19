@@ -125,5 +125,3 @@ export const publishCalendar = (year: number, site?: string) =>
 
 export const getElections = () => call<Elections>(() => axiosApi.get(`${BASE}/elections`));
 
-export const saveElections = (input: Partial<{ overtimeBase: Elections['overtimeBase']; daysWorked: Partial<Elections['daysWorked']> }>) =>
-  call<Elections>(() => axiosApi.patch(`${BASE}/elections`, input, JSON_HEADERS));

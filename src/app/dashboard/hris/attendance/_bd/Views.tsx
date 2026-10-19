@@ -389,7 +389,7 @@ function Totals({ s, m }: { s: CloseSummary; m: MonthQuery }) {
 }
 
 function Accrual({ s, onElections }: { s: CloseSummary; onElections: () => void }) {
-  const e = s.elections.daysWorked;
+  const e = s.elections.daysWorked ?? { paidLeave: false, festival: false, weekly: false };
   const counted = ['present and on-duty days', 'half days as ½', e.paidLeave && 'paid leave', e.festival && 'festival holidays', e.weekly && 'weekly holidays'].filter(Boolean);
   const notCounted = [!e.paidLeave && 'paid leave', !e.festival && 'festival holidays', !e.weekly && 'weekly holidays'].filter(Boolean);
   return (
@@ -418,7 +418,7 @@ function Accrual({ s, onElections }: { s: CloseSummary; onElections: () => void 
       <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
         <span className="text-[11px] font-medium text-[#6E6883]">{s.accrualCitation ?? 'Bangladesh Labour Act 2006, s.117'}</span>
         <button type="button" className="border-none bg-transparent p-0 text-[12px] font-bold text-[#6B3FE8]" onClick={onElections}>
-          Change the elections
+          See the elections
         </button>
       </div>
     </div>

@@ -246,6 +246,10 @@ export const permissions = [
     codeName: 'view_employee',
   },
   {
+    path: '/dashboard/hris/payroll-settings',
+    codeName: 'view_employee',
+  },
+  {
     path: '/dashboard/reports',
     codeName: 'view_reports',
   },

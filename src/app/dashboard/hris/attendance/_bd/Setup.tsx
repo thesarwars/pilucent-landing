@@ -518,7 +518,7 @@ export function ElectionsDrawer({ onClose, canWrite }: { onClose: () => void; ca
   const el = useElections();
   return (
     <SideDrawer onClose={onClose} labelledBy="att-el-title">
-      <DrawerHead id="att-el-title" title="Payroll elections" sub="Three choices the Act leaves to the employer. They are stated, not assumed." onClose={onClose} />
+      <DrawerHead id="att-el-title" title="Payroll elections" sub="Elected in Payroll settings — effective-dated, cited, and approved by a second person." onClose={onClose} />
       <div className="flex-1 overflow-y-auto px-5 py-4">
         {el.isPending ? <LoadingBlock /> : el.isError ? <ErrorBlock error={el.error} /> : <ElectionsForm data={el.data} canWrite={canWrite} />}
       </div>
@@ -526,43 +526,41 @@ export function ElectionsDrawer({ onClose, canWrite }: { onClose: () => void; ca
   );
 }
 
-function ElectionsForm({ data, canWrite }: { data: Elections; canWrite: boolean }) {
-  const [v, setV] = React.useState(data);
-  const w = useWrite();
-  const dw = (k: keyof Elections['daysWorked'], on: boolean) => setV({ ...v, daysWorked: { ...v.daysWorked, [k]: on } });
+const OT_LABEL: Record<string, string> = { BASIC_PLUS_DA: 'Basic + dearness allowance', GROSS: 'Gross', CUSTOM: 'Custom components' };
+
+/** Read-only: the elections are effective-dated, cited and approved by a second person in Payroll settings. */
+function ElectionsForm({ data }: { data: Elections; canWrite: boolean }) {
+  const dw = data.daysWorked;
+  const yes = (on: boolean | undefined) => (on ? 'counts' : 'does not count');
   return (
     <div className="space-y-4">
       <div className="bd-panel space-y-2">
         <div className="bd-eyebrow">Overtime base</div>
-        <p className="m-0 text-[12px] text-[#6F6A85]">The hourly overtime rate is the monthly base ÷ 208 × 2 (s.108). The two bases differ by about 40%.</p>
-        {(
-          [
-            ['BASIC_PLUS_DA', 'Basic + dearness allowance', 'Read from the salary structure in force.'],
-            ['GROSS', 'Gross', 'Every component of the structure in force.'],
-          ] as const
-        ).map(([value, label, help]) => (
-          <label key={value} className="flex cursor-pointer items-start gap-2.5 py-1">
-            <input type="radio" name="otbase" checked={v.overtimeBase === value} onChange={() => setV({ ...v, overtimeBase: value })} disabled={!canWrite} className="mt-1" />
-            <span>
-              <span className="block text-[13px] font-semibold">{label}</span>
-              <span className="block text-[12px] text-[#6F6A85]">{help}</span>
-            </span>
-          </label>
-        ))}
+        {data.overtimeBase ? (
+          <p className="m-0 text-[13px] font-semibold">
+            {OT_LABEL[data.overtimeBase]}
+            {data.overtimeComponents ? ` (${data.overtimeComponents.join(' + ')})` : ''} ÷ {data.standardMonthHours ?? 208} hours × the s.108 multiplier
+          </p>
+        ) : (
+          <Note tone="warn">Not elected: overtime hours are counted but no rate can be computed until the overtime base is elected.</Note>
+        )}
+        <div className="text-[11px] font-medium text-[#6E6883]">{data.citations.overtimeBase}</div>
       </div>
-      <div className="bd-panel">
-        <div className="bd-eyebrow">Days worked for leave accrual (s.117)</div>
-        <p className="mb-1 mt-1 text-[12px] text-[#6F6A85]">Present and on-duty days always count; absence and leave without pay never do. These three are independent.</p>
-        <SwitchRow checked={v.daysWorked.paidLeave} onChange={(on) => dw('paidLeave', on)} label="Paid leave counts" disabled={!canWrite} />
-        <SwitchRow checked={v.daysWorked.festival} onChange={(on) => dw('festival', on)} label="Festival holidays count" disabled={!canWrite} />
-        <SwitchRow checked={v.daysWorked.weekly} onChange={(on) => dw('weekly', on)} label="Weekly holidays count" disabled={!canWrite} />
+      <div className="bd-panel space-y-1">
+        <div className="bd-eyebrow">Days worked for leave accrual</div>
+        {dw ? (
+          <ul className="m-0 list-none p-0 text-[12.5px] leading-6">
+            <li>Present and on-duty days: always count</li>
+            <li>Paid leave: {yes(dw.paidLeave)}</li>
+            <li>Festival holidays: {yes(dw.festival)}</li>
+            <li>Weekly holidays: {yes(dw.weekly)}</li>
+          </ul>
+        ) : (
+          <Note tone="warn">Not elected.</Note>
+        )}
+        <div className="text-[11px] font-medium text-[#6E6883]">{data.citations.daysWorked}</div>
       </div>
-      <Alert text={w.error} />
-      {canWrite && (
-        <button type="button" className="bd-btn-primary" disabled={w.busy} onClick={() => void w.run(() => api.saveElections(v), 'Elections saved')}>
-          Save
-        </button>
-      )}
+      <a className="bd-btn-primary inline-flex" href="/dashboard/hris/payroll-settings">Change them in Payroll settings</a>
     </div>
   );
 }

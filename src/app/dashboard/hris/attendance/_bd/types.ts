@@ -170,7 +170,7 @@ export interface DayDetail {
   };
   exceptions: ExceptionInfo[];
   adjustments: AdjustmentRow[];
-  otRate: { base: string; basis: string; rate: string } | null;
+  otRate: { base: string; basis: string; rate: string; unanswered?: undefined } | { unanswered: true; message: string } | null;
   otCost: string | null;
   masked: boolean;
   settable: DayStatus[];
@@ -200,9 +200,14 @@ export interface ExceptionsList {
   byKind: Record<ExceptionKind, number>;
 }
 
+/** Read-only here: elected, effective-dated and approved in Payroll settings. Null is unanswered. */
 export interface Elections {
-  overtimeBase: 'BASIC_PLUS_DA' | 'GROSS';
-  daysWorked: { paidLeave: boolean; festival: boolean; weekly: boolean };
+  overtimeBase: 'BASIC_PLUS_DA' | 'GROSS' | 'CUSTOM' | null;
+  overtimeComponents: string[] | null;
+  standardMonthHours: number | null;
+  daysWorked: { present?: boolean; paidLeave: boolean; festival: boolean; weekly: boolean; maternity?: boolean } | null;
+  answered: { overtimeBase: boolean; daysWorked: boolean };
+  citations: { overtimeBase: string; daysWorked: string };
 }
 
 export interface Gate {
