@@ -221,6 +221,12 @@ export const permissions = [
     path: '/dashboard/hris/attendance/punch_data_import',
     codeName: 'view_punchdatadailytime',
   },
+  // BD attendance intake, before the register: '/dashboard/hris/attendance'
+  // is a prefix of it.
+  {
+    path: '/dashboard/hris/attendance-intake',
+    codeName: 'view_employee',
+  },
   // BD attendance. After the legacy /attendance/* entries: the first prefix
   // match wins, and this one would otherwise claim them.
   {

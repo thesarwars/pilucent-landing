@@ -384,6 +384,7 @@ const ROUTES: Record<string, string> = {
   attendance: '/dashboard/hris/attendance',
   leaveconsole: '/dashboard/hris/leave',
   idcards: '/dashboard/hris/idcards',
+  intake: '/dashboard/hris/attendance-intake',
 };
 
 /** Development scaffolding (spec §8.4): off before any customer sees the rail. */
@@ -491,7 +492,11 @@ export default function SideBar() {
     }
   };
 
-  const activeId = Object.entries(ROUTES).find(([, href]) => path?.startsWith(href))?.[0];
+  // Whole path segments, longest first: '/hris/attendance' must not claim
+  // '/hris/attendance-intake'.
+  const activeId = Object.entries(ROUTES)
+    .filter(([, href]) => path === href || path?.startsWith(`${href}/`))
+    .sort(([, a], [, b]) => b.length - a.length)[0]?.[0];
   const langTitle = isBangla
     ? 'Switch to English'
     : 'বাংলায় দেখুন — switch the interface to Bangla';
