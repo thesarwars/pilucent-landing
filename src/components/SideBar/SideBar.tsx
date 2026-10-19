@@ -386,6 +386,7 @@ const ROUTES: Record<string, string> = {
   idcards: '/dashboard/hris/idcards',
   intake: '/dashboard/hris/attendance-intake',
   library: '/dashboard/hris/pay-library',
+  payroll: '/dashboard/hris/payroll-settings',
 };
 
 /** Development scaffolding (spec §8.4): off before any customer sees the rail. */

@@ -175,7 +175,11 @@ function DayBody({ d, focus, sessionReason }: { d: DayDetail; focus: DayFocus | 
           <p className="mb-0 mt-2 text-[12.5px] text-[#6F6A85]">
             <span className="bd-mono">{MASK}</span> — the rate and what this day costs need the “view salary figures” permission.
           </p>
-        ) : d.otRate ? (
+        ) : d.otRate && 'unanswered' in d.otRate && d.otRate.unanswered ? (
+          <p className="mb-0 mt-2 text-[12.5px] text-[#8A5A06]">
+            {d.otRate.message} <a className="font-bold text-[#6B3FE8]" href="/dashboard/hris/payroll-settings">Payroll settings</a>
+          </p>
+        ) : d.otRate && !('unanswered' in d.otRate && d.otRate.unanswered) ? (
           <dl className="bd-att-kv mt-2">
             <dt>Hourly rate</dt>
             <dd className="bd-mono">{formatBDT(d.otRate.rate, { places: 2 })}</dd>
