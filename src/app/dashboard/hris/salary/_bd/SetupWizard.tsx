@@ -35,7 +35,7 @@ export function SetupWizard({ profile: p, current, onClose }: { profile: SalaryP
 
   const [step, setStep] = React.useState(0);
   const [template, setTemplate] = React.useState(() => current?.template && p.templates.some((t) => t.id === current.template) ? current.template : p.templates[0]?.id ?? '');
-  const [gross, setGross] = React.useState(() => (current ? String(Number(current.template === 'rmg' ? current.basic : current.gross)) : ''));
+  const [gross, setGross] = React.useState(() => (current ? String(Number((p.templates.find((t) => t.id === current.template)?.amountMeans === 'basic' || current.template === 'rmg') ? current.basic : current.gross)) : ''));
   const [dateChoice, setDateChoice] = React.useState<DateChoice>(() => (reassigning ? 'next' : p.defaults.joiningDate ? 'joining' : 'custom'));
   const [customDate, setCustomDate] = React.useState<string | null>(null);
   const [reason, setReason] = React.useState('');
