@@ -1,0 +1,26 @@
+/* ...existing code... */
+
+.modal {
+    background: white;
+    border-radius: 8px;
+    max-width: 500px;
+    margin: auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1000;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.75);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}

@@ -1,45 +1,32 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "noEmit": true,
-    "esModuleInterop": true,
+    "incremental": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
-    "incremental": true,
+    "jsx": "preserve",
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "target": "ES2017"
+    ]
+  },
+  "paths": {
+    "@/*": ["./src/*"]
   },
   "include": [
     "next-env.d.ts",
+    ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
-    "src/**/*.d.ts",
-    ".next/types/**/*.ts",
-    "src/app/dashboard/hris/employee/employee_list/edit_employee",
-    "src/app/helpers/backend.js",
-    "src/app/dashboard/hris/employee/employee_list/queries.js",
-    ".next/dev/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "src/helpers/backend.js"
+, "app/(frontend)/(pages)/auth/_components/SignUp.tsx", "app/(frontend)/(pages)/auth/page.tsx", "app/(frontend)/(pages)/auth/_components/SignIn.tsx", "providers/Provider.jsx", "context/ProviderContext.js", "app/(frontend)/(pages)/demo/_components/TimePicker.js"  ],
+  "exclude": ["node_modules"]
 }
