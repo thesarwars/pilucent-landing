@@ -13,7 +13,7 @@ const stats = [
 	{ value: "$401", label: "Saved per month vs. the alternative stack" },
 	{ value: "6 hrs", label: "Average month-end close (was 4 days)" },
 	{ value: "1 Day", label: "Average time to go fully live" },
-	{ value: "5 to 1", label: "Tools replaced by Balanzify" },
+	{ value: "5 to 1", label: "Tools replaced by Pilucent" },
 ];
 
 const Collaboration = () => {

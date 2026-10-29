@@ -23,7 +23,7 @@ const Hero = () => {
 			contentMaxWidth="max-w-7xl"
 			titleClassName="text-[#F9F9F9] font-medium text-3xl sm:text-5xl lg:text-[66px] leading-tight sm:leading-snug lg:leading-[1.1] mt-2"
 			title={<>Snap a receipt. It&apos;s done.</>}
-			description="Employees photograph a receipt. Balanzify reads it, categorizes it, routes it for approval, and posts it to your books — all before they leave the parking lot. No spreadsheets. No expense reports. No 3-week reimbursement wait."
+			description="Employees photograph a receipt. Pilucent reads it, categorizes it, routes it for approval, and posts it to your books — all before they leave the parking lot. No spreadsheets. No expense reports. No 3-week reimbursement wait."
 			buttons={[
 				{ label: 'Get Started', href: '/auth?action=sign-up' },
 				{ label: 'See How it Works', href: '#how-it-works', variant: 'secondary' },

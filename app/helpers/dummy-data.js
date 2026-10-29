@@ -4,22 +4,22 @@ export const features = [
     slug: 'invoice',
     head: 'Invoice',
     title: 'Effortless Invoicing, Faster Payments Powered by AI',
-    description: `Say goodbye to manual invoicing and hello to smarter billing automation. Balanzify streamlines your invoicing process, ensuring quick payments, error-free transactions, and effortless financial management—so you can focus on growing your business.`,
+    description: `Say goodbye to manual invoicing and hello to smarter billing automation. Pilucent streamlines your invoicing process, ensuring quick payments, error-free transactions, and effortless financial management—so you can focus on growing your business.`,
     image: '/features/invoice.png',
     features: {
       main: {
         title: 'Add billable hours',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/invoice-total.png',
       },
       secondary_1: {
         title: 'Easily document management ',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/invoice-doc.png',
       },
       secondary_2: {
         title: 'Preview Invoice',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/invoice-save.png',
       },
     }
@@ -29,12 +29,12 @@ export const features = [
     slug: 'expense',
     head: 'Expense',
     title: 'Track Expenses Effortlessly No Spreadsheets, No Stress',
-    description: `Stop wasting time sorting receipts and tracking expenses manually. Balanzify’s AI-powered expense tracker simplifies financial management, giving you instant insights into your cash flow and profitability—so you can focus on growing your business.`,
+    description: `Stop wasting time sorting receipts and tracking expenses manually. Pilucent’s AI-powered expense tracker simplifies financial management, giving you instant insights into your cash flow and profitability—so you can focus on growing your business.`,
     image: '/features/expense.png',
     features: {
       main: {
         title: 'Purchase Order',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/purcahse.png', // Replace with the correct path
       },
       secondary_1: {
@@ -44,7 +44,7 @@ export const features = [
       },
       secondary_2: {
         title: 'Expense',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/expense.png', // Replace with the correct path
       },
     }
@@ -53,12 +53,12 @@ export const features = [
     slug: 'time-tracking',
     head: 'Time Tracking',
     title: 'Smart Time Tracking for Maximum Productivity',
-    description: `Make every second count with Balanzify’s AI-powered time tracking. Easily monitor time spent on projects and clients, then convert tracked hours into invoices with a single click—no extra effort, just seamless efficiency.`,
+    description: `Make every second count with Pilucent’s AI-powered time tracking. Easily monitor time spent on projects and clients, then convert tracked hours into invoices with a single click—no extra effort, just seamless efficiency.`,
     image: '/features/timetracker.png',
     features: {
       main: {
         title: 'Sleep Peacefully Knowing How Productive You Are',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/overview.png', // Replace with the correct path
       },
       secondary_1: {
@@ -77,12 +77,12 @@ export const features = [
     slug: 'payments',
     head: 'Payments',
     title: 'Fast, Secure Payments Get Paid Without the Hassle',
-    description: `No more chasing payments! Balanzify’s secure online payment system makes it easy for clients to pay instantly, helping you speed up cash flow and keep your business running smoothly.`,
+    description: `No more chasing payments! Pilucent’s secure online payment system makes it easy for clients to pay instantly, helping you speed up cash flow and keep your business running smoothly.`,
     image: '/features/payments.png',
     features: {
       main: {
         title: 'Purchase Order',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/purcahse.png', // Replace with the correct path
       },
       secondary_1: {
@@ -92,7 +92,7 @@ export const features = [
       },
       secondary_2: {
         title: 'Expense',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/expense.png', // Replace with the correct path
       },
     }
@@ -101,12 +101,12 @@ export const features = [
     slug: 'accounting',
     head: 'Accounting',
     title: 'Accounting That Works for You Without the Headaches',
-    description: `Managing your finances shouldn’t be complicated. Balanzify makes bookkeeping effortless, giving you clear insights into your business’s financial health—without the stress of spreadsheets or number crunching. Our AI-powered automation handles the heavy lifting, so you can focus on what matters most.`,
+    description: `Managing your finances shouldn’t be complicated. Pilucent makes bookkeeping effortless, giving you clear insights into your business’s financial health—without the stress of spreadsheets or number crunching. Our AI-powered automation handles the heavy lifting, so you can focus on what matters most.`,
     image: '/features/accounting.png',
     features: {
       main: {
         title: 'Managing Your Books Is Simple With Advanced Accounting',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/chart-of-accounts.png', // Replace with the correct path
       },
       secondary_1: {
@@ -116,7 +116,7 @@ export const features = [
       },
       secondary_2: {
         title: 'Accounting Report',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/balance-sheet.png', // Replace with the correct path
       },
     }
@@ -125,12 +125,12 @@ export const features = [
     slug: 'Reports',
     head: 'Reports',
     title: 'Smart Reports, Smarter Financial Decisions',
-    description: `Running a business doesn’t mean being tied to a desk. With the Balanzify Mobile App, you can manage your finances on the go—send invoices, track expenses, and check your accounts anytime, anywhere. Stay in control, stay connected, and keep your business moving forward with AI-powered smart reporting that gives you real-time insights and forecasts to help you make data-driven decisions.`,
+    description: `Running a business doesn’t mean being tied to a desk. With the Pilucent Mobile App, you can manage your finances on the go—send invoices, track expenses, and check your accounts anytime, anywhere. Stay in control, stay connected, and keep your business moving forward with AI-powered smart reporting that gives you real-time insights and forecasts to help you make data-driven decisions.`,
     image: '/features/accounting.png',
     features: {
       main: {
         title: 'Managing Your Books Is Simple With Advanced Accounting',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/chart-of-accounts.png', // Replace with the correct path
       },
       secondary_1: {
@@ -140,7 +140,7 @@ export const features = [
       },
       secondary_2: {
         title: 'Accounting Report',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/balance-sheet.png', // Replace with the correct path
       },
     }
@@ -149,7 +149,7 @@ export const features = [
     slug: 'payroll',
     head: 'Payroll',
     title: 'AI-Powered Payroll for a Happy Team',
-    description: `Paying your team shouldn’t be a hassle. With Balanzify’s AI-powered payroll system, you can process payroll in minutes—enjoy unlimited pay runs, automated tax calculations, and seamless compliance all in one place. Spend less time on payroll and more time keeping your team happy and productive.`,
+    description: `Paying your team shouldn’t be a hassle. With Pilucent’s AI-powered payroll system, you can process payroll in minutes—enjoy unlimited pay runs, automated tax calculations, and seamless compliance all in one place. Spend less time on payroll and more time keeping your team happy and productive.`,
     image: '/features/payroll.png',
     features: {
       main: {
@@ -164,7 +164,7 @@ export const features = [
       },
       secondary_2: {
         title: 'Payslip ',
-        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Balanzify. Let Balanzify follow-up with clients so you can focus your time on what matters most.`,
+        description: `From sending reminders to securely charging your client’s credit card, you can automate as much (or as little) of your business with Pilucent. Let Pilucent follow-up with clients so you can focus your time on what matters most.`,
         image: '/features/payslip.png', // Replace with the correct path
       },
     }

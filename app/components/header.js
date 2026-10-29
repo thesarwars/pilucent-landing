@@ -196,7 +196,7 @@ const Header = () => {
         <div className="flex items-center justify-between py-5">
           <div className="flex items-center gap-12 relative">
             <Link href="/">
-              <img src="/Frame_1.webp" alt="logo" className="h-auto max-w-36" />
+              <img src="/logo.png" alt="logo" className="h-auto max-w-36" />
             </Link>
             <p
               title="The beta version does not represent the final quality."

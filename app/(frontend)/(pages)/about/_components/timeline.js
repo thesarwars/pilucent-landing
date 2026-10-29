@@ -5,7 +5,7 @@ import AnimateOnScroll from '../../../../components/V2/AnimateOnScroll'
 const milestones = [
 	{
 		year: '2019',
-		title: 'Balanzify Founded',
+		title: 'Pilucent Founded',
 		description: 'Started with a simple belief—financial tools should work for businesses, not against them.',
 	},
 	{

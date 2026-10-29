@@ -49,7 +49,7 @@ const Comparison = () => {
 					<AnimateOnScroll delay={180}>
 						<p className="text-white/60 text-sm sm:text-base mt-3 max-w-xl mx-auto leading-relaxed">
 							We transform messy, inconsistent data from your old system into a clean,
-							verified, ready-to-use Balanzify setup.
+							verified, ready-to-use Pilucent setup.
 						</p>
 					</AnimateOnScroll>
 				</div>

@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import FeaturesTabs from "../../../components/V2/FeaturesTabs";
 
 export const metadata = {
-    title: "Features | Balanzify",
+    title: "Features | Pilucent",
     description:
         "Payroll, Tax, Accounting, HR, Employee Portal, Payments Infrastructure, and Reports — connected and unified in one platform.",
 };

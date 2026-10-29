@@ -51,9 +51,9 @@ const Footer = () => {
                         <div className="flex items-center gap-2 mb-6">
                             <Link href="/" className="flex items-center gap-2">
                                 <img
-                                    src="/Frame_1.webp"
-                                    alt="balanzify"
-                                    className="h-7 w-auto brightness-0 invert"
+                                    src="/logo.png"
+                                    alt="Pilucent"
+                                    className="h-12 w-auto brightness-0 invert"
                                 />
                             </Link>
 
@@ -123,7 +123,7 @@ const Footer = () => {
                 {/* Bottom bar */}
                 <div className="border-t border-[#FFFFFF33] py-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-                        <p className="text-[#F9F9F9] text-sm">© 2025 Balanzify Inc. All rights reserved.</p>
+                        <p className="text-[#F9F9F9] text-sm">© 2025 Pilucent Inc. All rights reserved.</p>
                         <p className="text-[#D1D1D6] text-sm">Built for operators. Trusted by growing teams.</p>
                     </div>
                 </div>

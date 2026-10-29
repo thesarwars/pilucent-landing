@@ -49,7 +49,7 @@ const Benefits = () => {
 
 					<AnimateOnScroll delay={100}>
 						<h2 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-[44px] font-semibold leading-tight">
-							Outcomes businesses see with Balanzify.
+							Outcomes businesses see with Pilucent.
 						</h2>
 					</AnimateOnScroll>
 				</div>

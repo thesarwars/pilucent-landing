@@ -5,7 +5,7 @@ import AnimateOnScroll from "./AnimateOnScroll";
 const reviews = [
   {
     rating: 5.0,
-    text: "Balanzify made our daily accounting process much easier. We can now track expenses, manage reports, and understand our financial position without feeling overwhelmed by complicated numbers.",
+    text: "Pilucent made our daily accounting process much easier. We can now track expenses, manage reports, and understand our financial position without feeling overwhelmed by complicated numbers.",
     author: "David Miller",
     role: "Small Business Owner",
     avatar: "/david.png",
@@ -19,7 +19,7 @@ const reviews = [
   },
   {
     rating: 5.0,
-    text: "Balanzify gives us better control over accounting and HR tasks. From reports to attendance and payroll, everything feels connected, organized, and easy to understand.",
+    text: "Pilucent gives us better control over accounting and HR tasks. From reports to attendance and payroll, everything feels connected, organized, and easy to understand.",
     author: "Daniel Brooks",
     role: "Finance Consultant",
     avatar: "/daniel.png",

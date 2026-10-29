@@ -83,7 +83,7 @@ const Pricing = () => {
           </AnimateOnScroll>
           <AnimateOnScroll delay={200}>
             <p className="text-white/60 text-sm sm:text-base lg:text-lg mt-5 sm:mt-6 max-w-2xl mx-auto leading-relaxed px-2">
-              The average growing business pays $800/mo across five disconnected tools. Balanzify does
+              The average growing business pays $800/mo across five disconnected tools. Pilucent does
               everything they do — for $399/mo. No per-module fees. No per-seat charges above your limit.
               Everything included.
             </p>

@@ -13,7 +13,7 @@ const Recommend = () => {
     const testimonials = [
         {
             rating: 5.0,
-            text: "Balanzify streamlined our payroll and accounting—it’s like having a full finance team for a fraction of the cost.",
+            text: "Pilucent streamlined our payroll and accounting—it’s like having a full finance team for a fraction of the cost.",
             author: 'Emily T.',
             role: 'CEO',
         },
@@ -25,7 +25,7 @@ const Recommend = () => {
         },
         {
             rating: 5.0,
-            text: "We cut accounting costs by 70% while getting even better financial insights—Balanzify is a game changer.",
+            text: "We cut accounting costs by 70% while getting even better financial insights—Pilucent is a game changer.",
             author: 'Mike L.',
             role: 'Founder',
         },
@@ -44,7 +44,7 @@ const Recommend = () => {
                         <div className="space-y-3">
                             <h3 className="text-3xl md:text-4xl font-bold">556hrs</h3>
                             <p className="text-[#7E84A3] text-sm md:text-base">
-                            Save up to 556 hours each year by using Balanzify
+                            Save up to 556 hours each year by using Pilucent
                             </p>
                         </div>
                         <div className="flex items-center justify-between mt-6">

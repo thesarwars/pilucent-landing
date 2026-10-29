@@ -24,7 +24,7 @@ const Cta = () => {
 							Your business deserves to feel this organized.
 						</h2>
 						<p className="text-white/80 text-sm sm:text-base leading-relaxed mb-7 sm:mb-9 max-w-xl mx-auto">
-							Join thousands of growing companies using Balanzify to run accounting, payroll, and
+							Join thousands of growing companies using Pilucent to run accounting, payroll, and
 							operations from one place. Start free—no card required.
 						</p>
 						<div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">

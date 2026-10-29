@@ -246,7 +246,7 @@ const SignUp = ({ setIsSignIn }: { setIsSignIn?: any }) => {
                 htmlFor="terms"
                 className="ml-2 block text-sm text-white/70 leading-relaxed"
               >
-                I confirm that I have read and agree to Balanzify{" "}
+                I confirm that I have read and agree to Pilucent{" "}
                 <Link
                   href="/privacy-policy"
                   className="text-[#A78BFA] hover:text-white transition-colors"

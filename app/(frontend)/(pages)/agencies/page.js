@@ -5,7 +5,7 @@ import Features from './_components/features'
 import CTA from './_components/cta'
 
 export const metadata = {
-	title: 'For Agencies | Balanzify',
+	title: 'For Agencies | Pilucent',
 	description:
 		'Manage teams, payroll, and finances across every client project. Streamline workforce management, payroll processing, expense tracking, and reporting from one platform.',
 }

@@ -27,13 +27,13 @@ const Quote = () => {
 							<p className="text-white/70 text-sm sm:text-base lg:text-sm font-medium leading-relaxed mb-6">
 								Most business software was built to solve one problem at a time. The result is a
 								patchwork of disconnected tools that business owners spend more time managing than
-								running their business. Balanzify was built differently, from the ground up as a single
+								running their business. Pilucent was built differently, from the ground up as a single
 								platform where accounting, payroll, HR, compliance, and payments share one data layer.
 								No re-entry, no reconciliation gaps, no system blame game.
 								<br />
 								<br />
 								For SMBs that want to operate with the precision of a larger company without hiring a
-								team to stitch software together, that is the difference Balanzify makes. When the
+								team to stitch software together, that is the difference Pilucent makes. When the
 								operational noise goes away, owners stop reacting and start leading, making faster
 								hiring decisions, catching margin leaks before they compound, and scaling without the
 								growing pains that stall most businesses at exactly the wrong moment.
@@ -41,7 +41,7 @@ const Quote = () => {
 							<p className="text-white font-semibold text-base sm:text-lg">Abdallah Aden</p>
 							<p className="text-white/60 text-sm font-medium">Founder &amp; CEO</p>
 							<p className="text-white/60 text-xs sm:text-sm mt-1">
-								Operations, accounting, or fintech. Specific experience that led to building Balanzify
+								Operations, accounting, or fintech. Specific experience that led to building Pilucent
 							</p>
 						</AnimateOnScroll>
 					</div>

@@ -98,7 +98,7 @@ const Benefits = () => {
 					</AnimateOnScroll>
 					<AnimateOnScroll delay={200}>
 						<p className="text-[#F9F9F9] opacity-60 text-xs sm:text-sm mt-4 sm:mt-5 leading-relaxed px-2">
-							We invest in the people who build Balanzify — with compensation, time, and support that
+							We invest in the people who build Pilucent — with compensation, time, and support that
 							let you do the best work of your career.
 						</p>
 					</AnimateOnScroll>

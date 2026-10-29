@@ -15,7 +15,7 @@ const Infrastructure = () => {
 						</h2>
 						<p className="text-[#F9F9F9] opacity-70 text-sm leading-relaxed mb-4 max-w-md">
 							Powerful finance tools used to be reserved for companies with big budgets and bigger
-							teams. We built Balanzify to change that—pairing automation with real-time insight so any
+							teams. We built Pilucent to change that—pairing automation with real-time insight so any
 							business can operate with the same precision as the largest enterprises.
 						</p>
 						<p className="text-[#F9F9F9] opacity-70 text-sm leading-relaxed max-w-md">
@@ -29,7 +29,7 @@ const Infrastructure = () => {
 						delay={150}
 						className="relative rounded-3xl overflow-hidden"
 					>
-						<img src="/V2/about_1.png" alt="The Balanzify team at work" className="w-full h-full object-cover" />
+						<img src="/V2/about_1.png" alt="The Pilucent team at work" className="w-full h-full object-cover" />
 						<div className="absolute inset-0 bg-gradient-to-t from-[#0B0919]/60 via-transparent to-transparent" />
 					</AnimateOnScroll>
 				</div>

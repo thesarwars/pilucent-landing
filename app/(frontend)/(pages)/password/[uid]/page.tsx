@@ -37,7 +37,7 @@ const PageContent = ({ uid }: { uid: string }) => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Set New Password</h2>
           <p className="text-gray-600 text-sm mt-2">
-            Try balanzify free for 30 days. No credit card required. Cancel
+            Try Pilucent free for 30 days. No credit card required. Cancel
             anytime.
           </p>
         </div>

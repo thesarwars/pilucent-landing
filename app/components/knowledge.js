@@ -23,11 +23,11 @@ const MarketingSection = () => {
 						<div className="md:w-1/2 bg-[#6366F1] p-8 md:p-12 flex flex-col justify-between">
 							<div>
 								<h2 className="text-4xl font-bold text-white mb-6">
-									Grow Stronger With <br /> Balanzify
+									Grow Stronger With <br /> Pilucent
 								</h2>
 
 								<p className="text-lg text-white/90 leading-relaxed mb-8">
-								Expand your potential with seamless integrations, AI-powered automation, and a thriving partner ecosystem. Whether you're an accounting professional, developer, or business owner, Balanzify offers the tools you need to scale effortlessly.
+								Expand your potential with seamless integrations, AI-powered automation, and a thriving partner ecosystem. Whether you're an accounting professional, developer, or business owner, Pilucent offers the tools you need to scale effortlessly.
 								</p>
 
 								<button
@@ -42,7 +42,7 @@ const MarketingSection = () => {
 							<div className="mt-12">
 								<div className="text-4xl font-bold text-white mb-2">5K+</div>
 								<div className="text-base text-white/90">
-									Businesses have partnered with Balanzify
+									Businesses have partnered with Pilucent
 								</div>
 							</div>
 						</div>

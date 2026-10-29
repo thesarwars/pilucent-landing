@@ -87,7 +87,7 @@ export const FEATURE_TABS = [
         "Real-Time Payments (RTP) for same-day payouts",
         "Push-to-card for instant contractor payments",
         "Payment status tracking with reconciliation",
-        "Balanzify operates as a payment facilitator — not a reseller",
+        "Pilucent operates as a payment facilitator — not a reseller",
     ],
     },
     {
@@ -116,7 +116,7 @@ const INTEGRATIONS = [
     // {
     //     name: "Moov Financial",
     //     description:
-    //         "ACH, RTP, and card payment processing. Balanzify operates as a payment facilitator — not a marketplace. Full control over payment flow and settlement timing.",
+    //         "ACH, RTP, and card payment processing. Pilucent operates as a payment facilitator — not a marketplace. Full control over payment flow and settlement timing.",
     // },
     // {
     //     name: "TaxBandits",
@@ -161,7 +161,7 @@ const featurersTabs = () => {
                         <br className="hidden sm:block" /> running your business.
                     </h1>
                     <p className="text-white/70 text-sm sm:text-base mt-4 sm:mt-6 max-w-2xl mx-auto leading-relaxed animate-fade-in-up [animation-delay:150ms]">
-                        Balanzify replaces the five-tool patchwork most growing
+                        Pilucent replaces the five-tool patchwork most growing
                         businesses run on. Finance, People, and Operations —
                         connected, unified, at half the price of running them
                         separately.

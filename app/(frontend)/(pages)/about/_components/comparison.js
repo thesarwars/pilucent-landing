@@ -12,7 +12,7 @@ const Comparison = () => {
 						animation="animate-fade-in-left"
 						className="relative rounded-3xl overflow-hidden order-2 lg:order-1"
 					>
-						<img src="/V2/about_2.png" alt="Balanzify dashboard in use" className="w-full h-full object-cover" />
+						<img src="/V2/about_2.png" alt="Pilucent dashboard in use" className="w-full h-full object-cover" />
 						<div className="absolute inset-0 bg-gradient-to-t from-[#0B0919]/60 via-transparent to-transparent" />
 					</AnimateOnScroll>
 

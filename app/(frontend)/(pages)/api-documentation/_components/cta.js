@@ -19,7 +19,7 @@ const CTA = () => {
 						}}
 					>
 						<h2 className="text-[#F9F9F9] font-medium text-2xl sm:text-3xl lg:text-[40px] leading-tight mb-8 max-w-2xl mx-auto">
-							Build powerful integrations with Balanzify&apos;s flexible API ecosystem.
+							Build powerful integrations with Pilucent&apos;s flexible API ecosystem.
 						</h2>
 						<div className="flex flex-col sm:flex-row items-center justify-center gap-3">
 							<button

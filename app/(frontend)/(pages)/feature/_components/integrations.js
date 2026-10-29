@@ -27,7 +27,7 @@ const Integrations = () => {
 					</AnimateOnScroll>
 					<AnimateOnScroll delay={180}>
 						<p className="text-white/60 text-sm sm:text-base mt-3 max-w-xl mx-auto leading-relaxed">
-							Connect your banks, payment processors, and favorite apps. Balanzify fits
+							Connect your banks, payment processors, and favorite apps. Pilucent fits
 							into your stack instead of forcing you to rebuild it.
 						</p>
 					</AnimateOnScroll>

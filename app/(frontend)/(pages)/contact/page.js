@@ -88,7 +88,7 @@ const Contact = () => {
 						<GradientBadge>Contact Us</GradientBadge>
 					</div>
 					<h1 className="text-[#F9F9F9] font-medium text-3xl sm:text-5xl lg:text-[64px] leading-tight sm:leading-snug lg:leading-[1.1] max-w-3xl mx-auto animate-fade-in-up [animation-delay:100ms]">
-						Want to Talk to Sales <br className="hidden sm:block" /> About Balanzify?
+						Want to Talk to Sales <br className="hidden sm:block" /> About Pilucent?
 					</h1>
 					<p className="text-white/70 text-sm sm:text-base lg:text-lg mt-5 sm:mt-6 max-w-2xl mx-auto leading-relaxed px-2 animate-fade-in-up [animation-delay:200ms]">
 						Our team is ready to help you simplify accounting, payroll, and operations—reach out and we

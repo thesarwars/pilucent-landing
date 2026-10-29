@@ -14,7 +14,7 @@ const Analysis = () => {
                             <div className="space-y-3 lg:mt-24">
                                 <h3 className="text-4xl font-bold text-white">5+</h3>
                                 <p className="text-white text-lg leading-relaxed">
-									People in over 5 Countries Have used Balanzify
+									People in over 5 Countries Have used Pilucent
                                 </p>
                             </div>
                         </div>
@@ -27,7 +27,7 @@ const Analysis = () => {
                             <div className="space-y-3">
                                 <h3 className="text-4xl font-bold text-gray-900">5 Thousands</h3>
                                 <p className="text-gray-600 text-lg">
-                                    5K small businesses have been using Balanzify
+                                    5K small businesses have been using Pilucent
                                 </p>
                             </div>
                         </div>
@@ -48,7 +48,7 @@ const Analysis = () => {
                         <div className="rounded-3xl overflow-hidden h-full relative">
                             <Image
                                 src="/image2.png"
-                                alt="Professional using Balanzify"
+                                alt="Professional using Pilucent"
                                 width={500}
                                 height={500}
                                 className="rounded-3xl"

@@ -8,7 +8,7 @@ const LeftSection = () => {
         Save up to $8,000 a year in billable hours
       </h1>
       <p className="text-white/70 text-sm sm:text-base leading-relaxed max-w-md">
-        Balanzify is preferred by business owners, their teams, and
+        Pilucent is preferred by business owners, their teams, and
         accountants.
       </p>
 
@@ -31,9 +31,9 @@ const LeftSection = () => {
 
       <div className="pt-6 border-t border-white/10 animate-fade-in-up [animation-delay:450ms]">
         <p className="text-white/70 text-sm leading-relaxed mb-4 italic">
-          "Balanzify helped tremendously with cash flow. We've collected on our
+          "Pilucent helped tremendously with cash flow. We've collected on our
           accounts receivable at a higher percentage than we ever had before. A
-          lot of our clients have responded well to Balanzify."
+          lot of our clients have responded well to Pilucent."
         </p>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center overflow-hidden">

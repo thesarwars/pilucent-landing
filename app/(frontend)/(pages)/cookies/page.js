@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "Cookie Policy | Balanzify",
+  title: "Cookie Policy | Pilucent",
   description:
-	"Balanzify Cookie Policy — how we use cookies and similar technologies across our platform.",
+	"Pilucent Cookie Policy — how we use cookies and similar technologies across our platform.",
 };
 
 export default function CookiePage() {

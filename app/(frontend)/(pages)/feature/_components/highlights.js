@@ -44,7 +44,7 @@ const SECTION_GROUPS = [
         eyebrowIcon: 'ti-receipt',
         title: 'Get paid faster. Stay on top of cash flow. Every time.',
         description:
-          'Send professional invoices, accept online payments, and let Balanzify chase overdue accounts — so cash hits your account faster without extra admin.',
+          'Send professional invoices, accept online payments, and let Pilucent chase overdue accounts — so cash hits your account faster without extra admin.',
         points: [
           'Professional invoices with your branding',
           'Automatic payment reminders and follow-ups',

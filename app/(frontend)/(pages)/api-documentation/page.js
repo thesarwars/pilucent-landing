@@ -5,9 +5,9 @@ import Features from './_components/features'
 import CTA from './_components/cta'
 
 export const metadata = {
-	title: 'API Documentation | Balanzify',
+	title: 'API Documentation | Pilucent',
 	description:
-		'Integrate Balanzify with your existing business systems. Developer-friendly documentation to connect payroll, HR, accounting, and operations with your preferred tools.',
+		'Integrate Pilucent with your existing business systems. Developer-friendly documentation to connect payroll, HR, accounting, and operations with your preferred tools.',
 }
 
 const Page = () => {

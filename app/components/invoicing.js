@@ -21,7 +21,7 @@ const Invoicing = () => {
 						<h2 className="text-xl md:text-3xl font-bold text-[#131523] text-center md:text-left">
 							More Reason To
 							<br className="hidden sm:block" />
-							Love Balanzify
+							Love Pilucent
 						</h2>
 						<div className="flex space-x-3">
 							<button

@@ -7,9 +7,9 @@ import Showcase from './_components/showcase'
 import Capture from "./_components/capture"
 
 export const metadata = {
-	title: 'Snap Expense | Balanzify',
+	title: 'Snap Expense | Pilucent',
 	description:
-		'Snap a receipt, and Balanzify logs it instantly. AI-powered expense tracking that reads, categorizes, and syncs every receipt to your ledger in seconds.',
+		'Snap a receipt, and Pilucent logs it instantly. AI-powered expense tracking that reads, categorizes, and syncs every receipt to your ledger in seconds.',
 }
 
 const SnapExpensePage = () => {

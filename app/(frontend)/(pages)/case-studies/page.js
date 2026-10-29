@@ -5,9 +5,9 @@ import Features from './_components/features'
 import CTA from './_components/cta'
 
 export const metadata = {
-	title: 'Case Studies | Balanzify',
+	title: 'Case Studies | Pilucent',
 	description:
-		'See how businesses streamline operations with Balanzify. Discover how organizations improve payroll accuracy, increase efficiency, and gain greater control.',
+		'See how businesses streamline operations with Pilucent. Discover how organizations improve payroll accuracy, increase efficiency, and gain greater control.',
 }
 
 const Page = () => {

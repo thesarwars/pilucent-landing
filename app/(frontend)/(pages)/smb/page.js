@@ -5,7 +5,7 @@ import Features from './_components/features'
 import CTA from './_components/cta'
 
 export const metadata = {
-	title: 'For SMBs | Balanzify',
+	title: 'For SMBs | Pilucent',
 	description:
 		'Accounting, payroll, and business operations simplified for growing SMBs. Manage finances, employees, payroll, taxes, and daily operations from one unified platform.',
 }

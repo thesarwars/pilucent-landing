@@ -5,9 +5,9 @@ import Features from './_components/features'
 import CTA from './_components/cta'
 
 export const metadata = {
-	title: 'Help Center | Balanzify',
+	title: 'Help Center | Pilucent',
 	description:
-		'Get the help you need, when you need it. Find answers, learn platform features, and access step-by-step guidance to make the most of Balanzify.',
+		'Get the help you need, when you need it. Find answers, learn platform features, and access step-by-step guidance to make the most of Pilucent.',
 }
 
 const Page = () => {

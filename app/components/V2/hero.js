@@ -64,7 +64,7 @@ const HeroV2 = () => {
 				<div className="mt-8 sm:mt-12 lg:mt-16 pb-10 sm:pb-16 lg:pb-24 max-w-6xl mx-auto relative animate-fade-in [animation-delay:500ms]">
 					<Image
 						src="/V2/based.png"
-						alt="Balanzify dashboard preview"
+						alt="Pilucent dashboard preview"
 						width={1400}
 						height={820}
 						priority

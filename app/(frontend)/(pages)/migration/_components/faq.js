@@ -106,7 +106,7 @@ const Faq = () => {
 							Migration Ask Question
 						</h2>
 						<p className="text-white/50 text-sm leading-relaxed mt-4">
-							Everything you need to know before switching to Balanzify.
+							Everything you need to know before switching to Pilucent.
 						</p>
 					</AnimateOnScroll>
 

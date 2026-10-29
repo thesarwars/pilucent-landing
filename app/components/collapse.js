@@ -10,24 +10,24 @@ const CollapsibleSections = () => {
     // Sample data
     const sections = [
         {
-            title: "What is Balanzify’s main purpose?",
+            title: "What is Pilucent’s main purpose?",
             content:
-                "Balanzify's main purpose is to simplify financial management by offering tools for tracking, reporting, and organization.",
+                "Pilucent's main purpose is to simplify financial management by offering tools for tracking, reporting, and organization.",
         },
         {
-            title: "Can Balanzify assist with tax preparation?",
+            title: "Can Pilucent assist with tax preparation?",
             content:
-                "Yes, Balanzify streamlines tax preparation by tracking expenses, organizing receipts, and generating accurate financial reports effortlessly.",
+                "Yes, Pilucent streamlines tax preparation by tracking expenses, organizing receipts, and generating accurate financial reports effortlessly.",
         },
         {
-            title: "Does Balanzify offer invoice tracking features?",
+            title: "Does Pilucent offer invoice tracking features?",
             content:
-                "AYes, Balanzify provides efficient invoice tracking, enabling businesses to manage billing, monitor payments, and maintain financial accuracy.",
+                "AYes, Pilucent provides efficient invoice tracking, enabling businesses to manage billing, monitor payments, and maintain financial accuracy.",
         },
         {
-            title: "Is Balanzify suitable for small businesses?",
+            title: "Is Pilucent suitable for small businesses?",
             content:
-                "Yes, Balanzify is specifically designed to meet small businesses' needs, offering simple, effective tools for managing finances efficiently.",
+                "Yes, Pilucent is specifically designed to meet small businesses' needs, offering simple, effective tools for managing finances efficiently.",
         },
     ];
 

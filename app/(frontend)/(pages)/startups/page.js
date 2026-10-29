@@ -5,7 +5,7 @@ import Features from './_components/features'
 import CTA from './_components/cta'
 
 export const metadata = {
-	title: 'For Startups | Balanzify',
+	title: 'For Startups | Pilucent',
 	description:
 		'Built for fast-moving startups. Streamline payroll, finance, and operations from your first hire to your growing team — without adding complexity.',
 }

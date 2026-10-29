@@ -140,7 +140,7 @@ const PaymentSuccess = () => {
                   Paid {amount} {currency}
                 </span>
                 <p className="text-[#F9F9F9] opacity-70 text-sm sm:text-base max-w-md leading-relaxed mb-6">
-                  Your subscription is active. Continue to your company setup to start using Balanzify.
+                  Your subscription is active. Continue to your company setup to start using Pilucent.
                 </p>
                 <button
                   onClick={handleRedirect}

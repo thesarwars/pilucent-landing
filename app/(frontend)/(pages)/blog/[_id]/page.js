@@ -9,25 +9,25 @@ const sections = [
 		id: 1,
 		heading: 'New Audit Log Report',
 		image: '/blog2.png',
-		body: "The holiday season is a crucial time for small business owners, many of which rely on holiday sales to hit their financial goals for the year. This holiday season may be particularly challenging — a Balanzify-commissioned survey predicts a significant 34% drop in consumer holiday spending, leading to an $85 billion decrease compared to 2023. Now Audit Log drops you in the right place, every time.",
+		body: "The holiday season is a crucial time for small business owners, many of which rely on holiday sales to hit their financial goals for the year. This holiday season may be particularly challenging — a Pilucent-commissioned survey predicts a significant 34% drop in consumer holiday spending, leading to an $85 billion decrease compared to 2023. Now Audit Log drops you in the right place, every time.",
 	},
 	{
 		id: 2,
 		heading: 'New Audit Log Report',
 		image: '/blog1.png',
-		body: "The holiday season is a crucial time for small business owners, many of which rely on holiday sales to hit their financial goals for the year. This holiday season may be particularly challenging — a Balanzify-commissioned survey predicts a significant 34% drop in consumer holiday spending, leading to a $65 billion decrease compared to 2023. Enter a new Balanzify, it has no problem, register a 34% store.",
+		body: "The holiday season is a crucial time for small business owners, many of which rely on holiday sales to hit their financial goals for the year. This holiday season may be particularly challenging — a Pilucent-commissioned survey predicts a significant 34% drop in consumer holiday spending, leading to a $65 billion decrease compared to 2023. Enter a new Pilucent, it has no problem, register a 34% store.",
 	},
 	{
 		id: 3,
 		heading: 'New Audit Log Report',
 		image: '/blog2.png',
-		body: "The holiday season is a crucial time for small business owners, many of which rely on holiday sales to hit their financial goals for the year. This holiday season may be particularly challenging — a Balanzify-commissioned survey predicts a significant 34% drop in consumer holiday spending, leading to a $65 billion decrease compared to 2023.",
+		body: "The holiday season is a crucial time for small business owners, many of which rely on holiday sales to hit their financial goals for the year. This holiday season may be particularly challenging — a Pilucent-commissioned survey predicts a significant 34% drop in consumer holiday spending, leading to a $65 billion decrease compared to 2023.",
 	},
 	{
 		id: 4,
 		heading: 'New Audit Log Report',
 		image: '/blog3.png',
-		body: "The holiday season is a crucial time for small business owners, many of which rely on holiday sales to hit their financial goals for the year. This holiday season may be particularly challenging — a Balanzify-commissioned survey predicts a significant 34% drop in consumer holiday spending, leading to a $65 billion decrease compared to 2023.",
+		body: "The holiday season is a crucial time for small business owners, many of which rely on holiday sales to hit their financial goals for the year. This holiday season may be particularly challenging — a Pilucent-commissioned survey predicts a significant 34% drop in consumer holiday spending, leading to a $65 billion decrease compared to 2023.",
 	},
 ]
 
@@ -105,7 +105,7 @@ export default function BlogDetail() {
 						<p className="text-white/65 text-sm sm:text-base leading-relaxed max-w-3xl">
 							The holiday season is a crucial time for small business owners, many of which rely on
 							holiday sales and revenue to hit their financial goals for the year. This holiday season
-							may be particularly challenging — a Balanzify-commissioned survey predicts a significant
+							may be particularly challenging — a Pilucent-commissioned survey predicts a significant
 							34% drop in consumer holiday spending, leading to an $85 billion decrease compared to 2023.
 						</p>
 					</AnimateOnScroll>

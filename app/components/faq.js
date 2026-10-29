@@ -10,24 +10,24 @@ const Faq = () => {
 
     const faqItems = [
         {
-            question: "What do I get in my 30-day free trial of Balanzify?",
-            answer: "During your free trial, you gain full access to all Balanzify features, including AI-driven invoicing, automated bookkeeping, and real-time financial insights. Experience how Balanzify can transform your accounting processes before committing."
+            question: "What do I get in my 30-day free trial of Pilucent?",
+            answer: "During your free trial, you gain full access to all Pilucent features, including AI-driven invoicing, automated bookkeeping, and real-time financial insights. Experience how Pilucent can transform your accounting processes before committing."
         },
         {
-            question: "Which Balanzify plan is right for me?",
-            answer: "Balanzify offers different plans tailored to freelancers, small businesses, and enterprises. Our AI-powered recommendations help you select the best plan based on your accounting needs and business size."
+            question: "Which Pilucent plan is right for me?",
+            answer: "Pilucent offers different plans tailored to freelancers, small businesses, and enterprises. Our AI-powered recommendations help you select the best plan based on your accounting needs and business size."
         },
         {
             question: "What is AI-driven accounting software?",
             answer: "AI-driven accounting software leverages artificial intelligence to automate tasks such as expense tracking, invoice generation, and tax calculations, improving efficiency and accuracy while reducing manual work."
         },
         {
-            question: "How does Balanzify automate financial management?",
-            answer: "Balanzify uses AI to categorize expenses, auto-generate reports, and detect financial trends, saving you time and effort. With intelligent automation, you can focus on growing your business while Balanzify handles the numbers."
+            question: "How does Pilucent automate financial management?",
+            answer: "Pilucent uses AI to categorize expenses, auto-generate reports, and detect financial trends, saving you time and effort. With intelligent automation, you can focus on growing your business while Pilucent handles the numbers."
         },
         {
-            question: "Can I use Balanzify across multiple devices?",
-            answer: "Yes! Balanzify is a cloud-based platform accessible on desktops, tablets, and mobile devices. Your financial data syncs in real time, ensuring you can manage your business finances anytime, anywhere."
+            question: "Can I use Pilucent across multiple devices?",
+            answer: "Yes! Pilucent is a cloud-based platform accessible on desktops, tablets, and mobile devices. Your financial data syncs in real time, ensuring you can manage your business finances anytime, anywhere."
         },
     ];
 

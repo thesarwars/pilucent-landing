@@ -14,7 +14,7 @@ const steps = [
 		number: '02',
 		title: 'A specialist joins your call.',
 		description:
-			'A real Balanzify team member joins you on a video call. They have done this hundreds of times. You are in good hands from minute one.',
+			'A real Pilucent team member joins you on a video call. They have done this hundreds of times. You are in good hands from minute one.',
 	},
 	{
 		number: '03',
@@ -32,7 +32,7 @@ const steps = [
 		number: '05',
 		title: 'You are live. Same afternoon.',
 		description:
-			'Your team gets access. Payroll is configured. Bank feeds are connected. You run your first report and see your real business data — in Balanzify, not in five tabs.',
+			'Your team gets access. Payroll is configured. Bank feeds are connected. You run your first report and see your real business data — in Pilucent, not in five tabs.',
 	},
 ]
 

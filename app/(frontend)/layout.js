@@ -8,9 +8,9 @@ import { inter, manrope, plusJakarta } from "../helpers/font";
 import HeaderV2 from "../components/V2/header";
 
 export const metadata = {
-  title: "Balanzify",
+  title: "Pilucent",
   description:
-    "balanzify is a software development company that specializes in building web and mobile applications.",
+    "Pilucent is a software development company that specializes in building web and mobile applications.",
 };
 
 export default function RootLayout({ children }) {

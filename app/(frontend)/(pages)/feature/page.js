@@ -5,7 +5,7 @@ import Principles from './_components/principles'
 import Integrations from './_components/integrations'
 
 export const metadata = {
-	title: 'Features | Balanzify',
+	title: 'Features | Pilucent',
 	description:
 		'Accounting, payroll, HR, sales, and inventory in one platform. See your real numbers in real time and run your whole business without switching tabs.',
 }

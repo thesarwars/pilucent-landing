@@ -7,7 +7,7 @@ const sections = [
         badge: 'Finance',
         heading: 'Close your books in hours, not days.',
         description:
-            'Before Balanzify, month-end took 4 days across 2 weeks. After, under 8 hours, with books that reconcile automatically.',
+            'Before Pilucent, month-end took 4 days across 2 weeks. After, under 8 hours, with books that reconcile automatically.',
         cards: [
             {
                 number: '01.',
@@ -51,7 +51,7 @@ const sections = [
                 number: '03.',
                 title: 'Snap a receipt. Done.',
                 description:
-                    'Employees photograph receipts. Balanzify reads, categorizes, routes for approval, and posts to books.',
+                    'Employees photograph receipts. Pilucent reads, categorizes, routes for approval, and posts to books.',
             },
         ],
     },

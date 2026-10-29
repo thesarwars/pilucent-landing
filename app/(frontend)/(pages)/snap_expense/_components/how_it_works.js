@@ -8,7 +8,7 @@ const steps = [
 		number: '01',
 		title: 'Snap the Receipt',
 		description:
-			'Employee opens the Balanzify mobile app and photographs the receipt. Also works with email forwarding and PDF upload.',
+			'Employee opens the Pilucent mobile app and photographs the receipt. Also works with email forwarding and PDF upload.',
 	},
 	{
 		number: '02',

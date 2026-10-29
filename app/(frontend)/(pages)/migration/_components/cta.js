@@ -24,7 +24,7 @@ const Cta = () => {
 							Your business deserves to feel this organized.
 						</h2>
 						<p className="text-white/80 text-sm sm:text-base leading-relaxed mb-7 sm:mb-9 max-w-xl mx-auto">
-							Switch to Balanzify today. Your data migrated free, your team up and running in
+							Switch to Pilucent today. Your data migrated free, your team up and running in
 							an afternoon. No card required to start.
 						</p>
 						<div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">

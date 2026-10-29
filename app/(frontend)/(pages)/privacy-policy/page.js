@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy Policy | Balanzify",
+  title: "Privacy Policy | Pilucent",
   description:
-    "Balanzify Privacy Policy — how we collect, use, store, and share information when you use our accounting, payroll, and financial management platform.",
+    "Pilucent Privacy Policy — how we collect, use, store, and share information when you use our accounting, payroll, and financial management platform.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -38,7 +38,7 @@ export default function PrivacyPolicyPage() {
             <strong>Effective Date:</strong> March 19, 2026
           </p>
           <p className="text-[#F9F9F9]/75 leading-relaxed mb-10">
-            Balanzify ("we," "our," or "us") is committed to protecting the privacy and security of your data. This Privacy Policy explains how we collect, use, store, and share information when you use our accounting, payroll, and financial management platform.
+            Pilucent ("we," "our," or "us") is committed to protecting the privacy and security of your data. This Privacy Policy explains how we collect, use, store, and share information when you use our accounting, payroll, and financial management platform.
           </p>
 
           <hr className="border-white/10 my-8" />
@@ -102,7 +102,7 @@ export default function PrivacyPolicyPage() {
               We use collected data to:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-[#F9F9F9]/75">
-              <li>Provide and operate Balanzify services</li>
+              <li>Provide and operate Pilucent services</li>
               <li>Process financial data and generate reports</li>
               <li>Enable payroll processing and compliance features</li>
               <li>Synchronize bank transactions and categorize financial data</li>
@@ -241,7 +241,7 @@ export default function PrivacyPolicyPage() {
               Cookies and Tracking
             </h2>
             <p className="text-[#F9F9F9]/75 leading-relaxed mb-4">
-              Balanzify uses cookies and similar technologies to:
+              Pilucent uses cookies and similar technologies to:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-[#F9F9F9]/75 mb-4">
               <li>Maintain session security</li>

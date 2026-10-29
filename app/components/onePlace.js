@@ -11,10 +11,10 @@ const OnePlace = () => {
                     <div className='space-y-4'>
                         <div className="">
                             <h1 className="text-[44px] font-semibold mb-2 font-sfPro">
-                                Why Businesses Choose Balanzify ?
+                                Why Businesses Choose Pilucent ?
                             </h1>
                             <p className="text-base font-medium text-[#A1A7C4]">
-                            Balanzify simplifies financial management with AI-driven automation. It streamlines payroll, tax filing, and compliance while handling accounting tasks like reconciliations and expense tracking. Gain valuable cash flow insights, optimize expenses, and prevent financial risks effortlessly. Plus, automate inventory, fraud detection, and workforce management—all in one seamless, intelligent platform.
+                            Pilucent simplifies financial management with AI-driven automation. It streamlines payroll, tax filing, and compliance while handling accounting tasks like reconciliations and expense tracking. Gain valuable cash flow insights, optimize expenses, and prevent financial risks effortlessly. Plus, automate inventory, fraud detection, and workforce management—all in one seamless, intelligent platform.
                             </p>
                         </div>
                         <div className="bg-[#D3D5FF] p-6 rounded-3xl">

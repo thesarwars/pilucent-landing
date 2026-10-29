@@ -25,7 +25,7 @@ const Cta = () => {
 						</h2>
 						<p className="text-white/80 text-sm sm:text-base leading-relaxed mb-7 sm:mb-9 max-w-xl mx-auto">
 							Start snapping expenses today. No manual entry, no lost receipts, no
-							end-of-month panic. Try Balanzify free — no card required.
+							end-of-month panic. Try Pilucent free — no card required.
 						</p>
 						<div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
 							<button

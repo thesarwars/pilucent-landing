@@ -52,7 +52,7 @@ const features = [
 		),
 		title: 'Access Controls',
 		description:
-			'Role-based access control across the entire platform. Principle of least privilege enforced for all internal systems. No Balanzify employee can access your data without an explicit, time-limited, audited authorization.',
+			'Role-based access control across the entire platform. Principle of least privilege enforced for all internal systems. No Pilucent employee can access your data without an explicit, time-limited, audited authorization.',
 	},
 	{
 		icon: icon(

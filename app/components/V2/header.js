@@ -55,9 +55,9 @@ const HeaderV2 = () => {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
                         <img
-                            src="/Frame_1.webp"
-                            alt="balanzify"
-                            className="h-7 w-auto brightness-0 invert"
+                            src="/logo.png"
+                            alt="Pilucent"
+                            className="h-12 w-auto brightness-0 invert"
                         />
                     </Link>
 

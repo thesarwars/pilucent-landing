@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Data Retention and Deletion Policy | Balanzify",
+  title: "Data Retention and Deletion Policy | Pilucent",
   description:
-    "Balanzify Data Retention and Deletion Policy — how we retain, manage, and securely delete data across our accounting, payroll, and financial management platform.",
+    "Pilucent Data Retention and Deletion Policy — how we retain, manage, and securely delete data across our accounting, payroll, and financial management platform.",
 };
 
 export default function DataRetentionPolicyPage() {
@@ -35,7 +35,7 @@ export default function DataRetentionPolicyPage() {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           <p className="text-[#F9F9F9]/75 leading-relaxed mt-10">
-            Balanzify (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) maintains this Data
+            Pilucent (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) maintains this Data
             Retention and Deletion Policy to define how data is retained, managed,
             and securely deleted across our accounting, payroll, and financial
             management platform, in alignment with business needs and applicable
@@ -50,7 +50,7 @@ export default function DataRetentionPolicyPage() {
               This policy establishes guidelines for:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-[#F9F9F9]/75">
-              <li>Retaining data only as long as necessary to deliver Balanzify services</li>
+              <li>Retaining data only as long as necessary to deliver Pilucent services</li>
               <li>Protecting sensitive financial and operational data throughout its lifecycle</li>
               <li>Ensuring secure and compliant deletion of data when no longer required</li>
             </ul>
@@ -59,7 +59,7 @@ export default function DataRetentionPolicyPage() {
           <section className="mb-10">
             <h2 className="text-xl font-bold text-[#F9F9F9] mb-4">2. Scope</h2>
             <p className="text-[#F9F9F9]/75 leading-relaxed mb-4">
-              This policy applies to all data processed within Balanzify, including:
+              This policy applies to all data processed within Pilucent, including:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-[#F9F9F9]/75">
               <li>Customer and organization account data</li>
@@ -76,7 +76,7 @@ export default function DataRetentionPolicyPage() {
               3. Data Retention Principles
             </h2>
             <p className="text-[#F9F9F9]/75 leading-relaxed mb-4">
-              Balanzify follows these principles:
+              Pilucent follows these principles:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-[#F9F9F9]/75">
               <li>Data is retained based on business necessity and service delivery requirements</li>
@@ -91,7 +91,7 @@ export default function DataRetentionPolicyPage() {
               4. Retention Periods
             </h2>
             <p className="text-[#F9F9F9]/75 leading-relaxed mb-6">
-              Balanzify retains data based on the following guidelines:
+              Pilucent retains data based on the following guidelines:
             </p>
 
             <div className="space-y-6">
@@ -151,7 +151,7 @@ export default function DataRetentionPolicyPage() {
               5. Data Deletion
             </h2>
             <p className="text-[#F9F9F9]/75 leading-relaxed mb-4">
-              Balanzify implements structured and secure deletion processes:
+              Pilucent implements structured and secure deletion processes:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-[#F9F9F9]/75">
               <li>Data is deleted or anonymized when no longer required for operational or legal purposes</li>
@@ -165,7 +165,7 @@ export default function DataRetentionPolicyPage() {
           <section className="mb-10">
             <h2 className="text-xl font-bold text-[#F9F9F9] mb-4">6. User Rights</h2>
             <p className="text-[#F9F9F9]/75 leading-relaxed mb-4">
-              Balanzify supports user data rights, including:
+              Pilucent supports user data rights, including:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-[#F9F9F9]/75 mb-4">
               <li>Access your personal data</li>
@@ -188,7 +188,7 @@ export default function DataRetentionPolicyPage() {
               7. Security Controls
             </h2>
             <p className="text-[#F9F9F9]/75 leading-relaxed mb-4">
-              To protect retained data, Balanzify enforces:
+              To protect retained data, Pilucent enforces:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-[#F9F9F9]/75">
               <li>Encryption in transit (TLS 1.2 or higher)</li>
@@ -203,7 +203,7 @@ export default function DataRetentionPolicyPage() {
               8. Policy Review
             </h2>
             <p className="text-[#F9F9F9]/75 leading-relaxed">
-              This policy is reviewed periodically and updated as Balanzify's systems, infrastructure, and regulatory obligations evolve.
+              This policy is reviewed periodically and updated as Pilucent's systems, infrastructure, and regulatory obligations evolve.
             </p>
           </section>
 
@@ -212,7 +212,7 @@ export default function DataRetentionPolicyPage() {
               9. Compliance and Enforcement
             </h2>
             <p className="text-[#F9F9F9]/75 leading-relaxed">
-              Balanzify is committed to maintaining compliance with applicable data
+              Pilucent is committed to maintaining compliance with applicable data
               protection, financial, and privacy regulations. This policy is
               continuously refined as part of our broader compliance and governance
               program.

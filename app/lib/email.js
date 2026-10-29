@@ -4,7 +4,7 @@
 const RESEND_ENDPOINT = 'https://api.resend.com/emails'
 
 const API_KEY = process.env.EMAIL_HOST_PASSWORD
-const FROM_NAME = 'Balanzify'
+const FROM_NAME = 'Pilucent'
 const FROM_ADDRESS = process.env.DEFAULT_HOST_USER || 'support@balanzify.com'
 const FROM = `${FROM_NAME} <${FROM_ADDRESS}>`
 

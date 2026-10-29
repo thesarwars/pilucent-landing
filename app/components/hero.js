@@ -43,7 +43,7 @@ const Hero = () => {
                                         <span className='header_2'>With Confidence</span>
                                     </h1>
                                     <p className="text-[#595959] paragraph_2 text-base sm:text-lg lg:text-xl sm:max-w-[80%]">
-                                        Gain Financial Clarity With Balanzify's Tools For Tracking Expenses,
+                                        Gain Financial Clarity With Pilucent's Tools For Tracking Expenses,
                                         Managing Payments, And Creating Detailed Reports Effortlessly And
                                         Accurately.
                                     </p>

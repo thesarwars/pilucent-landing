@@ -24,7 +24,7 @@ const Operation = () => {
 				{/* Header */}
 				<div className="text-center mb-10 sm:mb-12">
 					<AnimateOnScroll>
-						<GradientBadge>Why Businesses Choose Balanzify</GradientBadge>
+						<GradientBadge>Why Businesses Choose Pilucent</GradientBadge>
 					</AnimateOnScroll>
 					<AnimateOnScroll delay={100}>
 						<h2 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight mb-3">
@@ -33,7 +33,7 @@ const Operation = () => {
 					</AnimateOnScroll>
 					<AnimateOnScroll delay={150}>
 						<p className="text-white/50 text-sm sm:text-base">
-							Balanzify replaces the entire stack — for half the price.
+							Pilucent replaces the entire stack — for half the price.
 						</p>
 					</AnimateOnScroll>
 				</div>
@@ -54,7 +54,7 @@ const Operation = () => {
 								What You Pay Today
 							</div>
 							<div className="text-[#4ADE80] text-xs sm:text-sm font-semibold text-center">
-								Balanzify
+								Pilucent
 							</div>
 						</div>
 

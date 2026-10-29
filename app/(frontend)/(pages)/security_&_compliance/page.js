@@ -5,9 +5,9 @@ import Compliance from './_components/compliance'
 
 
 export const metadata = {
-	title: 'Migration | Balanzify',
+	title: 'Migration | Pilucent',
 	description:
-		'Switch from QuickBooks, Xero, or spreadsheets to Balanzify in one afternoon. Free migration included — your data, fully transferred with zero data loss.',
+		'Switch from QuickBooks, Xero, or spreadsheets to Pilucent in one afternoon. Free migration included — your data, fully transferred with zero data loss.',
 }
 
 const Page = () => {

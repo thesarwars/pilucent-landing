@@ -36,7 +36,7 @@ const Guarantee = () => {
 						{/* Title */}
 						<AnimateOnScroll delay={160}>
 							<h2 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-bold leading-tight mb-5">
-								The Balanzify Migration Guarantee
+								The Pilucent Migration Guarantee
 							</h2>
 						</AnimateOnScroll>
 

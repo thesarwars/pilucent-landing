@@ -52,7 +52,7 @@ const Banner = () => {
             </h1>
             {/* Description */}
             <p className="text-white/90 text-lg leading-relaxed">
-              Balanzify is your AI-powered financial partner, automating
+              Pilucent is your AI-powered financial partner, automating
               payroll, accounting, tax compliance, HR, and inventory. Ditch
               spreadsheets and guesswork—let AI streamline finances while you
               grow your business effortlessly.
@@ -81,7 +81,7 @@ const Banner = () => {
             {/* Main Image */}
             <Image
               src="/banne_2.png"
-              alt="Balanzify Dashboard"
+              alt="Pilucent Dashboard"
               width={800}
               height={600}
               className="rounded-lg shadow-2xl"
@@ -91,7 +91,7 @@ const Banner = () => {
             <div className="absolute -bottom-12 sm:-bottom-24 -left-8 sm:-left-16 w-[80%] lg:w-[70%]">
               <Image
                 src="/banne3.png" // Replace with your actual image path
-                alt="Balanzify Chart"
+                alt="Pilucent Chart"
                 width={500}
                 height={300}
                 className="rounded-lg"

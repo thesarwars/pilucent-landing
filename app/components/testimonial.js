@@ -22,7 +22,7 @@ const Testimonial = () => {
                                 <FaHeadphones className="w-12 h-12 mb-4" />
                                 <h3 className="text-3xl font-bold mb-4">Talk to sales</h3>
                                 <p className="mb-6 text-[#E1E1E1] text-sm">
-                                    Give us a call if you need help picking a Balanzify product.
+                                    Give us a call if you need help picking a Pilucent product.
                                 </p>
                                 <button className="bg-[#4CAF50] text-white px-8 py-2.5 rounded-md text-sm font-medium mb-6 transition-colors">
                                     Call: +8801790048605

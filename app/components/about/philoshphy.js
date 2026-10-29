@@ -29,10 +29,10 @@ const PhilosophySection = () => {
             <div className="container mx-auto px-4">
                 {/* Philosophy Section */}
                 <div className="container mx-auto">
-                    <h2 className="text-3xl font-bold mb-8">Balanzify Philosophy</h2>
+                    <h2 className="text-3xl font-bold mb-8">Pilucent Philosophy</h2>
                     <div className="max-w-[780px]">
                         <p className="text-gray-600 mb-8 text-sm">
-                            At Balanzify, we believe in action, innovation, and excellence. Turn ideas into impact, push boundaries with AI, create seamless user experiences, and deliver consistency daily. Together, we redefine financial management for a smarter future.
+                            At Pilucent, we believe in action, innovation, and excellence. Turn ideas into impact, push boundaries with AI, create seamless user experiences, and deliver consistency daily. Together, we redefine financial management for a smarter future.
                         </p>
                     </div>
                     <div className="grid md:grid-cols-4 gap-8">
@@ -54,7 +54,7 @@ const PhilosophySection = () => {
                                 Our Commitment to Diversity & Inclusivity and Belonging (DIBs)
                             </h2>
                             <p className="text-gray-600 mb-6">
-							Balanzify is committed to fostering equitable opportunities and inclusive practices. Our DIBs Framework is built on three pillars: Our Team – A diverse workforce drives innovation.  Our Market – AI-driven solutions for businesses of all sizes.  Our Community – Supporting all businesses through AI-powered financial solutions.
+							Pilucent is committed to fostering equitable opportunities and inclusive practices. Our DIBs Framework is built on three pillars: Our Team – A diverse workforce drives innovation.  Our Market – AI-driven solutions for businesses of all sizes.  Our Community – Supporting all businesses through AI-powered financial solutions.
                             </p>
                             <button className="bg-[#DED943] text-[#131523] px-6 py-2 rounded-md font-semibold hover:bg-[#F7D435]/90 transition-colors">
                                 Learn More

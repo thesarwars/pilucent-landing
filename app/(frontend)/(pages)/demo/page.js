@@ -74,7 +74,7 @@ const DemoForm = () => {
         {/* Left Section */}
         <div className="text-[#F9F9F9] space-y-6 px-4 md:px-0 lg:mt-60 mt-28">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight animate-fade-in-up">Save up to $8,000 a year in billable hours</h1>
-          <p className="text-[#F9F9F9]/75 animate-fade-in-up [animation-delay:120ms]">Balanzify is preferred by business owners, their teams, and accountants.</p>
+          <p className="text-[#F9F9F9]/75 animate-fade-in-up [animation-delay:120ms]">Pilucent is preferred by business owners, their teams, and accountants.</p>
 
           <ul className="space-y-3 text-[#F9F9F9]/75">
             <li className="flex items-center gap-3">
@@ -93,8 +93,8 @@ const DemoForm = () => {
 
           <div className="pt-6">
             <p className="text-sm text-[#F9F9F9]/75 mb-4">
-              "Balanzify helped tremendously with cash flow. We've collected on our accounts receivable at a higher
-              percentage than we ever had before. A lot of our clients have responded well to Balanzify."
+              "Pilucent helped tremendously with cash flow. We've collected on our accounts receivable at a higher
+              percentage than we ever had before. A lot of our clients have responded well to Pilucent."
             </p>
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center">
@@ -113,7 +113,7 @@ const DemoForm = () => {
           <div className="relative bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]">
             <div className="mx-auto space-y-6">
               <div className="text-center">
-                <h2 className="text-white text-2xl sm:text-3xl font-semibold tracking-tight">Try Balanzify free</h2>
+                <h2 className="text-white text-2xl sm:text-3xl font-semibold tracking-tight">Try Pilucent free</h2>
                 <p className="text-white/60 text-sm mt-2">Try it free for 30 days. No credit card required. Cancel anytime.</p>
               </div>
 
@@ -271,7 +271,7 @@ const DemoForm = () => {
                     className="h-4 w-4 mt-0.5 accent-[#7C5BFF] border-white/20 rounded"
                   />
                   <label htmlFor="terms" className="ml-2 block text-sm text-white/60">
-                    I confirm that I have read and agree to Balanzify{" "}
+                    I confirm that I have read and agree to Pilucent{" "}
                     <Link href="#" className="text-[#A78BFA] hover:text-white transition-colors">
                       Terms of Service
                     </Link>{" "}
