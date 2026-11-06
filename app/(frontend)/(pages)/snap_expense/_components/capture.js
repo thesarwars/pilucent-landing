@@ -16,7 +16,7 @@ const features = [
 	},
 	{
 		title: 'Email forwarding',
-		description: 'Send to receipts@yourdomain.balanzify.com',
+		description: 'Send to receipts@yourdomain.pilucent.com',
 		icon: (
 			<>
 				<rect x="3" y="5" width="18" height="14" rx="2" />

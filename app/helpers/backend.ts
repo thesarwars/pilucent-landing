@@ -30,7 +30,7 @@ export const verifyOTP = (data:any)=>post('/accounts/email-verifications',data)
 export const postSubscription = (data:any)=> post('/we/subscriptions/checkout', data)
 
 // ── Multi-company billing ────────────────────────────────────────────────
-// accounting.balanzify.com hands off the company being subscribed via
+// the Pilucent app hands off the company being subscribed via
 // `?company_uid=<uid>`. We persist it to localStorage so it survives the auth
 // round-trip (sign-in redirects back to /pricing WITHOUT the query param), then
 // attach it to every pay/checkout body so the RIGHT company is billed
@@ -57,7 +57,7 @@ export const clearSubscriptionCompanyUid = () => {
 };
 
 // Merge the handed-off company_uid into a subscription/checkout body. No-op for
-// a normal balanzify.com visitor buying for their own company (uid absent).
+// a normal pilucent.com visitor buying for their own company (uid absent).
 export const withSubscriptionCompany = (data: any) => {
   const uid = getSubscriptionCompanyUid();
   return uid ? { ...data, company_uid: uid } : data;

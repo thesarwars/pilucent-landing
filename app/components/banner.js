@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
+import { baseURL } from "../helpers/api";
 
 const Banner = () => {
   const router = useRouter();
@@ -16,7 +17,7 @@ const Banner = () => {
       const payload = { email };
       try {
         const response = await fetch(
-          "https://balanzifyapi.jumatechs.xyz/api/v1/public/live-demo",
+          `${baseURL}/public/live-demo`,
           {
             method: "POST",
             headers: {

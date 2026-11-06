@@ -19,7 +19,7 @@ const channels = [
 		icon: <FaEnvelope className="w-5 h-5 text-white" />,
 		title: 'Email Us',
 		subtitle: 'Anytime, any day',
-		value: 'support@balanzify.com',
+		value: 'support@pilucent.com',
 	},
 	{
 		icon: <FaMapMarkerAlt className="w-5 h-5 text-white" />,

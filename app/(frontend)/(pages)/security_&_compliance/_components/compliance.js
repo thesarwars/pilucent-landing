@@ -85,7 +85,7 @@ const specs = [
 	},
 	{
 		label: 'Uptime',
-		value: '99.9%+ historical uptime. Status published at status.balanzify.com',
+		value: '99.9%+ historical uptime. Status published at status.pilucent.com',
 	},
 	{
 		label: 'Penetration Testing',

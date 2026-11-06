@@ -1,7 +1,8 @@
 import axios from "axios";
 import { toast } from 'sonner'
 
-export const baseURL = "https://balanzifyapi.jumatechs.xyz/api/v1";
+// The Pilucent API. Set NEXT_PUBLIC_API_URL per environment.
+export const baseURL = (process.env.NEXT_PUBLIC_API_URL || "https://backend.pilucent.com/api/v1").replace(/\/+$/, "");
 
 const axiosApi = axios.create({
   baseURL: baseURL,

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { GradientBadge } from './review'
 import AnimateOnScroll from './AnimateOnScroll'
+import { baseURL } from '../../helpers/api'
 import { useProvider } from '../../../context/ProviderContext'
 import {
 	postOTP,
@@ -17,7 +18,7 @@ import {
 	clearSubscriptionCompanyUid,
 } from '../../helpers/backend'
 
-const API_BASE = 'https://balanzifyapi.jumatechs.xyz/api/v1/public/subscription-plans'
+const API_BASE = `${baseURL}/public/subscription-plans`
 
 // Maps a plan's boolean flags -> a readable feature list (same keys as pricing_section.js)
 const FEATURE_GROUPS = [
@@ -146,7 +147,7 @@ const Pricing = () => {
 	}
 
 	useEffect(() => {
-		// Persist the company handed off from accounting.balanzify.com (?company_uid)
+		// Persist the company handed off from the Pilucent app (?company_uid)
 		// so the right company is billed even after the sign-in round-trip drops the param.
 		captureSubscriptionCompanyUid()
 		if (hasFetched.current) return

@@ -281,10 +281,10 @@ export default function SecurityPage() {
             <p className="text-[#F9F9F9]/75 leading-relaxed mb-4">
               Email:{" "}
               <Link
-                href="mailto:security@balanzify.com"
+                href="mailto:security@pilucent.com"
                 className="text-[#5A5FEE] font-medium hover:underline"
               >
-                security@balanzify.com
+                security@pilucent.com
               </Link>
             </p>
             <p className="text-[#F9F9F9]/75 leading-relaxed">
@@ -300,28 +300,28 @@ export default function SecurityPage() {
             <p className="text-[#F9F9F9]/75 leading-relaxed space-y-2">
               Security:{" "}
               <Link
-                href="mailto:security@balanzify.com"
+                href="mailto:security@pilucent.com"
                 className="text-[#5A5FEE] font-medium hover:underline"
               >
-                security@balanzify.com
+                security@pilucent.com
               </Link>
               <br />
               Support:{" "}
               <Link
-                href="mailto:support@balanzify.com"
+                href="mailto:support@pilucent.com"
                 className="text-[#5A5FEE] font-medium hover:underline"
               >
-                support@balanzify.com
+                support@pilucent.com
               </Link>
               <br />
               Website:{" "}
               <Link
-                href="https://www.balanzify.com"
+                href="https://www.pilucent.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#5A5FEE] font-medium hover:underline"
               >
-                https://www.balanzify.com
+                https://www.pilucent.com
               </Link>
             </p>
           </section>
