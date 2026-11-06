@@ -33,7 +33,7 @@ const Checkout = ({ amount }: { amount?: any }) => {
   const calledRef = useRef<any>(false);
   const [subscriptionUID, setSubscriptionUID] = useState("");
 
-  // Persist the company handed off from accounting.balanzify.com (?company_uid)
+  // Persist the company handed off from the Pilucent app (?company_uid)
   // so the right company is billed even after the sign-in round-trip drops the param.
   useEffect(() => {
     captureSubscriptionCompanyUid();
@@ -99,7 +99,7 @@ const Checkout = ({ amount }: { amount?: any }) => {
       //   elements,
       //   clientSecret,
       //   confirmParams: {
-      //     return_url: `https://balanzify-me.vercel.app/payment-success?amount=${amount}&intentId=${intentId}&currency=${currency}&sub-uid=${subscriptionUID}`,
+      //     return_url: `https://www.pilucent.com/payment-success?amount=${amount}&intentId=${intentId}&currency=${currency}&sub-uid=${subscriptionUID}`,
       //   },
       // });
 

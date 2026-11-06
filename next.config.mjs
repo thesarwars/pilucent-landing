@@ -3,11 +3,11 @@ const nextConfig = {
     images: {
       domains: [
         'images.squarespace-cdn.com', // Previous domain
-        'balanzifyapi.jumatechs.xyz' // New domain
+        'backend.pilucent.com' // the Pilucent API's media
       ],
     },
     publicRuntimeConfig: {
-      hostname: "http://balanzifyapi.jumatechs.xyz",
+      hostname: "https://backend.pilucent.com",
     },
   };
   

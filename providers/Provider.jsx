@@ -10,7 +10,7 @@ const Provider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    // Cross-domain hand-off from accounting.balanzify.com: if it forwarded the
+    // Cross-domain hand-off from the Pilucent app: if it forwarded the
     // session in the URL (?tkn=&rt=), persist it BEFORE we resolve the user so an
     // already-authenticated visitor isn't bounced back to sign-in. company_uid is
     // left in the URL for the pricing components to pick up.

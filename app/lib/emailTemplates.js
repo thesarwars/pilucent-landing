@@ -9,7 +9,7 @@ const BRAND = {
 	text: '#1f2430',
 	muted: '#6b7280',
 	border: '#E8E5F5',
-	site: 'https://balanzify.com',
+	site: 'https://pilucent.com',
 }
 
 const esc = (v = '') =>
@@ -63,8 +63,8 @@ ${bodyHtml}
 Pilucent — Smarter accounting, payroll &amp; operations for growing businesses.
 </div>
 <div style="margin-top:10px;font-size:12px;color:#9aa0ad;">
-<a href="${BRAND.site}" style="color:${BRAND.purple};text-decoration:none;font-weight:600;">balanzify.com</a>
-&nbsp;·&nbsp; You're receiving this because you contacted us at balanzify.com.
+<a href="${BRAND.site}" style="color:${BRAND.purple};text-decoration:none;font-weight:600;">pilucent.com</a>
+&nbsp;·&nbsp; You're receiving this because you contacted us at pilucent.com.
 </div>
 </td>
 </tr>

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { FaCheck, FaRegClock, FaUserPlus, FaHeadset } from "react-icons/fa";
 import { useProvider } from "../../context/ProviderContext";
+import { baseURL } from "../helpers/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -229,7 +230,7 @@ const SubscriptionPlans = () => {
 
   useEffect(() => {
     setHydrated(true);
-    // Persist the company handed off from accounting.balanzify.com (?company_uid)
+    // Persist the company handed off from the Pilucent app (?company_uid)
     // so the right company is billed even after the sign-in round-trip drops the param.
     captureSubscriptionCompanyUid();
     if (!hasFetched.current) {
@@ -251,7 +252,7 @@ const SubscriptionPlans = () => {
   const fetchSubscriptionPlans = async (page = 1) => {
     try {
       const data = await fetch(
-        `https://balanzifyapi.jumatechs.xyz/api/v1/public/subscription-plans?kind=COMPANY_SUBSCRIPTION&page=${page}`
+        `${baseURL}/public/subscription-plans?kind=COMPANY_SUBSCRIPTION&page=${page}`
       );
       if (!data.ok) throw new Error("Failed to fetch subscription plans");
       const response = await data.json();
@@ -293,7 +294,7 @@ const SubscriptionPlans = () => {
   const fetchSubscriptionPrices = async (planSlug) => {
     try {
       const response = await fetch(
-        `https://balanzifyapi.jumatechs.xyz/api/v1/public/subscription-plans/${planSlug}/prices`
+        `${baseURL}/public/subscription-plans/${planSlug}/prices`
       );
       if (!response.ok) throw new Error(`Failed to fetch prices for ${planSlug}`);
       const data = await response.json();

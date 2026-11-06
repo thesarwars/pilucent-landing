@@ -56,10 +56,10 @@ export default function TermsPage() {
 							<li><strong>&quot;Authorized User&quot;</strong> means any employee, contractor, or agent of Customer who is authorized by Customer to access the Platform on Customer&apos;s behalf.</li>
 							<li><strong>&quot;Customer,&quot; &quot;you,&quot; or &quot;your&quot;</strong> means the business entity that has accepted these Terms and is accessing or using the Services.</li>
 							<li><strong>&quot;Customer Data&quot;</strong> means all data, information, and content submitted by Customer or Authorized Users to the Platform, including but not limited to payroll data, employee information, financial records, tax identification numbers, and bank account information.</li>
-							<li><strong>&quot;Documentation&quot;</strong> means the technical and operational documentation, guides, and specifications made available by Pilucent at balanzify.com or within the Platform.</li>
+							<li><strong>&quot;Documentation&quot;</strong> means the technical and operational documentation, guides, and specifications made available by Pilucent at pilucent.com or within the Platform.</li>
 							<li><strong>&quot;Intellectual Property Rights&quot;</strong> means all patents, copyrights, trademarks, trade secrets, and other proprietary rights.</li>
 							<li><strong>&quot;Order Form&quot;</strong> means the subscription order or pricing agreement executed by Customer specifying the applicable Services, fees, and subscription term.</li>
-							<li><strong>&quot;Platform&quot;</strong> means Pilucent&apos;s proprietary software-as-a-service platform, including all modules for payroll automation, accounting, expense management, human resources information management, and related tools, accessible at balanzify.com and through associated APIs.</li>
+							<li><strong>&quot;Platform&quot;</strong> means Pilucent&apos;s proprietary software-as-a-service platform, including all modules for payroll automation, accounting, expense management, human resources information management, and related tools, accessible at pilucent.com and through associated APIs.</li>
 							<li><strong>&quot;Services&quot;</strong> means the software platform, automation tools, workflow facilitation, and related services provided by Pilucent as described herein and in the applicable Documentation.</li>
 							<li><strong>&quot;Tax Filing Provider&quot;</strong> means Pilucent&apos;s designated third-party tax form filing and electronic submission infrastructure provider.</li>
 						</ul>
@@ -140,10 +140,10 @@ export default function TermsPage() {
 								<p className="text-[#F9F9F9]/75 leading-relaxed">
 									Customer is responsible for maintaining the confidentiality and security of all login credentials. Customer shall immediately notify Pilucent at{" "}
 									<Link
-										href="mailto:security@balanzify.com"
+										href="mailto:security@pilucent.com"
 										className="text-[#5A5FEE] font-medium hover:underline"
 									>
-										security@balanzify.com
+										security@pilucent.com
 									</Link>{" "}
 									upon becoming aware of any unauthorized access to or use of Customer&apos;s account. Pilucent shall not be liable for any loss or damage arising from Customer&apos;s failure to maintain the security of its credentials.
 								</p>
@@ -339,7 +339,7 @@ export default function TermsPage() {
 							<div>
 								<h3 className="text-lg font-semibold text-[#F9F9F9] mb-2">8.1 Subscription Fees</h3>
 								<p className="text-[#F9F9F9]/75 leading-relaxed">
-									Customer agrees to pay Pilucent&apos;s then-current subscription fees as set forth in the applicable Order Form or pricing schedule published at balanzify.com. Subscription fees consist of a flat monthly base fee plus a per-employee fee based on the number of active employees during each billing period. An active employee is defined as any individual who receives at least one paycheck processed through the Platform during the applicable billing month.
+									Customer agrees to pay Pilucent&apos;s then-current subscription fees as set forth in the applicable Order Form or pricing schedule published at pilucent.com. Subscription fees consist of a flat monthly base fee plus a per-employee fee based on the number of active employees during each billing period. An active employee is defined as any individual who receives at least one paycheck processed through the Platform during the applicable billing month.
 								</p>
 							</div>
 
@@ -403,7 +403,7 @@ export default function TermsPage() {
 							<div>
 								<h3 className="text-lg font-semibold text-[#F9F9F9] mb-2">9.2 Data Processing</h3>
 								<p className="text-[#F9F9F9]/75 leading-relaxed">
-									Pilucent processes Customer Data in accordance with its Privacy Policy available at balanzify.com/privacy. By using the Services, Customer consents to the collection, use, and processing of Customer Data as described in the Privacy Policy. Customer Data may be shared with Pilucent&apos;s designated payment processing partners, bank connectivity partners, Tax Filing Provider, and other service providers solely as necessary to provide the Services.
+									Pilucent processes Customer Data in accordance with its Privacy Policy available at pilucent.com/privacy-policy. By using the Services, Customer consents to the collection, use, and processing of Customer Data as described in the Privacy Policy. Customer Data may be shared with Pilucent&apos;s designated payment processing partners, bank connectivity partners, Tax Filing Provider, and other service providers solely as necessary to provide the Services.
 								</p>
 							</div>
 
@@ -810,10 +810,10 @@ export default function TermsPage() {
 								<p className="text-[#F9F9F9]/75 leading-relaxed">
 									All notices under this Agreement shall be in writing and delivered by email (with confirmation of receipt) or certified mail to the addresses on file. Notices to Pilucent shall be sent to{" "}
 									<Link
-										href="mailto:legal@balanzify.com"
+										href="mailto:legal@pilucent.com"
 										className="text-[#5A5FEE] font-medium hover:underline"
 									>
-										legal@balanzify.com
+										legal@pilucent.com
 									</Link>
 									. Notices to Customer shall be sent to the email address associated with Customer&apos;s account.
 								</p>
@@ -853,37 +853,37 @@ export default function TermsPage() {
 							<div>
 								<p className="font-semibold">General inquiries</p>
 								<Link
-									href="mailto:support@balanzify.com"
+									href="mailto:support@pilucent.com"
 									className="text-[#5A5FEE] font-medium hover:underline"
 								>
-									support@balanzify.com
+									support@pilucent.com
 								</Link>
 							</div>
 							<div>
 								<p className="font-semibold">Legal notices</p>
 								<Link
-									href="mailto:legal@balanzify.com"
+									href="mailto:legal@pilucent.com"
 									className="text-[#5A5FEE] font-medium hover:underline"
 								>
-									legal@balanzify.com
+									legal@pilucent.com
 								</Link>
 							</div>
 							<div>
 								<p className="font-semibold">Security concerns</p>
 								<Link
-									href="mailto:security@balanzify.com"
+									href="mailto:security@pilucent.com"
 									className="text-[#5A5FEE] font-medium hover:underline"
 								>
-									security@balanzify.com
+									security@pilucent.com
 								</Link>
 							</div>
 							<div>
 								<p className="font-semibold">Privacy requests</p>
 								<Link
-									href="mailto:privacy@balanzify.com"
+									href="mailto:privacy@pilucent.com"
 									className="text-[#5A5FEE] font-medium hover:underline"
 								>
-									privacy@balanzify.com
+									privacy@pilucent.com
 								</Link>
 							</div>
 							<div>
@@ -893,12 +893,12 @@ export default function TermsPage() {
 							<div>
 								<p className="font-semibold">Website</p>
 								<Link
-									href="https://www.balanzify.com"
+									href="https://www.pilucent.com"
 									target="_blank"
 									rel="noopener noreferrer"
 									className="text-[#5A5FEE] font-medium hover:underline"
 								>
-									balanzify.com
+									pilucent.com
 								</Link>
 							</div>
 						</div>

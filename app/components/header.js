@@ -125,7 +125,7 @@ const Header = () => {
     setCompany({});
     if (company?.is_company_subscription && path != "/checkout") {
       return (window.location.href =
-        "https://balanzify-seven.vercel.app/auth?action=logout");
+        `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth?action=logout`);
     }
     if (path == "/checkout") location.reload();
   };
